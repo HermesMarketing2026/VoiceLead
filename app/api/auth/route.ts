@@ -20,7 +20,10 @@ export async function POST(req: NextRequest) {
     .eq('slug', slug)
     .single()
 
-  if (error || !data) return NextResponse.json({ error: 'Workspace non trovato' }, { status: 404 })
+  if (error || !data) {
+    console.error('[auth] workspace non trovato — slug cercato:', JSON.stringify(slug), '— errore:', error?.message)
+    return NextResponse.json({ error: `Workspace non trovato (slug: "${slug}", db error: ${error?.message ?? 'nessun record'})` }, { status: 404 })
+  }
   if (pin !== data.pin) return NextResponse.json({ error: 'PIN non corretto' }, { status: 401 })
 
   return NextResponse.json({
