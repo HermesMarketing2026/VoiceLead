@@ -36,10 +36,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <meta name="mobile-web-app-capable" content="yes" />
       </head>
       <body className="bg-gray-50 min-h-screen text-gray-900 antialiased">
-        <header className="bg-white border-b border-gray-200 px-4 py-3 flex items-center gap-3 sticky top-0 z-10 shadow-sm">
-          <img src="/logo-hermes.png" alt="Hermes Marketing" className="h-8 w-auto" />
-          <div className="flex flex-col leading-tight">
-            <span className="font-bold text-sm tracking-tight text-gray-900">VoiceLeads</span>
+        <header className="bg-white border-b border-gray-200 px-4 py-4 flex flex-col items-center sticky top-0 z-10 shadow-sm">
+          <img src="/favicon.png" alt="VoiceLeads" className="h-10 w-auto mb-1" />
+          <div className="flex flex-col items-center leading-tight">
+            <span className="font-bold text-base tracking-tight text-gray-900">VoiceLeads</span>
             <span className="text-xs text-gray-400 tracking-wide">by Hermes Marketing</span>
           </div>
         </header>

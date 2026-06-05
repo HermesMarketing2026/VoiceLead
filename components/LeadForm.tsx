@@ -20,6 +20,8 @@ export default function LeadForm({ lead, workspaceId }: Props) {
   } : VUOTO)
   const [trascrizione, setTrascrizione] = useState('')
   const [salvataggio, setSalvataggio] = useState(false)
+  const [eliminazione, setEliminazione] = useState(false)
+  const [confermaElimina, setConfermaElimina] = useState(false)
   const [errore, setErrore] = useState<string | null>(null)
 
   const mancanti = campiMancanti(form)
@@ -62,6 +64,19 @@ export default function LeadForm({ lead, workspaceId }: Props) {
       setErrore(e.message)
     } finally {
       setSalvataggio(false)
+    }
+  }
+
+  const elimina = async () => {
+    setEliminazione(true)
+    try {
+      const res = await fetch(`/api/leads/${lead!.id}`, { method: 'DELETE' })
+      if (!res.ok) throw new Error('Errore eliminazione')
+      router.push('/')
+      router.refresh()
+    } catch (e: any) {
+      setErrore(e.message)
+      setEliminazione(false)
     }
   }
 
@@ -174,6 +189,34 @@ export default function LeadForm({ lead, workspaceId }: Props) {
           {salvataggio ? 'Salvataggio…' : 'Salva lead'}
         </button>
       </div>
+
+      {!isNuovo && (
+        <div className="pb-6">
+          {!confermaElimina ? (
+            <button
+              type="button"
+              onClick={() => setConfermaElimina(true)}
+              className="w-full rounded-xl border border-red-200 py-3 text-sm font-medium text-red-500 hover:bg-red-50 transition-colors"
+            >
+              🗑️ Elimina lead
+            </button>
+          ) : (
+            <div className="rounded-xl bg-red-50 border border-red-200 p-4 space-y-3">
+              <p className="text-sm text-red-700 font-medium text-center">Sei sicuro di voler eliminare questo lead?</p>
+              <div className="flex gap-2">
+                <button type="button" onClick={() => setConfermaElimina(false)}
+                  className="flex-1 rounded-xl border border-gray-300 py-2.5 text-sm font-medium text-gray-600 hover:bg-gray-50">
+                  Annulla
+                </button>
+                <button type="button" onClick={elimina} disabled={eliminazione}
+                  className="flex-1 rounded-xl bg-red-500 py-2.5 text-sm font-semibold text-white hover:bg-red-600 disabled:opacity-50">
+                  {eliminazione ? 'Eliminazione…' : 'Sì, elimina'}
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   )
 }
