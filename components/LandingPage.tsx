@@ -1,19 +1,7 @@
 'use client'
-import { useState } from 'react'
+import BrevoForm from './BrevoForm'
 
 export default function LandingPage() {
-  const [form, setForm] = useState({ nome: '', azienda: '', email: '', messaggio: '' })
-  const [inviato, setInviato] = useState(false)
-  const [invio, setInvio] = useState(false)
-
-  const invia = async () => {
-    if (!form.nome || !form.email) return
-    setInvio(true)
-    // Simulazione invio — da collegare a email/CRM in futuro
-    await new Promise(r => setTimeout(r, 800))
-    setInviato(true)
-    setInvio(false)
-  }
 
   return (
     <div className="min-h-screen bg-white">
@@ -104,50 +92,7 @@ export default function LandingPage() {
       <section id="richiesta" className="px-6 py-14 max-w-lg mx-auto">
         <h2 className="text-2xl font-bold text-gray-900 text-center mb-2">Vuoi VoiceLeads per la tua azienda?</h2>
         <p className="text-center text-gray-500 text-sm mb-8">Lascia i tuoi dati, ti contattiamo entro 24 ore.</p>
-
-        {inviato ? (
-          <div className="rounded-2xl bg-green-50 border border-green-200 p-8 text-center">
-            <p className="text-4xl mb-3">✅</p>
-            <p className="font-bold text-green-800 text-lg">Richiesta inviata!</p>
-            <p className="text-sm text-green-700 mt-2">Ti contatteremo presto per attivare il tuo accesso.</p>
-          </div>
-        ) : (
-          <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 space-y-4">
-            {[
-              { campo: 'nome', label: 'Nome e cognome', placeholder: 'Mario Rossi', type: 'text' },
-              { campo: 'azienda', label: 'Azienda', placeholder: 'Acme S.r.l.', type: 'text' },
-              { campo: 'email', label: 'Email', placeholder: 'mario@acme.it', type: 'email' },
-            ].map(({ campo, label, placeholder, type }) => (
-              <div key={campo}>
-                <label className="block text-sm font-medium text-gray-600 mb-1.5">{label}</label>
-                <input
-                  type={type}
-                  value={form[campo as keyof typeof form]}
-                  onChange={e => setForm(f => ({ ...f, [campo]: e.target.value }))}
-                  placeholder={placeholder}
-                  className="w-full rounded-xl border border-gray-200 px-3.5 py-2.5 text-sm bg-gray-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-hermes-400 transition-colors"
-                />
-              </div>
-            ))}
-            <div>
-              <label className="block text-sm font-medium text-gray-600 mb-1.5">Messaggio <span className="text-gray-400 font-normal">(opzionale)</span></label>
-              <textarea
-                value={form.messaggio}
-                onChange={e => setForm(f => ({ ...f, messaggio: e.target.value }))}
-                placeholder="Quanti commerciali avete? Altre informazioni utili…"
-                rows={3}
-                className="w-full rounded-xl border border-gray-200 px-3.5 py-2.5 text-sm bg-gray-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-hermes-400 transition-colors resize-none"
-              />
-            </div>
-            <button
-              onClick={invia}
-              disabled={invio || !form.nome || !form.email}
-              className="w-full rounded-xl bg-hermes-500 py-3.5 text-sm font-bold text-white hover:bg-hermes-600 disabled:opacity-40 transition-colors shadow-sm"
-            >
-              {invio ? 'Invio in corso…' : 'Richiedi accesso'}
-            </button>
-          </div>
-        )}
+        <BrevoForm />
       </section>
 
       {/* Footer */}

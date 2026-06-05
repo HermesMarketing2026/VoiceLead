@@ -30,6 +30,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="it">
       <head>
         <link rel="apple-touch-icon" href="/favicon.png" />
+        <link rel="stylesheet" href="https://sibforms.com/forms/end-form/build/sib-styles.css" />
+        <style>{`
+          #sib-container input::placeholder { font-family: Helvetica, sans-serif; text-align: left; color: #c0ccda; }
+          #sib-container textarea::placeholder { font-family: Helvetica, sans-serif; text-align: left; color: #c0ccda; }
+          #sib-container a { text-decoration: underline; color: #2BB2FC; }
+          :where(.sib-form-message-panel) { display: none; }
+        `}</style>
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
         <meta name="apple-mobile-web-app-title" content="VoiceLeads" />
