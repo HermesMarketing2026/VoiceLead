@@ -1,5 +1,5 @@
 'use client'
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import type { Lead, LeadFormData } from '@/lib/types'
 import { campiMancanti, calcolaCompletamento, LABEL_CAMPI } from '@/lib/types'
@@ -7,11 +7,12 @@ import MicButton from './MicButton'
 
 interface Props {
   lead?: Lead
+  workspaceId: string
 }
 
 const VUOTO: LeadFormData = { nome: '', cognome: '', azienda: '', email: '', telefono: '', note: '' }
 
-export default function LeadForm({ lead }: Props) {
+export default function LeadForm({ lead, workspaceId }: Props) {
   const router = useRouter()
   const [form, setForm] = useState<LeadFormData>(lead ? {
     nome: lead.nome, cognome: lead.cognome, azienda: lead.azienda,
@@ -25,17 +26,18 @@ export default function LeadForm({ lead }: Props) {
   const completamento = calcolaCompletamento(form)
   const isNuovo = !lead
 
-  const aggiorna = (campo: keyof LeadFormData) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
-    setForm(f => ({ ...f, [campo]: e.target.value }))
+  const aggiorna = (campo: keyof LeadFormData) =>
+    (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
+      setForm(f => ({ ...f, [campo]: e.target.value }))
 
   const onEstrazione = (dati: Record<string, string>) => {
     setForm(f => ({
-      nome:      dati.nome      || f.nome,
-      cognome:   dati.cognome   || f.cognome,
-      azienda:   dati.azienda   || f.azienda,
-      email:     dati.email     || f.email,
-      telefono:  dati.telefono  || f.telefono,
-      note:      dati.note      || f.note,
+      nome:     dati.nome     || f.nome,
+      cognome:  dati.cognome  || f.cognome,
+      azienda:  dati.azienda  || f.azienda,
+      email:    dati.email    || f.email,
+      telefono: dati.telefono || f.telefono,
+      note:     dati.note     || f.note,
     }))
   }
 
@@ -48,13 +50,12 @@ export default function LeadForm({ lead }: Props) {
       const res = await fetch(url, {
         method,
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(form),
+        body: JSON.stringify({ ...form, workspace_id: workspaceId }),
       })
       if (!res.ok) {
         const body = await res.json().catch(() => ({}))
         throw new Error(body.error || `Errore ${res.status}`)
       }
-      await res.json()
       router.push('/')
       router.refresh()
     } catch (e: any) {
@@ -72,10 +73,7 @@ export default function LeadForm({ lead }: Props) {
       {/* Microfono */}
       <div className="bg-white rounded-xl border border-gray-200 p-6">
         <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-4">Dettatura vocale</h2>
-        <MicButton
-          onTrascrizione={setTrascrizione}
-          onEstrazione={onEstrazione}
-        />
+        <MicButton onTrascrizione={setTrascrizione} onEstrazione={onEstrazione} />
         {trascrizione && (
           <div className="mt-4 rounded-lg bg-gray-50 border border-gray-200 p-3">
             <p className="text-xs text-gray-500 mb-1">Testo riconosciuto:</p>
@@ -99,8 +97,7 @@ export default function LeadForm({ lead }: Props) {
       {/* Barra completamento */}
       <div>
         <div className="flex justify-between text-xs text-gray-500 mb-1">
-          <span>Completamento</span>
-          <span>{completamento}%</span>
+          <span>Completamento</span><span>{completamento}%</span>
         </div>
         <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
           <div
@@ -110,10 +107,9 @@ export default function LeadForm({ lead }: Props) {
         </div>
       </div>
 
-      {/* Form */}
+      {/* Campi */}
       <div className="bg-white rounded-xl border border-gray-200 p-6 space-y-4">
         <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wide">Dati contatto</h2>
-
         <div className="grid grid-cols-2 gap-4">
           <div>
             <label className={labelClass}>Nome <span className="text-red-500">*</span></label>
@@ -124,50 +120,31 @@ export default function LeadForm({ lead }: Props) {
             <input className={inputClass} value={form.cognome} onChange={aggiorna('cognome')} placeholder="Rossi" />
           </div>
         </div>
-
         <div>
           <label className={labelClass}>Azienda <span className="text-red-500">*</span></label>
           <input className={inputClass} value={form.azienda} onChange={aggiorna('azienda')} placeholder="Acme S.r.l." />
         </div>
-
         <div>
           <label className={labelClass}>Email <span className="text-red-500">*</span></label>
           <input className={inputClass} type="email" value={form.email} onChange={aggiorna('email')} placeholder="mario@acme.it" />
         </div>
-
         <div>
           <label className={labelClass}>Telefono <span className="text-red-500">*</span></label>
           <input className={inputClass} type="tel" value={form.telefono} onChange={aggiorna('telefono')} placeholder="+39 333 1234567" />
         </div>
-
         <div>
           <label className={labelClass}>Note</label>
-          <textarea
-            className={`${inputClass} resize-none`}
-            rows={3}
-            value={form.note}
-            onChange={aggiorna('note')}
-            placeholder="Appunti liberi sull'incontro…"
-          />
+          <textarea className={`${inputClass} resize-none`} rows={3} value={form.note} onChange={aggiorna('note')} placeholder="Appunti liberi sull'incontro…" />
         </div>
       </div>
 
       {errore && <p className="text-sm text-red-600">{errore}</p>}
 
       <div className="flex gap-3">
-        <button
-          type="button"
-          onClick={() => router.back()}
-          className="flex-1 rounded-lg border border-gray-300 py-3 text-sm font-medium text-gray-700 hover:bg-gray-50"
-        >
+        <button type="button" onClick={() => router.back()} className="flex-1 rounded-lg border border-gray-300 py-3 text-sm font-medium text-gray-700 hover:bg-gray-50">
           Annulla
         </button>
-        <button
-          type="button"
-          onClick={salva}
-          disabled={salvataggio}
-          className="flex-1 rounded-lg bg-indigo-600 py-3 text-sm font-medium text-white hover:bg-indigo-700 disabled:opacity-60"
-        >
+        <button type="button" onClick={salva} disabled={salvataggio} className="flex-1 rounded-lg bg-indigo-600 py-3 text-sm font-medium text-white hover:bg-indigo-700 disabled:opacity-60">
           {salvataggio ? 'Salvataggio…' : 'Salva lead'}
         </button>
       </div>

@@ -1,7 +1,17 @@
 export type StatoLead = 'bozza' | 'completo' | 'esportato'
 
+export interface Workspace {
+  id: string
+  slug: string
+  nome_azienda: string
+  google_sheet_id: string
+  pin: string
+  creato_il: string
+}
+
 export interface Lead {
   id: string
+  workspace_id: string
   nome: string
   cognome: string
   azienda: string

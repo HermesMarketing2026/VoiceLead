@@ -1,29 +1,111 @@
 'use client'
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
 import type { Lead } from '@/lib/types'
 import { calcolaCompletamento } from '@/lib/types'
 import StatoBadge from '@/components/StatoBadge'
+import PinLogin from '@/components/PinLogin'
+import { salvaSessione, leggiSessione, cancellaSessione } from '@/lib/session'
 
 type Filtro = 'tutti' | 'completo' | 'bozza'
 
 export default function Dashboard() {
-  const router = useRouter()
+  const [workspaceId, setWorkspaceId] = useState<string | null>(null)
+  const [nomeAzienda, setNomeAzienda] = useState('')
+  const [slug, setSlug] = useState('')
+  const [pronto, setPronto] = useState(false)
+
   const [leads, setLeads] = useState<Lead[]>([])
   const [filtro, setFiltro] = useState<Filtro>('tutti')
   const [esportazione, setEsportazione] = useState(false)
   const [esito, setEsito] = useState<string | null>(null)
   const [caricamento, setCaricamento] = useState(true)
 
+  // Determina lo slug dal sottodominio
+  useEffect(() => {
+    const host = window.location.hostname
+    const parts = host.split('.')
+    // sottodominio presente (es. cliente1.voicelead.io) → parts[0] è lo slug
+    // localhost o dominio principale → slug vuoto (usa admin o slug di test)
+    const rilevato = parts.length >= 3 ? parts[0] : ''
+    setSlug(rilevato)
+
+    // Controlla sessione salvata
+    const sessione = leggiSessione()
+    if (sessione?.tipo === 'workspace' && sessione.workspaceId) {
+      setWorkspaceId(sessione.workspaceId)
+    }
+    setPronto(true)
+  }, [])
+
+  useEffect(() => {
+    if (workspaceId) carica()
+  }, [workspaceId])
+
   const carica = async () => {
-    const res = await fetch('/api/leads')
+    if (!workspaceId) return
+    setCaricamento(true)
+    const res = await fetch(`/api/leads?workspace_id=${workspaceId}`)
     const data = await res.json()
     setLeads(Array.isArray(data) ? data : [])
     setCaricamento(false)
   }
 
-  useEffect(() => { carica() }, [])
+  const onLogin = async (pin: string) => {
+    const res = await fetch('/api/auth', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ pin, slug }),
+    })
+    const data = await res.json()
+    if (!res.ok) throw new Error(data.error)
+    salvaSessione('workspace', data.workspaceId)
+    setWorkspaceId(data.workspaceId)
+    setNomeAzienda(data.nomeAzienda)
+  }
+
+  const logout = () => {
+    cancellaSessione()
+    setWorkspaceId(null)
+    setLeads([])
+  }
+
+  const esporta = async () => {
+    setEsportazione(true)
+    setEsito(null)
+    try {
+      const res = await fetch('/api/esporta', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ workspace_id: workspaceId }),
+      })
+      const data = await res.json()
+      if (!res.ok) {
+        setEsito(`❌ ${data.error ?? 'Errore durante l\'esportazione'}`)
+      } else if (data.esportati) {
+        setEsito(`✅ ${data.esportati} lead esportati su Google Sheets`)
+        carica()
+      } else {
+        setEsito(data.message || 'Nessun lead da esportare')
+      }
+    } catch (e: any) {
+      setEsito(`❌ ${e?.message ?? 'Errore'}`)
+    } finally {
+      setEsportazione(false)
+    }
+  }
+
+  if (!pronto) return null
+
+  if (!workspaceId) {
+    return (
+      <PinLogin
+        titolo="VoiceLead"
+        sottotitolo={slug ? `Accesso a ${slug}` : 'Inserisci il PIN'}
+        onSuccess={onLogin}
+      />
+    )
+  }
 
   const totale = leads.length
   const pronti = leads.filter(l => l.stato === 'completo').length
@@ -35,29 +117,18 @@ export default function Dashboard() {
     return l.stato === 'bozza'
   })
 
-  const esporta = async () => {
-    setEsportazione(true)
-    setEsito(null)
-    try {
-      const res = await fetch('/api/esporta', { method: 'POST' })
-      const data = await res.json()
-      if (!res.ok) {
-        setEsito(`❌ ${data.error ?? 'Errore durante l\'esportazione'}`)
-      } else if (data.esportati) {
-        setEsito(`✅ ${data.esportati} lead esportati su Google Sheets${data.avviso ? ` (${data.avviso})` : ''}`)
-        carica()
-      } else {
-        setEsito(data.message || 'Nessun lead da esportare')
-      }
-    } catch (e: any) {
-      setEsito(`❌ ${e?.message ?? 'Errore durante l\'esportazione'}`)
-    } finally {
-      setEsportazione(false)
-    }
-  }
-
   return (
     <div className="space-y-5">
+      {/* Header workspace */}
+      <div className="flex items-center justify-between">
+        <p className="text-sm text-gray-500">
+          {nomeAzienda && <span className="font-medium text-gray-700">{nomeAzienda}</span>}
+        </p>
+        <button onClick={logout} className="text-xs text-gray-400 hover:text-gray-600">
+          Esci
+        </button>
+      </div>
+
       {/* Counter */}
       <div className="grid grid-cols-3 gap-3">
         {[
@@ -75,7 +146,7 @@ export default function Dashboard() {
       {/* Azioni */}
       <div className="flex gap-2">
         <Link
-          href="/lead/nuovo"
+          href={`/lead/nuovo?workspace_id=${workspaceId}`}
           className="flex-1 flex items-center justify-center gap-2 rounded-lg bg-indigo-600 px-4 py-3 text-sm font-medium text-white hover:bg-indigo-700"
         >
           🎙️ Nuovo lead
@@ -102,9 +173,7 @@ export default function Dashboard() {
             key={f}
             onClick={() => setFiltro(f)}
             className={`px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${
-              filtro === f
-                ? 'bg-indigo-600 text-white'
-                : 'bg-white border border-gray-300 text-gray-600 hover:bg-gray-50'
+              filtro === f ? 'bg-indigo-600 text-white' : 'bg-white border border-gray-300 text-gray-600 hover:bg-gray-50'
             }`}
           >
             {f === 'tutti' ? 'Tutti' : f === 'completo' ? '🟢 Pronti' : '🔴 Da completare'}
@@ -130,14 +199,12 @@ export default function Dashboard() {
             return (
               <li key={lead.id}>
                 <Link
-                  href={`/lead/${lead.id}`}
+                  href={`/lead/${lead.id}?workspace_id=${workspaceId}`}
                   className="block bg-white rounded-xl border border-gray-200 p-4 hover:border-indigo-300 hover:shadow-sm transition-all"
                 >
                   <div className="flex items-start justify-between gap-2">
                     <div className="min-w-0">
-                      <p className="font-semibold text-gray-900 truncate">
-                        {lead.nome} {lead.cognome}
-                      </p>
+                      <p className="font-semibold text-gray-900 truncate">{lead.nome} {lead.cognome}</p>
                       <p className="text-sm text-gray-500 truncate">{lead.azienda}</p>
                     </div>
                     <StatoBadge stato={lead.stato} />
