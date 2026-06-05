@@ -4,6 +4,10 @@ import './globals.css'
 export const metadata: Metadata = {
   title: 'VoiceLead by Hermes Marketing',
   description: 'Registra lead commerciali con la voce',
+  icons: {
+    icon: '/favicon.png',
+    apple: '/favicon.png',
+  },
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
