@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from 'next'
 import './globals.css'
 import InstallBanner from '@/components/InstallBanner'
+import CookieBanner from '@/components/CookieBanner'
 
 export const viewport: Viewport = {
   themeColor: '#E05A1F',
@@ -45,6 +46,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body className="bg-gray-50 min-h-screen text-gray-900 antialiased">
         <main>{children}</main>
         <InstallBanner />
+        <CookieBanner />
         <script dangerouslySetInnerHTML={{
           __html: `
             if ('serviceWorker' in navigator) {

@@ -290,6 +290,49 @@ export default function Admin() {
           </ul>
         )}
       </div>
+
+      {/* Sezione GDPR */}
+      <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 space-y-4">
+        <h2 className="text-xs font-bold text-blue-500 uppercase tracking-wider">🔒 GDPR — Gestione dati</h2>
+        <p className="text-xs text-gray-500 leading-relaxed">
+          Usa questa sezione per rispondere a richieste di cancellazione o portabilità dati
+          da parte degli interessati (Art. 17 e 20 GDPR).
+        </p>
+        <div className="grid md:grid-cols-2 gap-3">
+          <a
+            href="mailto:privacy@hermesmarketing.it?subject=Richiesta cancellazione dati&body=Workspace ID: %0AMotivo: diritto all'oblio Art. 17 GDPR"
+            className="flex items-center gap-3 rounded-xl border border-gray-200 p-4 hover:bg-gray-50 transition-colors"
+          >
+            <span className="text-2xl">🗑️</span>
+            <div>
+              <p className="text-sm font-semibold text-gray-800">Richiesta cancellazione</p>
+              <p className="text-xs text-gray-400">Invia richiesta formale via email</p>
+            </div>
+          </a>
+          <a
+            href="mailto:privacy@hermesmarketing.it?subject=Richiesta export dati&body=Workspace ID: %0AMotivo: portabilità dati Art. 20 GDPR"
+            className="flex items-center gap-3 rounded-xl border border-gray-200 p-4 hover:bg-gray-50 transition-colors"
+          >
+            <span className="text-2xl">📤</span>
+            <div>
+              <p className="text-sm font-semibold text-gray-800">Richiesta export dati</p>
+              <p className="text-xs text-gray-400">Portabilità dati Art. 20 GDPR</p>
+            </div>
+          </a>
+        </div>
+        <div className="rounded-xl bg-blue-50 border border-blue-100 p-4 flex gap-3">
+          <span className="text-blue-400 text-lg shrink-0">ℹ️</span>
+          <div className="text-xs text-blue-600 space-y-1">
+            <p><strong>Documenti legali disponibili:</strong></p>
+            <div className="flex gap-3 flex-wrap mt-1">
+              <a href="/privacy" target="_blank" className="underline hover:text-blue-800">Privacy Policy</a>
+              <a href="/cookie" target="_blank" className="underline hover:text-blue-800">Cookie Policy</a>
+              <a href="/dpa" target="_blank" className="underline hover:text-blue-800">DPA (Art. 28 GDPR)</a>
+            </div>
+          </div>
+        </div>
+      </div>
+
     </div></AppShell>
   )
 }

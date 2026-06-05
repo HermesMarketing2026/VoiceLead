@@ -211,7 +211,13 @@ export default function LandingPage() {
             <img src="/logo-hermes.png" alt="Hermes Marketing" className="h-7 w-auto opacity-50" />
             <span className="text-sm text-gray-400">© {new Date().getFullYear()} Hermes Marketing</span>
           </div>
-          <p className="text-xs text-gray-300">hermesmarketing.it — Web &amp; Comunicazione</p>
+          <div className="flex flex-wrap items-center gap-4 text-xs text-gray-400">
+            <a href="/privacy" className="hover:text-gray-600 transition-colors">Privacy Policy</a>
+            <a href="/cookie" className="hover:text-gray-600 transition-colors">Cookie Policy</a>
+            <a href="/dpa" className="hover:text-gray-600 transition-colors">DPA</a>
+            <span className="text-gray-200">|</span>
+            <span>hermesmarketing.it</span>
+          </div>
         </div>
       </footer>
 
