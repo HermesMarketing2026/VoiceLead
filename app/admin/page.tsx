@@ -125,7 +125,7 @@ export default function Admin() {
             <p><span className="text-gray-500">URL:</span> <strong>{nuovoWs.slug}.voicelead.io</strong></p>
             <p><span className="text-gray-500">PIN:</span> <strong className="text-2xl tracking-widest">{nuovoWs.pin}</strong></p>
           </div>
-          <p className="text-xs text-green-600">⚠️ Salva il PIN ora — non sarà più mostrato in chiaro.</p>
+          <p className="text-xs text-green-600">Il PIN è sempre visibile nella lista workspace qui sotto.</p>
         </div>
       )}
 
@@ -137,15 +137,17 @@ export default function Admin() {
         ) : (
           <ul className="space-y-2">
             {workspaces.map(ws => (
-              <li key={ws.id} className="bg-white rounded-xl border border-gray-200 p-4">
+              <li key={ws.id} className="bg-white rounded-xl border border-gray-200 p-4 space-y-2">
                 <div className="flex items-center justify-between">
-                  <div>
-                    <p className="font-medium text-gray-900">{ws.nome_azienda}</p>
-                    <p className="text-sm text-gray-500">{ws.slug}.voicelead.io</p>
-                  </div>
+                  <p className="font-medium text-gray-900">{ws.nome_azienda}</p>
                   <span className="text-xs text-gray-400">
                     {new Date(ws.creato_il).toLocaleDateString('it-IT')}
                   </span>
+                </div>
+                <div className="text-sm text-gray-500 font-mono">{ws.slug}.demohermes.it</div>
+                <div className="flex items-center gap-3 bg-gray-50 rounded-lg px-3 py-2">
+                  <span className="text-xs text-gray-500">PIN:</span>
+                  <span className="text-xl font-bold tracking-widest text-indigo-700">{ws.pin}</span>
                 </div>
               </li>
             ))}

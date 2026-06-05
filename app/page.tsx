@@ -21,13 +21,13 @@ export default function Dashboard() {
   const [esito, setEsito] = useState<string | null>(null)
   const [caricamento, setCaricamento] = useState(true)
 
-  // Determina lo slug dal sottodominio
+  // Determina lo slug dal sottodominio oppure dal parametro ?slug= (per test in locale)
   useEffect(() => {
     const host = window.location.hostname
     const parts = host.split('.')
-    // sottodominio presente (es. cliente1.voicelead.io) → parts[0] è lo slug
-    // localhost o dominio principale → slug vuoto (usa admin o slug di test)
-    const rilevato = parts.length >= 3 ? parts[0] : ''
+    const daSottodominio = parts.length >= 3 ? parts[0] : ''
+    const daUrl = new URLSearchParams(window.location.search).get('slug') ?? ''
+    const rilevato = daSottodominio || daUrl
     setSlug(rilevato)
 
     // Controlla sessione salvata
