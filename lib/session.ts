@@ -1,15 +1,23 @@
-const DURATA_MS = 24 * 60 * 60 * 1000 // 24 ore
+const DURATA_MS = 24 * 60 * 60 * 1000
 
-export function salvaSessione(tipo: 'admin' | 'workspace', workspaceId?: string) {
-  const payload = { tipo, workspaceId, scadenza: Date.now() + DURATA_MS }
+interface Sessione {
+  tipo: 'admin' | 'workspace'
+  workspaceId?: string
+  nomeAzienda?: string
+  logoUrl?: string
+  scadenza: number
+}
+
+export function salvaSessione(tipo: 'admin' | 'workspace', workspaceId?: string, nomeAzienda?: string, logoUrl?: string) {
+  const payload: Sessione = { tipo, workspaceId, nomeAzienda, logoUrl, scadenza: Date.now() + DURATA_MS }
   localStorage.setItem('vl_sessione', JSON.stringify(payload))
 }
 
-export function leggiSessione(): { tipo: 'admin' | 'workspace'; workspaceId?: string } | null {
+export function leggiSessione(): Sessione | null {
   try {
     const raw = localStorage.getItem('vl_sessione')
     if (!raw) return null
-    const payload = JSON.parse(raw)
+    const payload: Sessione = JSON.parse(raw)
     if (Date.now() > payload.scadenza) {
       localStorage.removeItem('vl_sessione')
       return null

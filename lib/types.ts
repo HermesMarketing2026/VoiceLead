@@ -5,6 +5,7 @@ export interface Workspace {
   slug: string
   nome_azienda: string
   google_sheet_id: string
+  logo_url?: string
   pin: string
   creato_il: string
 }
