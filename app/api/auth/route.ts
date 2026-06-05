@@ -5,9 +5,12 @@ export async function POST(req: NextRequest) {
   const { pin, slug } = await req.json()
 
   if (!slug) {
-    const adminPin = process.env.ADMIN_PIN
+    const adminPin = process.env.ADMIN_PIN?.trim()
     if (!adminPin) return NextResponse.json({ error: 'Admin PIN non configurato' }, { status: 500 })
-    if (pin !== adminPin) return NextResponse.json({ error: 'PIN non corretto' }, { status: 401 })
+    if (pin.trim() !== adminPin) {
+      console.error(`[auth] PIN mismatch — atteso: "${adminPin}" (${adminPin.length} chars), ricevuto: "${pin}" (${pin.length} chars)`)
+      return NextResponse.json({ error: 'PIN non corretto' }, { status: 401 })
+    }
     return NextResponse.json({ tipo: 'admin' })
   }
 
