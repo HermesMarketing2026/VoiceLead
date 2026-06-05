@@ -96,12 +96,28 @@ export default function PrivacyPolicy() {
           </section>
 
           <section>
-            <h2 className="text-lg font-bold text-gray-900 mb-3">4. Periodo di conservazione</h2>
+            <h2 className="text-lg font-bold text-gray-900 mb-3">4. Periodo di conservazione e trasferimento responsabilità</h2>
             <ul className="list-disc pl-5 space-y-2">
-              <li><strong>Dati dei lead:</strong> conservati per tutta la durata del contratto con il cliente e cancellati entro 30 giorni dalla cessazione.</li>
+              <li>
+                <strong>Dati dei lead (non ancora esportati):</strong> conservati nell'applicazione
+                fino all'esportazione su Google Sheets del Cliente.
+              </li>
+              <li>
+                <strong>Dati dei lead (esportati su Google Sheets):</strong> rimossi automaticamente
+                dall'applicazione VoiceLeads entro <strong>30 giorni dall'esportazione</strong>.
+                Il Cliente può richiedere la rimozione immediata tramite la funzione "Svuota archivio"
+                disponibile nel proprio dashboard.
+              </li>
+              <li>
+                <strong>Dopo l'esportazione:</strong> i dati presenti su Google Sheets sono sotto
+                il controllo esclusivo del Cliente, che ne diventa <strong>unico Titolare del Trattamento</strong>.
+                Hermes Marketing non ha accesso a tali dati e non è responsabile del loro trattamento
+                successivo all'esportazione.
+              </li>
               <li><strong>Registrazioni vocali e immagini:</strong> non conservate — elaborate in tempo reale e immediatamente scartate.</li>
               <li><strong>Dati di contatto (form landing):</strong> conservati fino a revoca del consenso o per un massimo di 3 anni.</li>
               <li><strong>Log tecnici:</strong> conservati per 12 mesi.</li>
+              <li><strong>Alla cessazione del servizio:</strong> tutti i dati residui cancellati entro 30 giorni.</li>
             </ul>
           </section>
 

@@ -167,12 +167,30 @@ export default function DPA() {
           </section>
 
           <section>
-            <h2 className="text-lg font-bold text-gray-900 mb-3">8. Cancellazione dei dati</h2>
-            <p>
-              Alla cessazione del servizio, Hermes Marketing procederà alla cancellazione definitiva
-              di tutti i dati del Cliente entro <strong>30 giorni</strong>. Su richiesta, il Cliente
-              può ottenere prima della cancellazione un export completo dei propri dati in formato CSV.
-              La richiesta va inviata a <strong>privacy@hermesmarketing.it</strong>.
+            <h2 className="text-lg font-bold text-gray-900 mb-3">8. Cancellazione dei dati e trasferimento di responsabilità</h2>
+            <p className="mb-3">
+              VoiceLeads è progettato come <strong>sistema di raccolta temporanea</strong>: i lead
+              vengono acquisiti tramite l'app e trasferiti sul Google Sheets del Cliente, che
+              rappresenta il sistema di archiviazione definitivo del Cliente stesso.
+            </p>
+            <ul className="list-disc pl-5 space-y-2 mb-3">
+              <li>
+                <strong>Lead esportati:</strong> rimossi automaticamente da VoiceLeads entro
+                30 giorni dall'esportazione. Il Cliente può richiedere la rimozione immediata
+                tramite la funzione "Svuota archivio" nel proprio dashboard.
+              </li>
+              <li>
+                <strong>Dopo l'esportazione su Google Sheets:</strong> il Cliente diventa unico
+                Titolare del Trattamento per quei dati. Hermes Marketing non ha accesso al
+                Google Sheets del Cliente e non è responsabile del trattamento successivo.
+              </li>
+              <li>
+                <strong>Alla cessazione del contratto:</strong> cancellazione di tutti i dati
+                residui entro 30 giorni. Su richiesta, export completo in CSV prima della cancellazione.
+              </li>
+            </ul>
+            <p className="text-xs text-gray-500">
+              Per richiedere export o cancellazione anticipata: <strong>privacy@hermesmarketing.it</strong>
             </p>
           </section>
 

@@ -22,6 +22,8 @@ export default function Home() {
   const [leads, setLeads] = useState<Lead[]>([])
   const [filtro, setFiltro] = useState<Filtro>('tutti')
   const [esportazione, setEsportazione] = useState(false)
+  const [svuotamento, setSvuotamento] = useState(false)
+  const [confermaSvuota, setConfermaSvuota] = useState(false)
   const [esito, setEsito] = useState<string | null>(null)
   const [caricamento, setCaricamento] = useState(true)
 
@@ -79,6 +81,27 @@ export default function Home() {
     setVista('dashboard')
   }
 
+  const svuotaEsportati = async () => {
+    setSvuotamento(true)
+    setEsito(null)
+    try {
+      const res = await fetch('/api/leads/svuota', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ workspace_id: workspaceId }),
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error)
+      setEsito(`🗑️ ${data.cancellati} lead esportati rimossi dall'archivio`)
+      setConfermaSvuota(false)
+      carica()
+    } catch (e: any) {
+      setEsito(`❌ ${e?.message ?? 'Errore'}`)
+    } finally {
+      setSvuotamento(false)
+    }
+  }
+
   const logout = () => {
     cancellaSessione()
     setWorkspaceId(null)
@@ -116,6 +139,7 @@ export default function Home() {
   const totale = leads.length
   const pronti = leads.filter(l => l.stato === 'completo').length
   const daCompletare = leads.filter(l => l.stato === 'bozza').length
+  const esportati = leads.filter(l => l.stato === 'esportato').length
   const visibili = leads.filter(l => {
     if (filtro === 'tutti') return true
     if (filtro === 'completo') return l.stato === 'completo' || l.stato === 'esportato'
@@ -169,6 +193,46 @@ export default function Home() {
 
       {esito && (
         <div className="rounded-xl bg-gray-50 border border-gray-200 px-4 py-3 text-sm text-gray-700">{esito}</div>
+      )}
+
+      {/* Banner svuota archivio — visibile solo se ci sono lead esportati */}
+      {esportati > 0 && (
+        <div className="rounded-xl bg-blue-50 border border-blue-200 px-4 py-3">
+          <div className="flex items-start justify-between gap-3">
+            <div>
+              <p className="text-sm font-semibold text-blue-800">
+                🔒 {esportati} lead {esportati === 1 ? 'è stato esportato' : 'sono stati esportati'} su Google Sheets
+              </p>
+              <p className="text-xs text-blue-600 mt-0.5">
+                Verranno rimossi automaticamente dopo 30 giorni. Puoi eliminarli subito.
+              </p>
+            </div>
+            {!confermaSvuota ? (
+              <button
+                onClick={() => setConfermaSvuota(true)}
+                className="shrink-0 text-xs text-blue-600 underline hover:text-blue-800 whitespace-nowrap"
+              >
+                Svuota ora
+              </button>
+            ) : (
+              <div className="flex gap-2 shrink-0">
+                <button
+                  onClick={() => setConfermaSvuota(false)}
+                  className="text-xs text-gray-500 hover:text-gray-700 px-2 py-1 rounded-lg border border-gray-300 bg-white"
+                >
+                  Annulla
+                </button>
+                <button
+                  onClick={svuotaEsportati}
+                  disabled={svuotamento}
+                  className="text-xs text-white bg-blue-600 hover:bg-blue-700 px-2 py-1 rounded-lg disabled:opacity-50"
+                >
+                  {svuotamento ? '…' : 'Conferma'}
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
       )}
 
       <div className="flex gap-2">
