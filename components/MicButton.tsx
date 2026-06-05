@@ -1,5 +1,5 @@
 'use client'
-import { useState, useRef, useCallback } from 'react'
+import { useState, useRef, useCallback, useEffect } from 'react'
 
 interface Props {
   onTrascrizione: (testo: string) => void
@@ -9,14 +9,16 @@ interface Props {
 export default function MicButton({ onTrascrizione, onEstrazione }: Props) {
   const [stato, setStato] = useState<'idle' | 'ascolto' | 'elaborazione'>('idle')
   const [errore, setErrore] = useState<string | null>(null)
+  const [supportato, setSupportato] = useState<boolean | null>(null)
   const riconoscimento = useRef<any>(null)
 
-  const supportato =
-    typeof window !== 'undefined' &&
-    ('SpeechRecognition' in window || 'webkitSpeechRecognition' in (window as any))
+  useEffect(() => {
+    setSupportato(
+      'SpeechRecognition' in window || 'webkitSpeechRecognition' in (window as any)
+    )
+  }, [])
 
   const avvia = useCallback(async () => {
-    if (!supportato) return
     setErrore(null)
 
     const SR = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition
@@ -47,23 +49,32 @@ export default function MicButton({ onTrascrizione, onEstrazione }: Props) {
       }
     }
 
-    rec.onerror = () => {
-      setErrore('Errore microfono. Controlla i permessi.')
+    rec.onerror = (e: any) => {
+      if (e.error === 'not-allowed') {
+        setErrore('Permesso microfono negato. Abilita il microfono nelle impostazioni del browser.')
+      } else {
+        setErrore(`Errore microfono: ${e.error}`)
+      }
       setStato('idle')
     }
 
     rec.onend = () => {
-      if (stato === 'ascolto') setStato('elaborazione')
+      setStato(s => s === 'ascolto' ? 'elaborazione' : s)
     }
 
     rec.start()
     setStato('ascolto')
-  }, [supportato, onTrascrizione, onEstrazione, stato])
+  }, [onTrascrizione, onEstrazione])
 
   const ferma = useCallback(() => {
     riconoscimento.current?.stop()
     setStato('idle')
   }, [])
+
+  // Ancora in hydration — non mostrare nulla
+  if (supportato === null) {
+    return <div className="h-20" />
+  }
 
   if (!supportato) {
     return (
