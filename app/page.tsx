@@ -135,6 +135,14 @@ export default function Home() {
     <AppShell><PinLogin titolo="VoiceLeads" slug={slug} onSuccess={onLogin} /></AppShell>
   )
 
+  // Calcola giorni rimanenti prima della cancellazione automatica (30gg dalla creazione)
+  const giorniRimanenti = (dataRegistrazione: string) => {
+    const creato = new Date(dataRegistrazione).getTime()
+    const scadenza = creato + 30 * 24 * 60 * 60 * 1000
+    const rimanenti = Math.ceil((scadenza - Date.now()) / (1000 * 60 * 60 * 24))
+    return Math.max(0, rimanenti)
+  }
+
   // Dashboard
   const totale = leads.length
   const pronti = leads.filter(l => l.stato === 'completo').length
@@ -282,6 +290,26 @@ export default function Home() {
                     <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden">
                       <div className={`h-full rounded-full ${perc === 100 ? 'bg-green-500' : 'bg-hermes-400'}`} style={{ width: `${perc}%` }} />
                     </div>
+                    {(() => {
+                      const giorni = giorniRimanenti(lead.data_registrazione)
+                      if (giorni > 10) return null
+                      return (
+                        <div className={`mt-2 flex items-center gap-1.5 text-xs font-semibold rounded-lg px-2.5 py-1.5 ${
+                          giorni <= 3
+                            ? 'bg-red-50 text-red-600 border border-red-200'
+                            : 'bg-amber-50 text-amber-600 border border-amber-200'
+                        }`}>
+                          <span>{giorni <= 3 ? '🔴' : '⚠️'}</span>
+                          <span>
+                            {giorni === 0
+                              ? 'Eliminato oggi'
+                              : giorni === 1
+                              ? 'Sparisce domani — esporta subito!'
+                              : `Sparisce tra ${giorni} giorni`}
+                          </span>
+                        </div>
+                      )
+                    })()}
                   </div>
                 </Link>
               </li>

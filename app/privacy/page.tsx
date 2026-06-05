@@ -31,9 +31,9 @@ export default function PrivacyPolicy() {
             </p>
             <div className="bg-gray-50 rounded-xl p-4 mt-3 font-mono text-xs space-y-1">
               <p><strong>Hermes Marketing</strong></p>
-              <p>Via [inserire indirizzo completo]</p>
-              <p>P.IVA: [inserire P.IVA]</p>
-              <p>Email: privacy@hermesmarketing.it</p>
+              <p>Piazza Gae Aulenti 1, Torre B — 20124 Milano (MI)</p>
+              <p>P.IVA: 14088840963</p>
+              <p>Email: info@hermesmarketing.it</p>
             </div>
           </section>
 
@@ -169,7 +169,7 @@ export default function PrivacyPolicy() {
               <li><strong>Revoca del consenso</strong>: revocare in qualsiasi momento il consenso prestato, senza pregiudizio per la liceità del trattamento anteriore.</li>
             </ul>
             <p className="mt-3">
-              Per esercitare i propri diritti, scrivere a: <strong>privacy@hermesmarketing.it</strong>.
+              Per esercitare i propri diritti, scrivere a: <strong>info@hermesmarketing.it</strong>.
               Risponderemo entro 30 giorni. È inoltre possibile presentare reclamo al <strong>Garante per la Protezione dei Dati Personali</strong> (www.garanteprivacy.it).
             </p>
           </section>

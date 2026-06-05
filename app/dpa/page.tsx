@@ -39,8 +39,9 @@ export default function DPA() {
               <div className="bg-gray-50 rounded-xl p-4">
                 <p className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Responsabile del Trattamento</p>
                 <p className="font-semibold">Hermes Marketing</p>
-                <p className="text-xs text-gray-500 mt-1">Via [indirizzo] — P.IVA [numero]</p>
-                <p className="text-xs text-gray-500">privacy@hermesmarketing.it</p>
+                <p className="text-xs text-gray-500 mt-1">Piazza Gae Aulenti 1, Torre B — 20124 Milano</p>
+                <p className="text-xs text-gray-500">P.IVA: 14088840963</p>
+                <p className="text-xs text-gray-500">info@hermesmarketing.it</p>
               </div>
               <div className="bg-gray-50 rounded-xl p-4">
                 <p className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Titolare del Trattamento</p>
@@ -190,7 +191,7 @@ export default function DPA() {
               </li>
             </ul>
             <p className="text-xs text-gray-500">
-              Per richiedere export o cancellazione anticipata: <strong>privacy@hermesmarketing.it</strong>
+              Per richiedere export o cancellazione anticipata: <strong>info@hermesmarketing.it</strong>
             </p>
           </section>
 
@@ -198,7 +199,7 @@ export default function DPA() {
             <h2 className="text-lg font-bold text-gray-900 mb-3">9. Legge applicabile e foro competente</h2>
             <p>
               Il presente accordo è regolato dal diritto italiano e dal Regolamento UE 2016/679 (GDPR).
-              Per qualsiasi controversia è competente il Tribunale di [inserire città sede Hermes Marketing].
+              Per qualsiasi controversia è competente il Tribunale di Milano.
             </p>
           </section>
 
