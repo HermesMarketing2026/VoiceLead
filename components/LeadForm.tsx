@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation'
 import type { Lead, LeadFormData } from '@/lib/types'
 import { campiMancanti, calcolaCompletamento } from '@/lib/types'
 import MicButton from './MicButton'
+import CardScanner from './CardScanner'
 
 interface Props {
   lead?: Lead
@@ -19,6 +20,7 @@ export default function LeadForm({ lead, workspaceId }: Props) {
     email: lead.email, telefono: lead.telefono, note: lead.note ?? '',
   } : VUOTO)
   const [trascrizione, setTrascrizione] = useState('')
+  const [modalitaInput, setModalitaInput] = useState<'voce' | 'foto'>('voce')
   const [salvataggio, setSalvataggio] = useState(false)
   const [eliminazione, setEliminazione] = useState(false)
   const [confermaElimina, setConfermaElimina] = useState(false)
@@ -86,15 +88,47 @@ export default function LeadForm({ lead, workspaceId }: Props) {
   return (
     <div className="space-y-5">
 
-      {/* Dettatura */}
+      {/* Input rapido: Voce o Foto */}
       <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6">
-        <h2 className="text-xs font-bold text-hermes-500 uppercase tracking-wider mb-5">🎙️ Dettatura vocale</h2>
-        <MicButton onTrascrizione={setTrascrizione} onEstrazione={onEstrazione} />
-        {trascrizione && (
-          <div className="mt-5 rounded-xl bg-hermes-50 border border-hermes-200 p-3.5">
-            <p className="text-xs text-hermes-500 font-medium mb-1">Testo riconosciuto:</p>
-            <p className="text-sm text-gray-700 italic leading-relaxed">"{trascrizione}"</p>
-          </div>
+        {/* Tab switcher */}
+        <div className="flex rounded-xl border border-gray-200 p-1 mb-5 bg-gray-50">
+          <button
+            type="button"
+            onClick={() => setModalitaInput('voce')}
+            className={`flex-1 flex items-center justify-center gap-2 rounded-lg py-2 text-sm font-semibold transition-all ${
+              modalitaInput === 'voce'
+                ? 'bg-white text-hermes-600 shadow-sm border border-gray-200'
+                : 'text-gray-400 hover:text-gray-600'
+            }`}
+          >
+            🎙️ Voce
+          </button>
+          <button
+            type="button"
+            onClick={() => setModalitaInput('foto')}
+            className={`flex-1 flex items-center justify-center gap-2 rounded-lg py-2 text-sm font-semibold transition-all ${
+              modalitaInput === 'foto'
+                ? 'bg-white text-hermes-600 shadow-sm border border-gray-200'
+                : 'text-gray-400 hover:text-gray-600'
+            }`}
+          >
+            📷 Foto
+          </button>
+        </div>
+
+        {/* Contenuto tab */}
+        {modalitaInput === 'voce' ? (
+          <>
+            <MicButton onTrascrizione={setTrascrizione} onEstrazione={onEstrazione} />
+            {trascrizione && (
+              <div className="mt-5 rounded-xl bg-hermes-50 border border-hermes-200 p-3.5">
+                <p className="text-xs text-hermes-500 font-medium mb-1">Testo riconosciuto:</p>
+                <p className="text-sm text-gray-700 italic leading-relaxed">"{trascrizione}"</p>
+              </div>
+            )}
+          </>
+        ) : (
+          <CardScanner onEstrazione={onEstrazione} />
         )}
       </div>
 
