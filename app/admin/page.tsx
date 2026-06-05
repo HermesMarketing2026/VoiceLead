@@ -10,13 +10,13 @@ export default function Admin() {
   const [autenticato, setAutenticato] = useState(false)
   const [pronto, setPronto] = useState(false)
   const [workspaces, setWorkspaces] = useState<Workspace[]>([])
-  const [form, setForm] = useState({ nome_azienda: '', google_sheet_id: '', logo_url: '' })
+  const [form, setForm] = useState({ nome_azienda: '', google_sheet_id: '', logo_url: '', nome_referente: '', cognome_referente: '' })
   const [creazione, setCreazione] = useState(false)
   const [nuovoWs, setNuovoWs] = useState<Workspace | null>(null)
   const [errore, setErrore] = useState<string | null>(null)
   const [modalita, setModalita] = useState<Modalita>('lista')
   const [wsInModifica, setWsInModifica] = useState<Workspace | null>(null)
-  const [formModifica, setFormModifica] = useState({ nome_azienda: '', google_sheet_id: '', logo_url: '' })
+  const [formModifica, setFormModifica] = useState({ nome_azienda: '', google_sheet_id: '', logo_url: '', nome_referente: '', cognome_referente: '' })
   const [salvataggio, setSalvataggio] = useState(false)
   const [eliminazione, setEliminazione] = useState<string | null>(null)
   const [confermaElimina, setConfermaElimina] = useState<string | null>(null)
@@ -63,7 +63,7 @@ export default function Admin() {
       const data = await res.json()
       if (!res.ok) throw new Error(data.error)
       setNuovoWs(data)
-      setForm({ nome_azienda: '', google_sheet_id: '', logo_url: '' })
+      setForm({ nome_azienda: '', google_sheet_id: '', logo_url: '', nome_referente: '', cognome_referente: '' })
       caricaWorkspaces()
     } catch (e: any) {
       setErrore(e.message)
@@ -74,7 +74,7 @@ export default function Admin() {
 
   const apriModifica = (ws: Workspace) => {
     setWsInModifica(ws)
-    setFormModifica({ nome_azienda: ws.nome_azienda, google_sheet_id: ws.google_sheet_id, logo_url: ws.logo_url ?? '' })
+    setFormModifica({ nome_azienda: ws.nome_azienda, google_sheet_id: ws.google_sheet_id, logo_url: ws.logo_url ?? '', nome_referente: ws.nome_referente ?? '', cognome_referente: ws.cognome_referente ?? '' })
     setModalita('modifica')
   }
 
@@ -141,6 +141,16 @@ export default function Admin() {
             <label className={labelClass}>Google Sheet ID</label>
             <input className={inputClass} value={formModifica.google_sheet_id} onChange={e => setFormModifica(f => ({ ...f, google_sheet_id: e.target.value }))} />
           </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className={labelClass}>Nome referente</label>
+              <input className={inputClass} value={formModifica.nome_referente} onChange={e => setFormModifica(f => ({ ...f, nome_referente: e.target.value }))} placeholder="Mario" />
+            </div>
+            <div>
+              <label className={labelClass}>Cognome referente</label>
+              <input className={inputClass} value={formModifica.cognome_referente} onChange={e => setFormModifica(f => ({ ...f, cognome_referente: e.target.value }))} placeholder="Rossi" />
+            </div>
+          </div>
           <div>
             <label className={labelClass}>URL Logo <span className="text-gray-400 font-normal">(opzionale)</span></label>
             <input className={inputClass} value={formModifica.logo_url} onChange={e => setFormModifica(f => ({ ...f, logo_url: e.target.value }))} placeholder="https://..." />
@@ -186,6 +196,16 @@ export default function Admin() {
           <label className={labelClass}>Google Sheet ID</label>
           <input className={inputClass} value={form.google_sheet_id} onChange={e => setForm(f => ({ ...f, google_sheet_id: e.target.value }))} placeholder="1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgVE2upms" />
           <p className="text-xs text-gray-400 mt-1">Dall'URL del foglio: /spreadsheets/d/<strong>[ID]</strong>/edit</p>
+        </div>
+        <div className="grid grid-cols-2 gap-3">
+          <div>
+            <label className={labelClass}>Nome referente</label>
+            <input className={inputClass} value={form.nome_referente} onChange={e => setForm(f => ({ ...f, nome_referente: e.target.value }))} placeholder="Mario" />
+          </div>
+          <div>
+            <label className={labelClass}>Cognome referente</label>
+            <input className={inputClass} value={form.cognome_referente} onChange={e => setForm(f => ({ ...f, cognome_referente: e.target.value }))} placeholder="Rossi" />
+          </div>
         </div>
         <div>
           <label className={labelClass}>URL Logo <span className="text-gray-400 font-normal">(opzionale)</span></label>

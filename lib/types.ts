@@ -6,6 +6,8 @@ export interface Workspace {
   nome_azienda: string
   google_sheet_id: string
   logo_url?: string
+  nome_referente?: string
+  cognome_referente?: string
   pin: string
   creato_il: string
 }

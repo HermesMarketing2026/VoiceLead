@@ -3,11 +3,11 @@ import { supabase } from '@/lib/supabase'
 
 export async function PATCH(req: NextRequest, { params }: { params: { id: string } }) {
   const body = await req.json()
-  const { nome_azienda, google_sheet_id, logo_url } = body
+  const { nome_azienda, google_sheet_id, logo_url, nome_referente, cognome_referente } = body
 
   const { data, error } = await supabase
     .from('workspaces')
-    .update({ nome_azienda, google_sheet_id, logo_url: logo_url || null })
+    .update({ nome_azienda, google_sheet_id, logo_url: logo_url || null, nome_referente: nome_referente || null, cognome_referente: cognome_referente || null })
     .eq('id', params.id)
     .select()
     .single()
