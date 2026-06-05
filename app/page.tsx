@@ -292,14 +292,17 @@ export default function Home() {
                     </div>
                     {(() => {
                       const giorni = giorniRimanenti(lead.data_registrazione)
-                      if (giorni > 10) return null
+                      const urgente = giorni <= 3
+                      const avviso = giorni <= 10
                       return (
                         <div className={`mt-2 flex items-center gap-1.5 text-xs font-semibold rounded-lg px-2.5 py-1.5 ${
-                          giorni <= 3
+                          urgente
                             ? 'bg-red-50 text-red-600 border border-red-200'
-                            : 'bg-amber-50 text-amber-600 border border-amber-200'
+                            : avviso
+                            ? 'bg-amber-50 text-amber-600 border border-amber-200'
+                            : 'bg-gray-50 text-gray-400 border border-gray-200'
                         }`}>
-                          <span>{giorni <= 3 ? '🔴' : '⚠️'}</span>
+                          <span>{urgente ? '🔴' : avviso ? '⚠️' : '🕐'}</span>
                           <span>
                             {giorni === 0
                               ? 'Eliminato oggi'
