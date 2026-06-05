@@ -112,9 +112,22 @@ export default function Admin() {
     }
   }
 
+  const AppShell = ({ children }: { children: React.ReactNode }) => (
+    <div className="bg-gray-50 min-h-screen">
+      <header className="bg-white border-b border-gray-200 px-4 py-4 flex flex-col items-center sticky top-0 z-10 shadow-sm">
+        <img src="/favicon.png" alt="VoiceLeads" className="h-10 w-auto mb-1" />
+        <div className="flex flex-col items-center leading-tight">
+          <span className="font-bold text-base tracking-tight text-gray-900">VoiceLeads</span>
+          <span className="text-xs text-gray-400 tracking-wide">by Hermes Marketing</span>
+        </div>
+      </header>
+      <div className="max-w-2xl mx-auto px-4 py-6">{children}</div>
+    </div>
+  )
+
   if (!pronto) return null
   if (!autenticato) {
-    return <PinLogin titolo="Admin VoiceLeads" sottotitolo="Accesso riservato" onSuccess={onLogin} />
+    return <AppShell><PinLogin titolo="Admin VoiceLeads" sottotitolo="Accesso riservato" onSuccess={onLogin} /></AppShell>
   }
 
   const inputClass = 'w-full rounded-xl border border-gray-200 px-3.5 py-2.5 text-sm bg-gray-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-hermes-400 transition-colors'
@@ -123,7 +136,7 @@ export default function Admin() {
   // Vista modifica
   if (modalita === 'modifica' && wsInModifica) {
     return (
-      <div className="space-y-5">
+      <AppShell><div className="space-y-5">
         <div className="flex items-center gap-3">
           <button onClick={() => setModalita('lista')} className="text-gray-400 hover:text-gray-600 text-xl">←</button>
           <div>
@@ -168,13 +181,13 @@ export default function Admin() {
             </button>
           </div>
         </div>
-      </div>
+      </div></AppShell>
     )
   }
 
   // Vista lista
   return (
-    <div className="space-y-6">
+    <AppShell><div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-xl font-bold text-gray-900">Pannello Admin</h1>
@@ -289,6 +302,6 @@ export default function Admin() {
           </ul>
         )}
       </div>
-    </div>
+    </div></AppShell>
   )
 }
