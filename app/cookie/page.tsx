@@ -77,6 +77,8 @@ export default function CookiePolicy() {
                 </thead>
                 <tbody className="divide-y divide-gray-100">
                   {[
+                    ['Google Tag Manager', 'Gestione tag e script di terze parti (attiva altri cookie solo con consenso)', 'Tecnico / Contenitore', 'policies.google.com/privacy'],
+                    ['Google Analytics (via GTM)', 'Analisi statistica del traffico: pagine visitate, durata sessione, provenienza', 'Analitico', 'policies.google.com/privacy'],
                     ['Brevo (Sendinblue)', 'Gestione form di contatto e invio email', 'Funzionale / Marketing', 'brevo.com/legal/privacypolicy'],
                   ].map(([f, s, c, p]) => (
                     <tr key={f}>

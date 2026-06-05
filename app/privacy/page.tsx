@@ -82,6 +82,7 @@ export default function PrivacyPolicy() {
                     ['Registrazione e gestione lead commerciali', 'Legittimo interesse del titolare del trattamento cliente (Art. 6(1)(f) GDPR)'],
                     ['Elaborazione AI di testo, audio e immagini', 'Esecuzione del contratto (Art. 6(1)(b) GDPR)'],
                     ['Invio comunicazioni commerciali (form landing)', 'Consenso dell\'interessato (Art. 6(1)(a) GDPR)'],
+                    ['Analisi statistica del sito (Google Tag Manager / Analytics)', 'Consenso dell\'interessato (Art. 6(1)(a) GDPR)'],
                     ['Sicurezza del sistema e prevenzione abusi', 'Legittimo interesse (Art. 6(1)(f) GDPR)'],
                     ['Adempimento obblighi legali', 'Obbligo legale (Art. 6(1)(c) GDPR)'],
                   ].map(([f, b]) => (
@@ -140,6 +141,7 @@ export default function PrivacyPolicy() {
                     ['Anthropic PBC', 'Elaborazione AI (testo, audio, immagini)', 'USA', 'Standard Contractual Clauses (SCCs)'],
                     ['Vercel Inc.', 'Hosting applicazione', 'USA/EU', 'Standard Contractual Clauses (SCCs)'],
                     ['Brevo (Sendinblue)', 'Email marketing / form contatto', 'EU (Francia)', 'GDPR compliant'],
+                    ['Google LLC (Tag Manager / Analytics)', 'Analisi statistica del sito (solo con consenso)', 'USA/EU', 'Standard Contractual Clauses (SCCs)'],
                   ].map(([f, r, s, g]) => (
                     <tr key={f}>
                       <td className="p-3 font-medium text-gray-700">{f}</td>
