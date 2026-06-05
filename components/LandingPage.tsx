@@ -2,105 +2,219 @@
 import BrevoForm from './BrevoForm'
 
 export default function LandingPage() {
-
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-white overflow-x-hidden">
 
-      {/* Hero */}
-      <section className="bg-gradient-to-br from-hermes-500 to-hermes-700 text-white px-6 py-16 text-center">
-        <img src="/logo-hermes.png" alt="Hermes Marketing" className="h-14 w-auto mx-auto mb-6 brightness-0 invert" />
-        <h1 className="text-4xl font-bold leading-tight mb-3">
-          VoiceLeads
-        </h1>
-        <p className="text-hermes-100 text-lg mb-2">by Hermes Marketing</p>
-        <p className="text-hermes-50 text-base max-w-sm mx-auto leading-relaxed mt-4">
-          Registra i tuoi contatti commerciali con la voce, direttamente dopo ogni appuntamento.
-        </p>
-        <a
-          href="#richiesta"
-          className="inline-block mt-8 bg-white text-hermes-600 font-bold px-8 py-3.5 rounded-xl shadow-lg hover:shadow-xl transition-all hover:-translate-y-0.5"
-        >
-          Richiedi l'accesso
-        </a>
-      </section>
+      {/* NAV */}
+      <nav className="bg-white border-b border-gray-100 px-6 py-4">
+        <div className="max-w-5xl mx-auto flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <img src="/logo-hermes.png" alt="Hermes Marketing" className="h-8 w-auto" />
+            <span className="font-bold text-gray-900 text-lg tracking-tight">VoiceLeads</span>
+          </div>
+          <a
+            href="#richiesta"
+            className="bg-hermes-500 text-white font-semibold px-5 py-2 rounded-xl text-sm hover:bg-hermes-600 transition-colors shadow-sm"
+          >
+            Richiedi accesso
+          </a>
+        </div>
+      </nav>
 
-      {/* Come funziona */}
-      <section className="px-6 py-14 max-w-2xl mx-auto">
-        <h2 className="text-2xl font-bold text-gray-900 text-center mb-10">Come funziona</h2>
-        <div className="space-y-6">
-          {[
-            {
-              n: '01',
-              icon: '🎙️',
-              titolo: 'Ditta il lead con la voce',
-              testo: 'Appena finito un appuntamento, premi il microfono e descrivi il contatto liberamente. "Ho incontrato Mario Rossi di Acme, email mario@acme.it, telefono 333…"',
-            },
-            {
-              n: '02',
-              icon: '🤖',
-              titolo: "L'AI estrae i dati",
-              testo: "L'intelligenza artificiale riconosce automaticamente nome, cognome, azienda, email e telefono dal tuo parlato e compila il form.",
-            },
-            {
-              n: '03',
-              icon: '✏️',
-              titolo: 'Correggi e salva',
-              testo: 'Verifica i campi in pochi secondi, aggiungi note sull\'incontro e salva il lead con un tap.',
-            },
-            {
-              n: '04',
-              icon: '📊',
-              titolo: 'Esporta su Google Sheets',
-              testo: 'Con un click esporti tutti i lead completi sul tuo foglio Google, pronti per il follow-up.',
-            },
-          ].map(({ n, icon, titolo, testo }) => (
-            <div key={n} className="flex gap-4 items-start">
-              <div className="w-10 h-10 rounded-xl bg-hermes-50 flex items-center justify-center text-hermes-500 font-bold text-sm shrink-0">
-                {n}
+      {/* HERO */}
+      <section className="bg-gradient-to-br from-hermes-600 via-hermes-500 to-orange-400 text-white">
+        <div className="max-w-5xl mx-auto px-6 py-20 md:py-28 grid md:grid-cols-2 gap-12 items-center">
+          <div>
+            <p className="inline-block bg-white/20 text-white text-xs font-semibold px-3 py-1 rounded-full mb-5 tracking-wide uppercase">
+              Per i team commerciali
+            </p>
+            <h1 className="text-4xl md:text-5xl font-extrabold leading-tight mb-5">
+              Ogni lead catturato.<br />
+              <span className="text-orange-200">Zero contatti persi.</span>
+            </h1>
+            <p className="text-hermes-50 text-lg leading-relaxed mb-8">
+              Finito l'appuntamento, apri l'app, parla per 30 secondi.<br className="hidden md:block" />
+              VoiceLeads trascrive, estrae i dati e li prepara per il tuo CRM.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-3">
+              <a
+                href="#richiesta"
+                className="inline-block bg-white text-hermes-600 font-bold px-8 py-4 rounded-xl shadow-lg hover:shadow-xl transition-all hover:-translate-y-0.5 text-center"
+              >
+                Richiedi accesso gratuito →
+              </a>
+            </div>
+            <p className="text-hermes-200 text-xs mt-4">Nessun abbonamento richiesto ora. Ti contatteremo entro 24h.</p>
+          </div>
+          <div className="hidden md:flex justify-center">
+            <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-3xl p-8 w-80 shadow-2xl">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center text-2xl">🎙️</div>
+                <div>
+                  <p className="font-bold text-sm">"Ho incontrato Mario Rossi</p>
+                  <p className="font-bold text-sm">di Acme srl, mi ha dato</p>
+                  <p className="font-bold text-sm">il 333-1234567..."</p>
+                </div>
               </div>
-              <div>
-                <p className="font-semibold text-gray-900 mb-1">{icon} {titolo}</p>
-                <p className="text-sm text-gray-500 leading-relaxed">{testo}</p>
+              <div className="h-px bg-white/20 mb-5" />
+              {[
+                { label: 'Nome', val: 'Mario Rossi' },
+                { label: 'Azienda', val: 'Acme S.r.l.' },
+                { label: 'Telefono', val: '333 1234567' },
+                { label: 'Email', val: 'mario@acme.it' },
+              ].map(({ label, val }) => (
+                <div key={label} className="flex justify-between text-sm mb-3">
+                  <span className="text-hermes-200">{label}</span>
+                  <span className="font-semibold">{val}</span>
+                </div>
+              ))}
+              <div className="mt-5 bg-green-400 text-green-900 text-xs font-bold rounded-lg px-3 py-2 text-center">
+                ✓ Pronto per Google Sheets
               </div>
             </div>
-          ))}
+          </div>
         </div>
       </section>
 
-      {/* Vantaggi */}
-      <section className="bg-gray-50 px-6 py-14">
-        <div className="max-w-2xl mx-auto">
-          <h2 className="text-2xl font-bold text-gray-900 text-center mb-8">Perché VoiceLeads?</h2>
-          <div className="grid grid-cols-2 gap-4">
+      {/* PROBLEMA */}
+      <section className="bg-gray-50 py-16 md:py-20 px-6">
+        <div className="max-w-5xl mx-auto">
+          <p className="text-center text-gray-400 text-sm font-semibold uppercase tracking-widest mb-3">Il problema</p>
+          <h2 className="text-3xl md:text-4xl font-bold text-gray-900 text-center mb-4">
+            Ti è mai successo?
+          </h2>
+          <p className="text-center text-gray-500 max-w-xl mx-auto mb-12">
+            Ogni commerciale lo sa: i lead presi "a mente" o su carta finiscono dimenticati.
+          </p>
+          <div className="grid md:grid-cols-3 gap-6">
             {[
-              { icon: '⚡', titolo: 'Veloce', testo: '30 secondi per registrare un lead completo' },
-              { icon: '🎯', titolo: 'Preciso', testo: "AI addestrata sull'italiano commerciale" },
-              { icon: '📱', titolo: 'Mobile first', testo: 'Pensato per il commerciale in movimento' },
-              { icon: '🔒', titolo: 'Sicuro', testo: 'Accesso con PIN, dati isolati per cliente' },
-            ].map(({ icon, titolo, testo }) => (
-              <div key={titolo} className="bg-white rounded-2xl border border-gray-200 p-4 shadow-sm">
-                <p className="text-2xl mb-2">{icon}</p>
-                <p className="font-semibold text-gray-900 text-sm">{titolo}</p>
-                <p className="text-xs text-gray-500 mt-1 leading-relaxed">{testo}</p>
+              {
+                emoji: '📝',
+                titolo: 'Bigliettino smarrito',
+                testo: 'Scrivi il numero su un foglietto, lo metti in tasca. Tre giorni dopo non lo trovi più.',
+              },
+              {
+                emoji: '🧠',
+                titolo: 'Memoria che sbiadisce',
+                testo: 'Prendi 5 appuntamenti in un giorno. La sera ricordi solo 2. Gli altri? Vaghi.',
+              },
+              {
+                emoji: '⏱️',
+                titolo: 'CRM compilato "dopo"',
+                testo: '"Lo inserisco stasera" diventa "lo inserisco domani" e poi non si inserisce più.',
+              },
+            ].map(({ emoji, titolo, testo }) => (
+              <div key={titolo} className="bg-white rounded-2xl border border-gray-200 p-6 shadow-sm">
+                <p className="text-3xl mb-4">{emoji}</p>
+                <p className="font-bold text-gray-900 mb-2">{titolo}</p>
+                <p className="text-sm text-gray-500 leading-relaxed">{testo}</p>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Form richiesta */}
-      <section id="richiesta" className="px-6 py-14 max-w-lg mx-auto">
-        <h2 className="text-2xl font-bold text-gray-900 text-center mb-2">Vuoi VoiceLeads per la tua azienda?</h2>
-        <p className="text-center text-gray-500 text-sm mb-8">Lascia i tuoi dati, ti contattiamo entro 24 ore.</p>
-        <BrevoForm />
+      {/* SOLUZIONE */}
+      <section className="py-16 md:py-20 px-6">
+        <div className="max-w-5xl mx-auto">
+          <p className="text-center text-hermes-500 text-sm font-semibold uppercase tracking-widest mb-3">La soluzione</p>
+          <h2 className="text-3xl md:text-4xl font-bold text-gray-900 text-center mb-4">
+            Registra il lead in 30 secondi,<br className="hidden md:block" /> mentre esci dall'appuntamento.
+          </h2>
+          <p className="text-center text-gray-500 max-w-xl mx-auto mb-14">
+            Niente tastiera. Niente form da compilare. Parli, l'AI pensa, tu salvi.
+          </p>
+          <div className="grid md:grid-cols-4 gap-6">
+            {[
+              { n: '1', icon: '🎙️', titolo: 'Premi il microfono', testo: 'Appena fuori dall\'appuntamento, apri l\'app e premi registra.' },
+              { n: '2', icon: '🗣️', titolo: 'Parla liberamente', testo: '"Ho incontrato Mario di Acme, email mario@acme.it, telefono 333…"' },
+              { n: '3', icon: '🤖', titolo: "L'AI estrae tutto", testo: 'Nome, cognome, azienda, email, telefono. Campi compilati in automatico.' },
+              { n: '4', icon: '📤', titolo: 'Esporta su Sheets', testo: 'Un click e tutti i lead pronti atterrano sul tuo Google Sheets.' },
+            ].map(({ n, icon, titolo, testo }) => (
+              <div key={n} className="relative">
+                <div className="flex flex-col items-center text-center md:items-start md:text-left">
+                  <div className="w-10 h-10 rounded-full bg-hermes-500 text-white font-bold text-sm flex items-center justify-center mb-4 shadow-md">
+                    {n}
+                  </div>
+                  <p className="text-2xl mb-2">{icon}</p>
+                  <p className="font-bold text-gray-900 mb-1">{titolo}</p>
+                  <p className="text-sm text-gray-500 leading-relaxed">{testo}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
       </section>
 
-      {/* Footer */}
-      <footer className="border-t border-gray-100 px-6 py-8 text-center">
-        <img src="/logo-hermes.png" alt="Hermes Marketing" className="h-8 w-auto mx-auto mb-3 opacity-40" />
-        <p className="text-xs text-gray-400">© {new Date().getFullYear()} Hermes Marketing — Web &amp; Comunicazione</p>
-        <p className="text-xs text-gray-300 mt-1">hermesmarketing.it</p>
+      {/* NUMERI */}
+      <section className="bg-hermes-500 text-white py-14 px-6">
+        <div className="max-w-5xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+          {[
+            { val: '30"', label: 'per registrare un lead completo' },
+            { val: '0', label: 'campi da compilare manualmente' },
+            { val: '100%', label: 'dei dati pronti per il CRM' },
+            { val: '24h', label: 'per ricevere accesso dopo la richiesta' },
+          ].map(({ val, label }) => (
+            <div key={label}>
+              <p className="text-4xl md:text-5xl font-extrabold mb-2">{val}</p>
+              <p className="text-hermes-100 text-sm leading-snug">{label}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* VANTAGGI */}
+      <section className="py-16 md:py-20 px-6 bg-gray-50">
+        <div className="max-w-5xl mx-auto">
+          <h2 className="text-3xl md:text-4xl font-bold text-gray-900 text-center mb-12">Perché i commerciali scelgono VoiceLeads</h2>
+          <div className="grid md:grid-cols-2 gap-6">
+            {[
+              { icon: '⚡', titolo: 'Velocità reale sul campo', testo: 'Non aspetti di tornare in ufficio. Registri subito, quando i dettagli sono ancora freschi. Tra un appuntamento e l\'altro.' },
+              { icon: '🎯', titolo: 'AI addestrata sull\'italiano commerciale', testo: 'Riconosce nomi, aziende, email e numeri di telefono anche nel parlato naturale, accenti inclusi.' },
+              { icon: '📱', titolo: 'Funziona come una PWA', testo: 'Si installa sullo smartphone come un\'app, ma non richiede nessun App Store. Funziona offline e si aggiorna da solo.' },
+              { icon: '🔒', titolo: 'Dati isolati per team', testo: 'Ogni cliente ha il suo workspace protetto da PIN. Nessun dato condiviso tra aziende diverse.' },
+              { icon: '📊', titolo: 'Google Sheets integrato', testo: 'Esporta tutti i lead con un click sul tuo foglio condiviso. Il responsabile vede tutto in tempo reale.' },
+              { icon: '🚀', titolo: 'Zero formazione richiesta', testo: 'Se sai aprire un\'app e parlare, sai usare VoiceLeads. Nessun manuale, nessun corso.' },
+            ].map(({ icon, titolo, testo }) => (
+              <div key={titolo} className="bg-white rounded-2xl border border-gray-200 p-6 shadow-sm flex gap-4">
+                <span className="text-3xl shrink-0">{icon}</span>
+                <div>
+                  <p className="font-bold text-gray-900 mb-1">{titolo}</p>
+                  <p className="text-sm text-gray-500 leading-relaxed">{testo}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* FORM */}
+      <section id="richiesta" className="py-16 md:py-24 px-6">
+        <div className="max-w-2xl mx-auto text-center mb-10">
+          <p className="text-hermes-500 text-sm font-semibold uppercase tracking-widest mb-3">Inizia ora</p>
+          <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+            Vuoi VoiceLeads per il tuo team?
+          </h2>
+          <p className="text-gray-500 text-base">
+            Lascia i tuoi dati. Ti contattiamo entro 24 ore per attivare il tuo accesso personalizzato.
+          </p>
+        </div>
+        <div className="max-w-lg mx-auto">
+          <BrevoForm />
+        </div>
+      </section>
+
+      {/* FOOTER */}
+      <footer className="border-t border-gray-100 px-6 py-10">
+        <div className="max-w-5xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <img src="/logo-hermes.png" alt="Hermes Marketing" className="h-7 w-auto opacity-50" />
+            <span className="text-sm text-gray-400">© {new Date().getFullYear()} Hermes Marketing</span>
+          </div>
+          <p className="text-xs text-gray-300">hermesmarketing.it — Web &amp; Comunicazione</p>
+        </div>
       </footer>
+
     </div>
   )
 }
