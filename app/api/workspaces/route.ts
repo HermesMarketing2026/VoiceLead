@@ -8,9 +8,8 @@ function generaPin(): string {
 function generaSlug(nomeAzienda: string): string {
   return nomeAzienda
     .toLowerCase()
-    .replace(/[^a-z0-9]/g, '-')
-    .replace(/-+/g, '-')
-    .replace(/^-|-$/g, '')
+    .normalize('NFD').replace(/[̀-ͯ]/g, '') // rimuove accenti
+    .replace(/[^a-z0-9]/g, '') // rimuove tutto tranne lettere e numeri
     .substring(0, 30)
 }
 

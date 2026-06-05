@@ -114,7 +114,7 @@ export default function Admin() {
 
   if (!pronto) return null
   if (!autenticato) {
-    return <PinLogin titolo="Admin VoiceLead" sottotitolo="Accesso riservato" onSuccess={onLogin} />
+    return <PinLogin titolo="Admin VoiceLeads" sottotitolo="Accesso riservato" onSuccess={onLogin} />
   }
 
   const inputClass = 'w-full rounded-xl border border-gray-200 px-3.5 py-2.5 text-sm bg-gray-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-hermes-400 transition-colors'
@@ -128,7 +128,7 @@ export default function Admin() {
           <button onClick={() => setModalita('lista')} className="text-gray-400 hover:text-gray-600 text-xl">←</button>
           <div>
             <h1 className="text-xl font-bold text-gray-900">Modifica workspace</h1>
-            <p className="text-xs text-gray-400 font-mono">{wsInModifica.slug}.demohermes.it</p>
+            <p className="text-xs text-gray-400 font-mono">{wsInModifica.slug}.voiceleads.it</p>
           </div>
         </div>
 
@@ -168,7 +168,7 @@ export default function Admin() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-xl font-bold text-gray-900">Pannello Admin</h1>
-          <p className="text-xs text-gray-400 mt-0.5">VoiceLead by Hermes Marketing</p>
+          <p className="text-xs text-gray-400 mt-0.5">VoiceLeads by Hermes Marketing</p>
         </div>
         <button onClick={() => { cancellaSessione(); setAutenticato(false) }} className="text-xs text-gray-400 hover:text-gray-600 px-2 py-1 rounded-lg hover:bg-gray-100">
           Esci
@@ -206,7 +206,7 @@ export default function Admin() {
           <div className="bg-white rounded-xl border border-green-200 p-4 space-y-2 text-sm">
             <div className="flex items-center justify-between">
               <span className="text-gray-500">URL:</span>
-              <span className="font-mono font-semibold text-gray-800">{nuovoWs.slug}.demohermes.it</span>
+              <span className="font-mono font-semibold text-gray-800">{nuovoWs.slug}.voiceleads.it</span>
             </div>
             <div className="flex items-center justify-between">
               <span className="text-gray-500">PIN:</span>
@@ -230,7 +230,7 @@ export default function Admin() {
                     {ws.logo_url && <img src={ws.logo_url} alt={ws.nome_azienda} className="h-8 w-auto object-contain" />}
                     <div>
                       <p className="font-semibold text-gray-900">{ws.nome_azienda}</p>
-                      <p className="text-xs text-gray-400 font-mono">{ws.slug}.demohermes.it</p>
+                      <p className="text-xs text-gray-400 font-mono">{ws.slug}.voiceleads.it</p>
                     </div>
                   </div>
                   <span className="text-xs text-gray-400">{new Date(ws.creato_il).toLocaleDateString('it-IT')}</span>

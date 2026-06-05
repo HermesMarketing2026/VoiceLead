@@ -107,7 +107,7 @@ export default function Home() {
 
   if (vista === 'loading') return null
   if (vista === 'landing') return <LandingPage />
-  if (vista === 'login') return <PinLogin titolo="VoiceLead" slug={slug} onSuccess={onLogin} />
+  if (vista === 'login') return <PinLogin titolo="VoiceLeads" slug={slug} onSuccess={onLogin} />
 
   // Dashboard
   const totale = leads.length

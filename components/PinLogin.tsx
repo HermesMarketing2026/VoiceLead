@@ -51,7 +51,7 @@ export default function PinLogin({ titolo, nomeAzienda, logoUrl, slug, onSuccess
             <img src="/logo-hermes.png" alt="Hermes Marketing" className="h-12 w-auto mx-auto mb-3 object-contain" />
           )}
 
-          <h1 className="text-2xl font-bold text-gray-900">VoiceLead</h1>
+          <h1 className="text-2xl font-bold text-gray-900">VoiceLeads</h1>
           {nomeAzienda && (
             <p className="text-sm text-hermes-500 font-medium mt-0.5">{nomeAzienda}</p>
           )}
@@ -118,7 +118,7 @@ export default function PinLogin({ titolo, nomeAzienda, logoUrl, slug, onSuccess
             className="w-full flex items-center justify-between px-5 py-4 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
           >
             <span className="flex items-center gap-2">
-              <span>💡</span> Come funziona VoiceLead?
+              <span>💡</span> Come funziona VoiceLeads?
             </span>
             <span className="text-gray-400 text-lg">{mostraGuida ? '−' : '+'}</span>
           </button>

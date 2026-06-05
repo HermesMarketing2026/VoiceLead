@@ -22,7 +22,7 @@ export default function LandingPage() {
       <section className="bg-gradient-to-br from-hermes-500 to-hermes-700 text-white px-6 py-16 text-center">
         <img src="/logo-hermes.png" alt="Hermes Marketing" className="h-14 w-auto mx-auto mb-6 brightness-0 invert" />
         <h1 className="text-4xl font-bold leading-tight mb-3">
-          VoiceLead
+          VoiceLeads
         </h1>
         <p className="text-hermes-100 text-lg mb-2">by Hermes Marketing</p>
         <p className="text-hermes-50 text-base max-w-sm mx-auto leading-relaxed mt-4">
@@ -82,7 +82,7 @@ export default function LandingPage() {
       {/* Vantaggi */}
       <section className="bg-gray-50 px-6 py-14">
         <div className="max-w-2xl mx-auto">
-          <h2 className="text-2xl font-bold text-gray-900 text-center mb-8">Perché VoiceLead?</h2>
+          <h2 className="text-2xl font-bold text-gray-900 text-center mb-8">Perché VoiceLeads?</h2>
           <div className="grid grid-cols-2 gap-4">
             {[
               { icon: '⚡', titolo: 'Veloce', testo: '30 secondi per registrare un lead completo' },
@@ -102,7 +102,7 @@ export default function LandingPage() {
 
       {/* Form richiesta */}
       <section id="richiesta" className="px-6 py-14 max-w-lg mx-auto">
-        <h2 className="text-2xl font-bold text-gray-900 text-center mb-2">Vuoi VoiceLead per la tua azienda?</h2>
+        <h2 className="text-2xl font-bold text-gray-900 text-center mb-2">Vuoi VoiceLeads per la tua azienda?</h2>
         <p className="text-center text-gray-500 text-sm mb-8">Lascia i tuoi dati, ti contattiamo entro 24 ore.</p>
 
         {inviato ? (
