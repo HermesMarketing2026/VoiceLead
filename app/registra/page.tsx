@@ -14,6 +14,7 @@ function RegistraDashboard() {
   const params = useSearchParams()
   const router = useRouter()
   const workspaceId = params.get('workspace_id') ?? leggiSessione()?.workspaceId ?? ''
+  const utenteId = params.get('utente_id') ?? leggiSessione()?.utenteId ?? ''
 
   const [leads, setLeads] = useState<Lead[]>([])
   const [filtro, setFiltro] = useState<Filtro>('tutti')
@@ -30,7 +31,8 @@ function RegistraDashboard() {
 
   const carica = async () => {
     setCaricamento(true)
-    const res = await fetch(`/api/leads?workspace_id=${workspaceId}`)
+    const url = utenteId ? `/api/leads?workspace_id=${workspaceId}&utente_id=${utenteId}` : `/api/leads?workspace_id=${workspaceId}`
+    const res = await fetch(url)
     const data = await res.json()
     setLeads(Array.isArray(data) ? data : [])
     setCaricamento(false)
@@ -117,7 +119,7 @@ function RegistraDashboard() {
 
         <div className="flex gap-2">
           <Link
-            href={`/lead/nuovo?workspace_id=${workspaceId}`}
+            href={`/lead/nuovo?workspace_id=${workspaceId}${utenteId ? `&utente_id=${utenteId}` : ''}`}
             className="flex-1 flex items-center justify-center gap-2 rounded-xl bg-hermes-500 px-4 py-3.5 text-sm font-semibold text-white hover:bg-hermes-600 shadow-sm transition-colors"
           >
             🎙️ Nuovo lead

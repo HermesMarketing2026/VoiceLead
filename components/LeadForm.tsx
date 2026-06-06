@@ -16,6 +16,7 @@ const VUOTO: LeadFormData = { nome: '', cognome: '', azienda: '', email: '', tel
 
 export default function LeadForm({ lead, workspaceId }: Props) {
   const router = useRouter()
+  const utenteId = leggiSessione()?.utenteId ?? null
   const [form, setForm] = useState<LeadFormData>(lead ? {
     nome: lead.nome, cognome: lead.cognome, azienda: lead.azienda,
     email: lead.email, telefono: lead.telefono, note: lead.note ?? '',
@@ -62,13 +63,13 @@ export default function LeadForm({ lead, workspaceId }: Props) {
       const res = await fetch(url, {
         method,
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...form, workspace_id: workspaceId }),
+        body: JSON.stringify({ ...form, workspace_id: workspaceId, ...(isNuovo && utenteId ? { utente_id: utenteId } : {}) }),
       })
       if (!res.ok) {
         const body = await res.json().catch(() => ({}))
         throw new Error(body.error || `Errore ${res.status}`)
       }
-      router.push('/')
+      router.push(`/registra?workspace_id=${workspaceId}`)
       router.refresh()
     } catch (e: any) {
       setErrore(e.message)
@@ -100,7 +101,7 @@ export default function LeadForm({ lead, workspaceId }: Props) {
     try {
       const res = await fetch(`/api/leads/${lead!.id}`, { method: 'DELETE' })
       if (!res.ok) throw new Error('Errore eliminazione')
-      router.push('/')
+      router.push(`/registra?workspace_id=${workspaceId}`)
       router.refresh()
     } catch (e: any) {
       setErrore(e.message)

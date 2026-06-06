@@ -1,4 +1,14 @@
 export type StatoLead = 'bozza' | 'completo' | 'esportato'
+
+export interface Utente {
+  id: string
+  workspace_id: string
+  nome: string
+  cognome: string
+  pin: string
+  ruolo: 'admin' | 'commerciale'
+  creato_il: string
+}
 export type StatoGestione = 'nuovo' | 'trattativa'
 export type EsitoGestione = 'vinto' | 'perso'
 
@@ -26,6 +36,7 @@ export interface Lead {
   note: string | null
   data_registrazione: string
   stato: StatoLead
+  utente_id: string | null
   // Gestisci fields
   stato_gestione: StatoGestione
   in_gestione: boolean

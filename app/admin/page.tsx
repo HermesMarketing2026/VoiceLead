@@ -1,6 +1,6 @@
 'use client'
 import { useEffect, useState } from 'react'
-import type { Workspace } from '@/lib/types'
+import type { Workspace, Utente } from '@/lib/types'
 import PinLogin from '@/components/PinLogin'
 import { salvaSessione, leggiSessione, cancellaSessione } from '@/lib/session'
 import AppShell from '@/components/AppShell'
@@ -21,6 +21,13 @@ export default function Admin() {
   const [salvataggio, setSalvataggio] = useState(false)
   const [eliminazione, setEliminazione] = useState<string | null>(null)
   const [confermaElimina, setConfermaElimina] = useState<string | null>(null)
+  // Utenti
+  const [utenti, setUtenti] = useState<Utente[]>([])
+  const [formUtente, setFormUtente] = useState({ nome: '', cognome: '', pin: '' })
+  const [creazioneUtente, setCreazioneUtente] = useState(false)
+  const [erroreUtente, setErroreUtente] = useState<string | null>(null)
+  const [confermaEliminaUtente, setConfermaEliminaUtente] = useState<string | null>(null)
+  const [eliminazioneUtente, setEliminazioneUtente] = useState<string | null>(null)
 
   useEffect(() => {
     const sessione = leggiSessione()
@@ -77,6 +84,48 @@ export default function Admin() {
     setWsInModifica(ws)
     setFormModifica({ nome_azienda: ws.nome_azienda, google_sheet_id: ws.google_sheet_id, logo_url: ws.logo_url ?? '', nome_referente: ws.nome_referente ?? '', cognome_referente: ws.cognome_referente ?? '', has_gestisci: ws.has_gestisci ?? false })
     setModalita('modifica')
+    caricaUtenti(ws.id)
+  }
+
+  const caricaUtenti = async (workspaceId: string) => {
+    const res = await fetch(`/api/utenti?workspace_id=${workspaceId}`)
+    const data = await res.json()
+    setUtenti(Array.isArray(data) ? data : [])
+  }
+
+  const aggiungiUtente = async () => {
+    if (!wsInModifica || !formUtente.nome || !formUtente.cognome || !formUtente.pin) return
+    setCreazioneUtente(true)
+    setErroreUtente(null)
+    try {
+      const res = await fetch('/api/utenti', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ workspace_id: wsInModifica.id, ...formUtente, ruolo: 'commerciale' }),
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error)
+      setFormUtente({ nome: '', cognome: '', pin: '' })
+      caricaUtenti(wsInModifica.id)
+    } catch (e: any) {
+      setErroreUtente(e.message)
+    } finally {
+      setCreazioneUtente(false)
+    }
+  }
+
+  const eliminaUtente = async (id: string) => {
+    setEliminazioneUtente(id)
+    try {
+      const res = await fetch(`/api/utenti/${id}`, { method: 'DELETE' })
+      if (!res.ok) throw new Error('Errore eliminazione')
+      setConfermaEliminaUtente(null)
+      if (wsInModifica) caricaUtenti(wsInModifica.id)
+    } catch (e: any) {
+      setErroreUtente(e.message)
+    } finally {
+      setEliminazioneUtente(null)
+    }
   }
 
   const salvaModifica = async () => {
@@ -186,6 +235,79 @@ export default function Admin() {
             </button>
             <button onClick={salvaModifica} disabled={salvataggio} className="flex-1 rounded-xl bg-hermes-500 py-3 text-sm font-semibold text-white hover:bg-hermes-600 disabled:opacity-50">
               {salvataggio ? 'Salvataggio…' : 'Salva modifiche'}
+            </button>
+          </div>
+        </div>
+
+        {/* Sezione commerciali */}
+        <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 space-y-4">
+          <h2 className="text-xs font-bold text-hermes-500 uppercase tracking-wider">👥 Commerciali</h2>
+          <p className="text-xs text-gray-400">Ogni commerciale ha il suo PIN e vede solo i propri lead. Il PIN del workspace è riservato al responsabile.</p>
+
+          {utenti.length === 0 ? (
+            <p className="text-sm text-gray-400 text-center py-3">Nessun commerciale ancora — accesso singolo con PIN workspace.</p>
+          ) : (
+            <ul className="space-y-2">
+              {utenti.map(u => (
+                <li key={u.id} className="flex items-center justify-between bg-gray-50 rounded-xl px-4 py-3">
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-full bg-hermes-100 flex items-center justify-center text-hermes-600 font-bold text-sm shrink-0">
+                      {u.nome[0]}{u.cognome[0]}
+                    </div>
+                    <div>
+                      <p className="text-sm font-semibold text-gray-900">{u.nome} {u.cognome}</p>
+                      <p className="text-xs text-gray-400 font-mono">PIN: {u.pin}</p>
+                    </div>
+                  </div>
+                  {confermaEliminaUtente === u.id ? (
+                    <div className="flex gap-1">
+                      <button onClick={() => setConfermaEliminaUtente(null)} className="text-xs text-gray-500 px-2 py-1 rounded-lg border border-gray-300 bg-white">Annulla</button>
+                      <button onClick={() => eliminaUtente(u.id)} disabled={eliminazioneUtente === u.id} className="text-xs text-white bg-red-500 px-2 py-1 rounded-lg disabled:opacity-50">
+                        {eliminazioneUtente === u.id ? '…' : 'Elimina'}
+                      </button>
+                    </div>
+                  ) : (
+                    <button onClick={() => setConfermaEliminaUtente(u.id)} className="text-xs text-red-400 hover:text-red-600 px-2 py-1 rounded-lg hover:bg-red-50 transition-colors">
+                      🗑️
+                    </button>
+                  )}
+                </li>
+              ))}
+            </ul>
+          )}
+
+          {/* Form aggiungi commerciale */}
+          <div className="border-t border-gray-100 pt-4 space-y-3">
+            <p className="text-xs font-semibold text-gray-600">Aggiungi commerciale</p>
+            <div className="grid grid-cols-2 gap-2">
+              <input
+                className={inputClass}
+                placeholder="Nome"
+                value={formUtente.nome}
+                onChange={e => setFormUtente(f => ({ ...f, nome: e.target.value }))}
+              />
+              <input
+                className={inputClass}
+                placeholder="Cognome"
+                value={formUtente.cognome}
+                onChange={e => setFormUtente(f => ({ ...f, cognome: e.target.value }))}
+              />
+            </div>
+            <input
+              className={inputClass}
+              placeholder="PIN a 6 cifre"
+              maxLength={6}
+              inputMode="numeric"
+              value={formUtente.pin}
+              onChange={e => setFormUtente(f => ({ ...f, pin: e.target.value.replace(/\D/g, '') }))}
+            />
+            {erroreUtente && <p className="text-xs text-red-500">{erroreUtente}</p>}
+            <button
+              onClick={aggiungiUtente}
+              disabled={creazioneUtente || !formUtente.nome || !formUtente.cognome || formUtente.pin.length !== 6}
+              className="w-full rounded-xl bg-hermes-500 py-2.5 text-sm font-semibold text-white hover:bg-hermes-600 disabled:opacity-40 transition-colors"
+            >
+              {creazioneUtente ? 'Aggiunta…' : '+ Aggiungi commerciale'}
             </button>
           </div>
         </div>

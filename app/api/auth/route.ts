@@ -2,8 +2,9 @@ import { NextRequest, NextResponse } from 'next/server'
 import { supabase } from '@/lib/supabase'
 
 export async function POST(req: NextRequest) {
-  const { pin, slug } = await req.json()
+  const { pin, slug, utente_id } = await req.json()
 
+  // Login admin globale (no slug)
   if (!slug) {
     const adminPin = process.env.ADMIN_PIN?.trim()
     if (!adminPin) return NextResponse.json({ error: 'Admin PIN non configurato' }, { status: 500 })
@@ -14,32 +15,51 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ tipo: 'admin' })
   }
 
-  const { data, error } = await supabase
+  const { data: ws, error: wsError } = await supabase
     .from('workspaces')
-    .select('id, pin, nome_azienda, slug, logo_url')
+    .select('id, pin, nome_azienda, slug, logo_url, has_gestisci')
     .eq('slug', slug)
     .single()
 
-  if (error || !data) {
-    console.error('[auth] workspace non trovato — slug cercato:', JSON.stringify(slug), '— errore:', error?.message)
-    return NextResponse.json({ error: `Workspace non trovato (slug: "${slug}", db error: ${error?.message ?? 'nessun record'})` }, { status: 404 })
+  if (wsError || !ws) {
+    return NextResponse.json({ error: `Workspace non trovato (slug: "${slug}")` }, { status: 404 })
   }
-  if (pin !== data.pin) return NextResponse.json({ error: 'PIN non corretto' }, { status: 401 })
 
-  // has_gestisci: leggi separatamente, fallback false se colonna non esiste ancora (migrazione v4)
-  let hasGestisci = false
-  const { data: wsExtra, error: wsExtraError } = await supabase
-    .from('workspaces')
-    .select('has_gestisci')
-    .eq('id', data.id)
-    .single()
-  if (!wsExtraError) hasGestisci = wsExtra?.has_gestisci ?? false
+  // Login commerciale: utente_id fornito → verifica PIN utente
+  if (utente_id) {
+    const { data: utente, error: utenteError } = await supabase
+      .from('utenti')
+      .select('id, nome, cognome, pin, ruolo')
+      .eq('id', utente_id)
+      .eq('workspace_id', ws.id)
+      .single()
+
+    if (utenteError || !utente) return NextResponse.json({ error: 'Utente non trovato' }, { status: 404 })
+    if (pin !== utente.pin) return NextResponse.json({ error: 'PIN non corretto' }, { status: 401 })
+
+    return NextResponse.json({
+      tipo: 'workspace',
+      workspaceId: ws.id,
+      nomeAzienda: ws.nome_azienda,
+      logoUrl: ws.logo_url ?? '',
+      hasGestisci: ws.has_gestisci ?? false,
+      utenteId: utente.id,
+      nomeUtente: `${utente.nome} ${utente.cognome}`,
+      ruoloUtente: utente.ruolo,
+    })
+  }
+
+  // Login workspace (PIN del workspace = accesso admin/referente)
+  if (pin !== ws.pin) return NextResponse.json({ error: 'PIN non corretto' }, { status: 401 })
 
   return NextResponse.json({
     tipo: 'workspace',
-    workspaceId: data.id,
-    nomeAzienda: data.nome_azienda,
-    logoUrl: data.logo_url ?? '',
-    hasGestisci,
+    workspaceId: ws.id,
+    nomeAzienda: ws.nome_azienda,
+    logoUrl: ws.logo_url ?? '',
+    hasGestisci: ws.has_gestisci ?? false,
+    utenteId: null,
+    nomeUtente: null,
+    ruoloUtente: 'admin' as const,
   })
 }

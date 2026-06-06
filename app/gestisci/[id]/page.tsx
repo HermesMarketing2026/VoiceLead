@@ -19,7 +19,7 @@ function BarraProgresso({ stato, esito }: { stato: StatoGestione; esito: string 
         const attivo = i <= current
         const isLast = i === steps.length - 1
         return (
-          <div key={step} className="flex items-start flex-1">
+          <div key={step} className={`flex items-start flex-1 ${isLast ? 'justify-end' : ''}`}>
             {/* Cerchio + label */}
             <div className="flex flex-col items-center gap-1.5 shrink-0">
               <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold transition-colors ${

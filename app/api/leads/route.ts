@@ -4,13 +4,18 @@ import { campiMancanti } from '@/lib/types'
 
 export async function GET(req: NextRequest) {
   const workspaceId = req.nextUrl.searchParams.get('workspace_id')
+  const utenteId = req.nextUrl.searchParams.get('utente_id')
   if (!workspaceId) return NextResponse.json({ error: 'workspace_id mancante' }, { status: 400 })
 
-  const { data, error } = await supabase
+  let query = supabase
     .from('leads')
     .select('*')
     .eq('workspace_id', workspaceId)
     .order('data_registrazione', { ascending: false })
+
+  if (utenteId) query = query.eq('utente_id', utenteId)
+
+  const { data, error } = await query
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
   return NextResponse.json(data)

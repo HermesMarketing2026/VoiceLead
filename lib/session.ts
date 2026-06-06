@@ -6,6 +6,9 @@ interface Sessione {
   nomeAzienda?: string
   logoUrl?: string
   hasGestisci?: boolean
+  utenteId?: string
+  nomeUtente?: string
+  ruoloUtente?: 'admin' | 'commerciale'
   scadenza: number
 }
 
@@ -15,8 +18,11 @@ export function salvaSessione(
   nomeAzienda?: string,
   logoUrl?: string,
   hasGestisci?: boolean,
+  utenteId?: string,
+  nomeUtente?: string,
+  ruoloUtente?: 'admin' | 'commerciale',
 ) {
-  const payload: Sessione = { tipo, workspaceId, nomeAzienda, logoUrl, hasGestisci, scadenza: Date.now() + DURATA_MS }
+  const payload: Sessione = { tipo, workspaceId, nomeAzienda, logoUrl, hasGestisci, utenteId, nomeUtente, ruoloUtente, scadenza: Date.now() + DURATA_MS }
   localStorage.setItem('vl_sessione', JSON.stringify(payload))
 }
 

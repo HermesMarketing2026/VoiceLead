@@ -16,6 +16,8 @@ export default function Home() {
   const [slug, setSlug] = useState('')
   const [hasGestisci, setHasGestisci] = useState(false)
   const [leadDaGestire, setLeadDaGestire] = useState(0)
+  const [utenteId, setUtenteId] = useState<string | null>(null)
+  const [nomeUtente, setNomeUtente] = useState<string | null>(null)
 
   useEffect(() => {
     const host = window.location.hostname
@@ -37,6 +39,8 @@ export default function Home() {
       setNomeAzienda(sessione.nomeAzienda || '')
       setLogoUrl(sessione.logoUrl || '')
       setHasGestisci(sessione.hasGestisci ?? false)
+      setUtenteId(sessione.utenteId ?? null)
+      setNomeUtente(sessione.nomeUtente ?? null)
       setVista('hub')
     } else {
       setVista('login')
@@ -45,26 +49,31 @@ export default function Home() {
 
   useEffect(() => {
     if (workspaceId && vista === 'hub' && hasGestisci) {
-      fetch(`/api/azioni?workspace_id=${workspaceId}`)
+      const url = utenteId
+        ? `/api/azioni?workspace_id=${workspaceId}&utente_id=${utenteId}`
+        : `/api/azioni?workspace_id=${workspaceId}`
+      fetch(url)
         .then(r => r.json())
         .then(d => setLeadDaGestire(d.count ?? 0))
         .catch(() => {})
     }
-  }, [workspaceId, vista, hasGestisci])
+  }, [workspaceId, vista, hasGestisci, utenteId])
 
-  const onLogin = async (pin: string) => {
+  const onLogin = async (pin: string, utenteIdLogin?: string) => {
     const res = await fetch('/api/auth', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ pin, slug }),
+      body: JSON.stringify({ pin, slug, utente_id: utenteIdLogin }),
     })
     const data = await res.json()
     if (!res.ok) throw new Error(data.error)
-    salvaSessione('workspace', data.workspaceId, data.nomeAzienda, data.logoUrl, data.hasGestisci)
+    salvaSessione('workspace', data.workspaceId, data.nomeAzienda, data.logoUrl, data.hasGestisci, data.utenteId ?? undefined, data.nomeUtente ?? undefined, data.ruoloUtente ?? undefined)
     setWorkspaceId(data.workspaceId)
     setNomeAzienda(data.nomeAzienda)
     setLogoUrl(data.logoUrl || '')
     setHasGestisci(data.hasGestisci ?? false)
+    setUtenteId(data.utenteId ?? null)
+    setNomeUtente(data.nomeUtente ?? null)
     setVista('hub')
   }
 
@@ -89,7 +98,10 @@ export default function Home() {
             {logoUrl && <img src={logoUrl} alt={nomeAzienda} className="h-8 w-auto object-contain" />}
             <div>
               <p className="font-bold text-gray-900 leading-tight">{nomeAzienda}</p>
-              <p className="text-xs text-gray-400">VoiceLeads</p>
+              {nomeUtente
+                ? <p className="text-xs text-hermes-500 font-medium">{nomeUtente}</p>
+                : <p className="text-xs text-gray-400">VoiceLeads</p>
+              }
             </div>
           </div>
           <button onClick={logout} className="text-xs text-gray-400 hover:text-gray-600 px-2 py-1 rounded-lg hover:bg-gray-100 transition-colors">
@@ -100,7 +112,7 @@ export default function Home() {
         {/* Due pulsanti principali */}
         <div className="grid grid-cols-1 gap-4">
           <Link
-            href={`/registra?workspace_id=${workspaceId}`}
+            href={`/registra?workspace_id=${workspaceId}${utenteId ? `&utente_id=${utenteId}` : ''}`}
             className="flex flex-col items-center justify-center gap-3 rounded-2xl bg-hermes-500 px-6 py-10 text-white shadow-lg hover:bg-hermes-600 active:scale-95 transition-all"
           >
             <span className="text-5xl">🎙️</span>
@@ -112,7 +124,7 @@ export default function Home() {
 
           {hasGestisci ? (
             <Link
-              href={`/gestisci?workspace_id=${workspaceId}`}
+              href={`/gestisci?workspace_id=${workspaceId}${utenteId ? `&utente_id=${utenteId}` : ''}`}
               className="flex flex-col items-center justify-center gap-3 rounded-2xl bg-white border-2 border-gray-200 px-6 py-10 text-gray-800 shadow-sm hover:border-hermes-300 hover:shadow-md active:scale-95 transition-all"
             >
               <span className="text-5xl">📋</span>
