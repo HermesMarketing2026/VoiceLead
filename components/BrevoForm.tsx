@@ -103,6 +103,24 @@ const formHTML = `
         </div>
       </div>
       <div style="padding:8px 0;">
+        <div class="sib-optin sib-form-block">
+          <div class="form__entry entry_mcq">
+            <div class="form__label-row">
+              <div class="entry__choice">
+                <label>
+                  <input type="checkbox" class="input_replaced" value="1" id="OPT_IN" name="OPT_IN" required/>
+                  <span class="checkbox checkbox_tick_positive"></span>
+                  <span style="font-family:Helvetica,sans-serif;font-size:12px;text-align:left;color:#3C4858;background-color:transparent;">
+                    Ho letto l'<a href="https://www.voiceleads.it/privacy" rel="nofollow">Informativa sulla Privacy</a> e acconsento al trattamento dei miei dati personali da parte di Hermes Marketing per essere ricontattato in merito ai servizi VoiceLeads. I dati non saranno ceduti a terzi.
+                  </span>
+                </label>
+              </div>
+            </div>
+            <label class="entry__error entry__error--primary" style="font-family:Helvetica,sans-serif;font-size:16px;text-align:left;color:#661d1d;background-color:#ffeded;border-color:#ff4949;border-radius:3px;"></label>
+          </div>
+        </div>
+      </div>
+      <div style="padding:8px 0;">
         <div class="sib-form-block" style="text-align:center">
           <button class="sib-form-block__button sib-form-block__button-with-loader" style="font-family:Helvetica,sans-serif;font-size:16px;font-weight:700;text-align:center;color:#FFFFFF;background-color:#ff7930;border-width:0px;border-radius:15px;" form="sib-form" type="submit">
             <svg class="icon clickable__icon progress-indicator__icon sib-hide-loader-icon" viewBox="0 0 512 512">
