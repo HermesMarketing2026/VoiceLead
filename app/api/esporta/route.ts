@@ -19,7 +19,7 @@ export async function POST(req: NextRequest) {
 
   const { data: leads, error } = await supabase
     .from('leads')
-    .select('*')
+    .select('*, utenti(nome, cognome)')
     .eq('workspace_id', workspace_id)
     .eq('stato', 'completo')
     .order('data_registrazione', { ascending: true })
@@ -48,13 +48,17 @@ export async function POST(req: NextRequest) {
     })
     const foglioVuoto = !esistenti.data.values || esistenti.data.values.length === 0
 
-    const intestazione = ['Nome', 'Cognome', 'Azienda', 'Email', 'Telefono', 'Note', 'Data registrazione', 'Fase trattativa']
-    const righe = (leads as Lead[]).map(l => [
-      l.nome, l.cognome, l.azienda, l.email, l.telefono,
-      l.note ?? '',
-      new Date(l.data_registrazione).toLocaleString('it-IT'),
-      'in trattativa',
-    ])
+    const intestazione = ['Nome', 'Cognome', 'Azienda', 'Email', 'Telefono', 'Note', 'Data registrazione', 'Fase trattativa', 'Commerciale']
+    const righe = (leads as any[]).map(l => {
+      const nomeCommerciale = l.utenti ? `${l.utenti.nome} ${l.utenti.cognome}` : ''
+      return [
+        l.nome, l.cognome, l.azienda, l.email, l.telefono,
+        l.note ?? '',
+        new Date(l.data_registrazione).toLocaleString('it-IT'),
+        'in trattativa',
+        nomeCommerciale,
+      ]
+    })
 
     await sheets.spreadsheets.values.append({
       spreadsheetId: sheetId,
