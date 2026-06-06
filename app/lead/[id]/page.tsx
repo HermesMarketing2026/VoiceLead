@@ -20,6 +20,14 @@ function SchedaLeadInner({ id }: { id: string }) {
 
   return (
     <AppShell>
+      <div className="flex items-center gap-2 mb-5">
+        <a
+          href={workspaceId ? `/registra?workspace_id=${workspaceId}` : '/'}
+          className="text-gray-400 hover:text-gray-600 text-sm"
+        >
+          ← Registra
+        </a>
+      </div>
       <h1 className="text-xl font-bold mb-1">{lead.nome} {lead.cognome}</h1>
       <p className="text-sm text-gray-500 mb-5">{lead.azienda}</p>
       <LeadForm lead={lead} workspaceId={workspaceId} />

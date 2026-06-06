@@ -150,6 +150,8 @@ function SchedaGestisciInner({ id }: { id: string }) {
   const [confermaEsito, setConfermaEsito] = useState<'vinto' | 'perso' | null>(null)
   const [invioEsito, setInvioEsito] = useState(false)
   const [nota, setNota] = useState<string | null>(null)
+  const [testoManuale, setTestoManuale] = useState('')
+  const [invioManuale, setInvioManuale] = useState(false)
 
   const caricaLead = async () => {
     const res = await fetch(`/api/leads/${id}`)
@@ -179,6 +181,19 @@ function SchedaGestisciInner({ id }: { id: string }) {
     await caricaLead()
     await caricaAzioni()
     setTimeout(() => setNota(null), 5000)
+  }
+
+  const inviaTestoManuale = async () => {
+    if (!testoManuale.trim()) return
+    setInvioManuale(true)
+    try {
+      await onAggiornamento(testoManuale.trim())
+      setTestoManuale('')
+    } catch {
+      setNota('❌ Errore durante l\'elaborazione. Riprova.')
+    } finally {
+      setInvioManuale(false)
+    }
   }
 
   const completaAzione = async (azId: string, completata: boolean) => {
@@ -261,12 +276,41 @@ function SchedaGestisciInner({ id }: { id: string }) {
           </div>
         )}
 
-        {/* Sezione aggiornamento vocale */}
-        <div className="bg-white rounded-2xl border border-gray-200 p-6 shadow-sm">
-          <p className="text-xs font-bold text-hermes-500 uppercase tracking-wider mb-4">🎙️ Aggiorna trattativa</p>
+        {/* Sezione aggiornamento: voce + testo */}
+        <div className="bg-white rounded-2xl border border-gray-200 p-6 shadow-sm space-y-5">
+          <p className="text-xs font-bold text-hermes-500 uppercase tracking-wider">🎙️ Aggiorna trattativa</p>
+
+          {/* Mic */}
           <MicGestisci onAggiornamento={onAggiornamento} />
+
+          {/* Divider */}
+          <div className="flex items-center gap-3">
+            <div className="flex-1 h-px bg-gray-200" />
+            <span className="text-xs text-gray-400 font-medium">oppure scrivi</span>
+            <div className="flex-1 h-px bg-gray-200" />
+          </div>
+
+          {/* Input testo manuale */}
+          <div className="space-y-2">
+            <textarea
+              rows={3}
+              value={testoManuale}
+              onChange={e => setTestoManuale(e.target.value)}
+              placeholder="Es. Ho chiamato Mario, vuole una proposta entro venerdì prossimo…"
+              className="w-full rounded-xl border border-gray-200 px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-hermes-400 focus:border-transparent bg-gray-50 focus:bg-white transition-colors resize-none"
+            />
+            <button
+              type="button"
+              onClick={inviaTestoManuale}
+              disabled={invioManuale || !testoManuale.trim()}
+              className="w-full rounded-xl bg-hermes-500 py-2.5 text-sm font-semibold text-white hover:bg-hermes-600 disabled:opacity-40 disabled:cursor-not-allowed transition-colors shadow-sm"
+            >
+              {invioManuale ? '⏳ Elaborazione…' : 'Invia aggiornamento'}
+            </button>
+          </div>
+
           {nota && (
-            <div className="mt-4 rounded-xl bg-green-50 border border-green-200 px-4 py-3 text-sm text-green-800">
+            <div className="rounded-xl bg-green-50 border border-green-200 px-4 py-3 text-sm text-green-800">
               {nota}
             </div>
           )}
