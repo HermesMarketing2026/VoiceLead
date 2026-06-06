@@ -3,7 +3,7 @@ import { supabase } from '@/lib/supabase'
 
 export async function PATCH(req: NextRequest, { params }: { params: { id: string } }) {
   const body = await req.json()
-  const { nome_azienda, google_sheet_id, logo_url, nome_referente, cognome_referente, has_gestisci } = body
+  const { nome_azienda, google_sheet_id, logo_url, nome_referente, cognome_referente, has_gestisci, pin } = body
 
   const updatePayload: Record<string, unknown> = {
     nome_azienda,
@@ -12,8 +12,8 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
     nome_referente: nome_referente || null,
     cognome_referente: cognome_referente || null,
   }
-  // Includi has_gestisci solo se la migrazione v4 è stata eseguita
   if (has_gestisci !== undefined) updatePayload.has_gestisci = has_gestisci
+  if (pin && pin.length === 6 && /^\d+$/.test(pin)) updatePayload.pin = pin
 
   const { data, error } = await supabase
     .from('workspaces')

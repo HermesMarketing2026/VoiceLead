@@ -17,7 +17,7 @@ export default function Admin() {
   const [errore, setErrore] = useState<string | null>(null)
   const [modalita, setModalita] = useState<Modalita>('lista')
   const [wsInModifica, setWsInModifica] = useState<Workspace | null>(null)
-  const [formModifica, setFormModifica] = useState({ nome_azienda: '', google_sheet_id: '', logo_url: '', nome_referente: '', cognome_referente: '', has_gestisci: false })
+  const [formModifica, setFormModifica] = useState({ nome_azienda: '', google_sheet_id: '', logo_url: '', nome_referente: '', cognome_referente: '', has_gestisci: false, pin: '' })
   const [salvataggio, setSalvataggio] = useState(false)
   const [eliminazione, setEliminazione] = useState<string | null>(null)
   const [confermaElimina, setConfermaElimina] = useState<string | null>(null)
@@ -82,7 +82,7 @@ export default function Admin() {
 
   const apriModifica = (ws: Workspace) => {
     setWsInModifica(ws)
-    setFormModifica({ nome_azienda: ws.nome_azienda, google_sheet_id: ws.google_sheet_id, logo_url: ws.logo_url ?? '', nome_referente: ws.nome_referente ?? '', cognome_referente: ws.cognome_referente ?? '', has_gestisci: ws.has_gestisci ?? false })
+    setFormModifica({ nome_azienda: ws.nome_azienda, google_sheet_id: ws.google_sheet_id, logo_url: ws.logo_url ?? '', nome_referente: ws.nome_referente ?? '', cognome_referente: ws.cognome_referente ?? '', has_gestisci: ws.has_gestisci ?? false, pin: ws.pin })
     setModalita('modifica')
     caricaUtenti(ws.id)
   }
@@ -190,6 +190,17 @@ export default function Admin() {
           <div>
             <label className={labelClass}>Google Sheet ID</label>
             <input className={inputClass} value={formModifica.google_sheet_id} onChange={e => setFormModifica(f => ({ ...f, google_sheet_id: e.target.value }))} />
+          </div>
+          <div>
+            <label className={labelClass}>PIN responsabile</label>
+            <input
+              className={inputClass}
+              value={formModifica.pin}
+              onChange={e => setFormModifica(f => ({ ...f, pin: e.target.value.replace(/\D/g, '') }))}
+              maxLength={6}
+              inputMode="numeric"
+              placeholder="6 cifre"
+            />
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
