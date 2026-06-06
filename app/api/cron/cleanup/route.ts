@@ -12,10 +12,11 @@ export async function GET(req: NextRequest) {
   const trentaGiorniFa = new Date()
   trentaGiorniFa.setDate(trentaGiorniFa.getDate() - 30)
 
-  // Cancella TUTTI i lead più vecchi di 30 giorni, indipendentemente dallo stato
+  // Cancella solo i lead già esportati da più di 30 giorni
   const { data, error } = await supabase
     .from('leads')
     .delete()
+    .eq('stato', 'esportato')
     .lt('data_registrazione', trentaGiorniFa.toISOString())
     .select('id')
 

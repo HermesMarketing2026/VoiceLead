@@ -74,10 +74,21 @@ function RegistraDashboard() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ workspace_id: workspaceId }),
       })
-      const data = await res.json()
-      if (!res.ok) setEsito(`❌ ${data.error ?? 'Errore'}`)
-      else if (data.esportati) { setEsito(`✅ ${data.esportati} lead esportati`); carica() }
-      else setEsito(data.message || 'Nessun lead da esportare')
+      if (res.status === 200 && res.headers.get('content-type')?.includes('text/csv')) {
+        const blob = await res.blob()
+        const url = URL.createObjectURL(blob)
+        const a = document.createElement('a')
+        a.href = url
+        a.download = `leads-${new Date().toISOString().slice(0, 10)}.csv`
+        a.click()
+        URL.revokeObjectURL(url)
+        setEsito('✅ CSV scaricato!')
+        carica()
+      } else {
+        const data = await res.json()
+        if (!res.ok) setEsito(`❌ ${data.error ?? 'Errore'}`)
+        else setEsito(data.message || 'Nessun lead da esportare')
+      }
     } catch (e: any) {
       setEsito(`❌ ${e?.message ?? 'Errore'}`)
     } finally {
@@ -129,7 +140,7 @@ function RegistraDashboard() {
             disabled={esportazione || pronti === 0}
             className="flex-1 flex items-center justify-center gap-2 rounded-xl border border-gray-300 px-4 py-3.5 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
           >
-            {esportazione ? '⏳ Export…' : '📤 Esporta su Sheets'}
+            {esportazione ? '⏳ Export…' : '📥 Scarica CSV'}
           </button>
         </div>
 
@@ -142,7 +153,7 @@ function RegistraDashboard() {
             <div className="flex items-start justify-between gap-3">
               <div>
                 <p className="text-sm font-semibold text-blue-800">
-                  🔒 {esportati} lead {esportati === 1 ? 'è stato esportato' : 'sono stati esportati'} su Google Sheets
+                  🔒 {esportati} lead {esportati === 1 ? 'è stato esportato' : 'sono stati esportati'} via CSV
                 </p>
                 <p className="text-xs text-blue-600 mt-0.5">Verranno rimossi automaticamente dopo 30 giorni.</p>
               </div>

@@ -40,9 +40,9 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
-  const { nome_azienda, google_sheet_id, logo_url, nome_referente, cognome_referente, has_gestisci } = await req.json()
+  const { nome_azienda, logo_url, nome_referente, cognome_referente, has_gestisci } = await req.json()
 
-  if (!nome_azienda || !google_sheet_id)
+  if (!nome_azienda)
     return NextResponse.json({ error: 'Campi mancanti' }, { status: 400 })
 
   const slug = generaSlug(nome_azienda)
@@ -50,7 +50,7 @@ export async function POST(req: NextRequest) {
 
   const { data, error } = await supabase
     .from('workspaces')
-    .insert([{ slug, nome_azienda, google_sheet_id, pin, logo_url: logo_url || null, nome_referente: nome_referente || null, cognome_referente: cognome_referente || null, has_gestisci: has_gestisci ?? false }])
+    .insert([{ slug, nome_azienda, pin, logo_url: logo_url || null, nome_referente: nome_referente || null, cognome_referente: cognome_referente || null, has_gestisci: has_gestisci ?? false }])
     .select()
     .single()
 

@@ -78,19 +78,6 @@ export async function POST(req: NextRequest) {
       in_gestione: false,
     }).eq('id', lead_id)
 
-    // Aggiorna Google Sheets se workspace_id disponibile
-    if (workspace_id) {
-      try {
-        const esitoRes = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL ?? ''}/api/gestisci/esito`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ lead_id, esito: parsed.esito, workspace_id, ultimoAggiornamento: testo }),
-        })
-        if (!esitoRes.ok) console.error('[aggiorna-lead] esito sheets error')
-      } catch (e: any) {
-        console.error('[aggiorna-lead] esito fetch error:', e?.message)
-      }
-    }
 
     return NextResponse.json({
       esito: parsed.esito,

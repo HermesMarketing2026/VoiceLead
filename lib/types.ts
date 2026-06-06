@@ -16,7 +16,6 @@ export interface Workspace {
   id: string
   slug: string
   nome_azienda: string
-  google_sheet_id: string
   logo_url?: string
   nome_referente?: string
   cognome_referente?: string
@@ -33,7 +32,6 @@ export interface ProvisioningToken {
   token: string
   piano: 'registra' | 'registra_gestisci'
   max_commerciali: number
-  google_sheet_id: string
   usato: boolean
   workspace_id_creato: string | null
   scadenza: string

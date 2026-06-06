@@ -9,9 +9,6 @@ function generaSlug(nomeAzienda: string): string {
     .substring(0, 30)
 }
 
-function generaPin(): string {
-  return String(Math.floor(100000 + Math.random() * 900000))
-}
 
 // GET: verifica validità token
 export async function GET(req: NextRequest) {
@@ -79,7 +76,6 @@ export async function POST(req: NextRequest) {
     .insert([{
       slug,
       nome_azienda,
-      google_sheet_id: tokenData.google_sheet_id,
       pin,
       logo_url: logo_url || null,
       nome_referente,

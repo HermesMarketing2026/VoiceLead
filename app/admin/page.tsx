@@ -11,13 +11,13 @@ export default function Admin() {
   const [autenticato, setAutenticato] = useState(false)
   const [pronto, setPronto] = useState(false)
   const [workspaces, setWorkspaces] = useState<Workspace[]>([])
-  const [form, setForm] = useState({ nome_azienda: '', google_sheet_id: '', logo_url: '', nome_referente: '', cognome_referente: '', has_gestisci: false })
+  const [form, setForm] = useState({ nome_azienda: '', logo_url: '', nome_referente: '', cognome_referente: '', has_gestisci: false })
   const [creazione, setCreazione] = useState(false)
   const [nuovoWs, setNuovoWs] = useState<Workspace | null>(null)
   const [errore, setErrore] = useState<string | null>(null)
   const [modalita, setModalita] = useState<Modalita>('lista')
   const [wsInModifica, setWsInModifica] = useState<Workspace | null>(null)
-  const [formModifica, setFormModifica] = useState({ nome_azienda: '', google_sheet_id: '', logo_url: '', nome_referente: '', cognome_referente: '', has_gestisci: false, pin: '' })
+  const [formModifica, setFormModifica] = useState({ nome_azienda: '', logo_url: '', nome_referente: '', cognome_referente: '', has_gestisci: false, pin: '' })
   const [salvataggio, setSalvataggio] = useState(false)
   const [eliminazione, setEliminazione] = useState<string | null>(null)
   const [confermaElimina, setConfermaElimina] = useState<string | null>(null)
@@ -30,7 +30,7 @@ export default function Admin() {
   const [eliminazioneUtente, setEliminazioneUtente] = useState<string | null>(null)
   // Token onboarding
   const [tokens, setTokens] = useState<ProvisioningToken[]>([])
-  const [formToken, setFormToken] = useState({ piano: 'registra' as 'registra' | 'registra_gestisci', max_commerciali: 1, google_sheet_id: '' })
+  const [formToken, setFormToken] = useState({ piano: 'registra' as 'registra' | 'registra_gestisci', max_commerciali: 1 })
   const [creazioneToken, setCreazioneToken] = useState(false)
   const [nuovoLink, setNuovoLink] = useState<string | null>(null)
   const [linkCopiato, setLinkCopiato] = useState(false)
@@ -55,7 +55,7 @@ export default function Admin() {
   }
 
   const creaToken = async () => {
-    if (!formToken.google_sheet_id) return
+    if (!formToken.max_commerciali) return
     setCreazioneToken(true)
     setNuovoLink(null)
     try {
@@ -68,7 +68,7 @@ export default function Admin() {
       if (!res.ok) throw new Error(data.error)
       const link = `${window.location.origin}/onboarding/${data.token}`
       setNuovoLink(link)
-      setFormToken({ piano: 'registra', max_commerciali: 1, google_sheet_id: '' })
+      setFormToken({ piano: 'registra', max_commerciali: 1 })
       caricaTokens()
     } finally {
       setCreazioneToken(false)
@@ -105,7 +105,7 @@ export default function Admin() {
   }
 
   const creaWorkspace = async () => {
-    if (!form.nome_azienda || !form.google_sheet_id) return
+    if (!form.nome_azienda) return
     setCreazione(true)
     setErrore(null)
     setNuovoWs(null)
@@ -118,7 +118,7 @@ export default function Admin() {
       const data = await res.json()
       if (!res.ok) throw new Error(data.error)
       setNuovoWs(data)
-      setForm({ nome_azienda: '', google_sheet_id: '', logo_url: '', nome_referente: '', cognome_referente: '', has_gestisci: false })
+      setForm({ nome_azienda: '', logo_url: '', nome_referente: '', cognome_referente: '', has_gestisci: false })
       caricaWorkspaces()
     } catch (e: any) {
       setErrore(e.message)
@@ -129,7 +129,7 @@ export default function Admin() {
 
   const apriModifica = (ws: Workspace) => {
     setWsInModifica(ws)
-    setFormModifica({ nome_azienda: ws.nome_azienda, google_sheet_id: ws.google_sheet_id, logo_url: ws.logo_url ?? '', nome_referente: ws.nome_referente ?? '', cognome_referente: ws.cognome_referente ?? '', has_gestisci: ws.has_gestisci ?? false, pin: ws.pin })
+    setFormModifica({ nome_azienda: ws.nome_azienda, logo_url: ws.logo_url ?? '', nome_referente: ws.nome_referente ?? '', cognome_referente: ws.cognome_referente ?? '', has_gestisci: ws.has_gestisci ?? false, pin: ws.pin })
     setModalita('modifica')
     caricaUtenti(ws.id)
   }
@@ -233,10 +233,6 @@ export default function Admin() {
           <div>
             <label className={labelClass}>Nome azienda cliente</label>
             <input className={inputClass} value={formModifica.nome_azienda} onChange={e => setFormModifica(f => ({ ...f, nome_azienda: e.target.value }))} />
-          </div>
-          <div>
-            <label className={labelClass}>Google Sheet ID</label>
-            <input className={inputClass} value={formModifica.google_sheet_id} onChange={e => setFormModifica(f => ({ ...f, google_sheet_id: e.target.value }))} />
           </div>
           <div>
             <label className={labelClass}>PIN responsabile</label>
@@ -393,11 +389,6 @@ export default function Admin() {
           <label className={labelClass}>Nome azienda cliente</label>
           <input className={inputClass} value={form.nome_azienda} onChange={e => setForm(f => ({ ...f, nome_azienda: e.target.value }))} placeholder="Es. Mulino Val d'Orcia" />
         </div>
-        <div>
-          <label className={labelClass}>Google Sheet ID</label>
-          <input className={inputClass} value={form.google_sheet_id} onChange={e => setForm(f => ({ ...f, google_sheet_id: e.target.value }))} placeholder="1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgVE2upms" />
-          <p className="text-xs text-gray-400 mt-1">Dall'URL del foglio: /spreadsheets/d/<strong>[ID]</strong>/edit</p>
-        </div>
         <div className="grid grid-cols-2 gap-3">
           <div>
             <label className={labelClass}>Nome responsabile</label>
@@ -434,7 +425,7 @@ export default function Admin() {
         </div>
 
         {errore && <p className="text-sm text-red-500">{errore}</p>}
-        <button onClick={creaWorkspace} disabled={creazione || !form.nome_azienda || !form.google_sheet_id}
+        <button onClick={creaWorkspace} disabled={creazione || !form.nome_azienda}
           className="w-full rounded-xl bg-hermes-500 py-3 text-sm font-semibold text-white hover:bg-hermes-600 disabled:opacity-40 shadow-sm">
           {creazione ? 'Creazione…' : 'Crea workspace'}
         </button>
@@ -494,19 +485,9 @@ export default function Admin() {
           </div>
         </div>
 
-        <div>
-          <label className={labelClass}>Google Sheet ID</label>
-          <input
-            className={inputClass}
-            value={formToken.google_sheet_id}
-            onChange={e => setFormToken(f => ({ ...f, google_sheet_id: e.target.value }))}
-            placeholder="1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgVE2upms"
-          />
-        </div>
-
         <button
           onClick={creaToken}
-          disabled={creazioneToken || !formToken.google_sheet_id}
+          disabled={creazioneToken}
           className="w-full rounded-xl bg-hermes-500 py-3 text-sm font-semibold text-white hover:bg-hermes-600 disabled:opacity-40 shadow-sm"
         >
           {creazioneToken ? 'Generazione…' : '🔗 Genera link'}
