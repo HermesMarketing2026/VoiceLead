@@ -40,6 +40,8 @@ function GestisciDashboard() {
 
   const [leads, setLeads] = useState<LeadConAzione[]>([])
   const [caricamento, setCaricamento] = useState(true)
+  const [sincronizzazione, setSincronizzazione] = useState(false)
+  const [esitoSync, setEsitoSync] = useState<string | null>(null)
 
   useEffect(() => {
     if (!workspaceId) { router.push('/'); return }
@@ -68,6 +70,26 @@ function GestisciDashboard() {
       setLeads(leadsConAzione)
     } finally {
       setCaricamento(false)
+    }
+  }
+
+  const sincronizzaSheets = async () => {
+    setSincronizzazione(true)
+    setEsitoSync(null)
+    try {
+      const res = await fetch('/api/gestisci/sync-sheets', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ workspace_id: workspaceId }),
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error)
+      setEsitoSync(`✅ ${data.aggiornati} lead aggiornati su Google Sheets`)
+    } catch (e: any) {
+      setEsitoSync(`❌ ${e?.message ?? 'Errore sincronizzazione'}`)
+    } finally {
+      setSincronizzazione(false)
+      setTimeout(() => setEsitoSync(null), 4000)
     }
   }
 
@@ -124,11 +146,26 @@ function GestisciDashboard() {
   return (
     <AppShell>
       <div className="space-y-6">
-        <div className="flex items-center gap-2">
-          <Link href="/" className="text-gray-400 hover:text-gray-600 text-sm">← Home</Link>
-          <span className="text-gray-300">/</span>
-          <span className="text-sm font-semibold text-gray-700">📋 Gestisci trattative</span>
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Link href="/" className="text-gray-400 hover:text-gray-600 text-sm">← Home</Link>
+            <span className="text-gray-300">/</span>
+            <span className="text-sm font-semibold text-gray-700">📋 Gestisci trattative</span>
+          </div>
+          <button
+            onClick={sincronizzaSheets}
+            disabled={sincronizzazione || leads.length === 0}
+            className="flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-lg border border-gray-300 text-gray-600 hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+          >
+            {sincronizzazione ? '⏳ Sync…' : '📤 Aggiorna Sheets'}
+          </button>
         </div>
+
+        {esitoSync && (
+          <div className="rounded-xl bg-gray-50 border border-gray-200 px-4 py-3 text-sm text-gray-700">
+            {esitoSync}
+          </div>
+        )}
 
         {caricamento ? (
           <p className="text-center text-gray-400 py-12">Caricamento…</p>
