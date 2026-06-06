@@ -16,7 +16,7 @@ export async function POST(req: NextRequest) {
 
   const { data, error } = await supabase
     .from('workspaces')
-    .select('id, pin, nome_azienda, slug, logo_url')
+    .select('id, pin, nome_azienda, slug, logo_url, has_gestisci')
     .eq('slug', slug)
     .single()
 
@@ -31,5 +31,6 @@ export async function POST(req: NextRequest) {
     workspaceId: data.id,
     nomeAzienda: data.nome_azienda,
     logoUrl: data.logo_url ?? '',
+    hasGestisci: data.has_gestisci ?? false,
   })
 }

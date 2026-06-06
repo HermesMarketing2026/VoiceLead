@@ -12,6 +12,7 @@ export interface Workspace {
   cognome_referente?: string
   pin: string
   creato_il: string
+  has_gestisci: boolean
 }
 
 export interface Lead {

@@ -11,13 +11,13 @@ export default function Admin() {
   const [autenticato, setAutenticato] = useState(false)
   const [pronto, setPronto] = useState(false)
   const [workspaces, setWorkspaces] = useState<Workspace[]>([])
-  const [form, setForm] = useState({ nome_azienda: '', google_sheet_id: '', logo_url: '', nome_referente: '', cognome_referente: '' })
+  const [form, setForm] = useState({ nome_azienda: '', google_sheet_id: '', logo_url: '', nome_referente: '', cognome_referente: '', has_gestisci: false })
   const [creazione, setCreazione] = useState(false)
   const [nuovoWs, setNuovoWs] = useState<Workspace | null>(null)
   const [errore, setErrore] = useState<string | null>(null)
   const [modalita, setModalita] = useState<Modalita>('lista')
   const [wsInModifica, setWsInModifica] = useState<Workspace | null>(null)
-  const [formModifica, setFormModifica] = useState({ nome_azienda: '', google_sheet_id: '', logo_url: '', nome_referente: '', cognome_referente: '' })
+  const [formModifica, setFormModifica] = useState({ nome_azienda: '', google_sheet_id: '', logo_url: '', nome_referente: '', cognome_referente: '', has_gestisci: false })
   const [salvataggio, setSalvataggio] = useState(false)
   const [eliminazione, setEliminazione] = useState<string | null>(null)
   const [confermaElimina, setConfermaElimina] = useState<string | null>(null)
@@ -64,7 +64,7 @@ export default function Admin() {
       const data = await res.json()
       if (!res.ok) throw new Error(data.error)
       setNuovoWs(data)
-      setForm({ nome_azienda: '', google_sheet_id: '', logo_url: '', nome_referente: '', cognome_referente: '' })
+      setForm({ nome_azienda: '', google_sheet_id: '', logo_url: '', nome_referente: '', cognome_referente: '', has_gestisci: false })
       caricaWorkspaces()
     } catch (e: any) {
       setErrore(e.message)
@@ -75,7 +75,7 @@ export default function Admin() {
 
   const apriModifica = (ws: Workspace) => {
     setWsInModifica(ws)
-    setFormModifica({ nome_azienda: ws.nome_azienda, google_sheet_id: ws.google_sheet_id, logo_url: ws.logo_url ?? '', nome_referente: ws.nome_referente ?? '', cognome_referente: ws.cognome_referente ?? '' })
+    setFormModifica({ nome_azienda: ws.nome_azienda, google_sheet_id: ws.google_sheet_id, logo_url: ws.logo_url ?? '', nome_referente: ws.nome_referente ?? '', cognome_referente: ws.cognome_referente ?? '', has_gestisci: ws.has_gestisci ?? false })
     setModalita('modifica')
   }
 
@@ -159,6 +159,26 @@ export default function Admin() {
               <img src={formModifica.logo_url} alt="Logo" className="mt-2 h-10 object-contain rounded border border-gray-100 p-1" />
             )}
           </div>
+          {/* Toggle Gestisci */}
+          <div
+            onClick={() => setFormModifica(f => ({ ...f, has_gestisci: !f.has_gestisci }))}
+            className={`flex items-center justify-between rounded-xl border-2 px-4 py-3 cursor-pointer transition-colors ${
+              formModifica.has_gestisci ? 'border-hermes-400 bg-hermes-50' : 'border-gray-200 bg-gray-50'
+            }`}
+          >
+            <div>
+              <p className={`text-sm font-bold ${formModifica.has_gestisci ? 'text-hermes-700' : 'text-gray-600'}`}>
+                📋 Abilita Gestisci trattative
+              </p>
+              <p className="text-xs text-gray-400 mt-0.5">
+                {formModifica.has_gestisci ? 'Pacchetto completo — Registra + Gestisci' : 'Solo Registra lead (Pacchetto base)'}
+              </p>
+            </div>
+            <div className={`w-12 h-6 rounded-full transition-colors relative ${formModifica.has_gestisci ? 'bg-hermes-500' : 'bg-gray-300'}`}>
+              <div className={`absolute top-1 w-4 h-4 bg-white rounded-full shadow transition-all ${formModifica.has_gestisci ? 'left-7' : 'left-1'}`} />
+            </div>
+          </div>
+
           {errore && <p className="text-sm text-red-500">{errore}</p>}
           <div className="flex gap-3 pt-2">
             <button onClick={() => setModalita('lista')} className="flex-1 rounded-xl border border-gray-300 py-3 text-sm font-medium text-gray-600 hover:bg-gray-50">
@@ -213,6 +233,26 @@ export default function Admin() {
           <input className={inputClass} value={form.logo_url} onChange={e => setForm(f => ({ ...f, logo_url: e.target.value }))} placeholder="https://esempio.com/logo.png" />
           {form.logo_url && <img src={form.logo_url} alt="Anteprima" className="mt-2 h-10 object-contain rounded border border-gray-100 p-1" />}
         </div>
+        {/* Toggle Gestisci */}
+        <div
+          onClick={() => setForm(f => ({ ...f, has_gestisci: !f.has_gestisci }))}
+          className={`flex items-center justify-between rounded-xl border-2 px-4 py-3 cursor-pointer transition-colors ${
+            form.has_gestisci ? 'border-hermes-400 bg-hermes-50' : 'border-gray-200 bg-gray-50'
+          }`}
+        >
+          <div>
+            <p className={`text-sm font-bold ${form.has_gestisci ? 'text-hermes-700' : 'text-gray-600'}`}>
+              📋 Abilita Gestisci trattative
+            </p>
+            <p className="text-xs text-gray-400 mt-0.5">
+              {form.has_gestisci ? 'Pacchetto completo — Registra + Gestisci' : 'Solo Registra lead (Pacchetto base)'}
+            </p>
+          </div>
+          <div className={`w-12 h-6 rounded-full transition-colors relative ${form.has_gestisci ? 'bg-hermes-500' : 'bg-gray-300'}`}>
+            <div className={`absolute top-1 w-4 h-4 bg-white rounded-full shadow transition-all ${form.has_gestisci ? 'left-7' : 'left-1'}`} />
+          </div>
+        </div>
+
         {errore && <p className="text-sm text-red-500">{errore}</p>}
         <button onClick={creaWorkspace} disabled={creazione || !form.nome_azienda || !form.google_sheet_id}
           className="w-full rounded-xl bg-hermes-500 py-3 text-sm font-semibold text-white hover:bg-hermes-600 disabled:opacity-40 shadow-sm">
@@ -252,6 +292,9 @@ export default function Admin() {
                     <div>
                       <p className="font-semibold text-gray-900">{ws.nome_azienda}</p>
                       <p className="text-xs text-gray-400 font-mono">{ws.slug}.voiceleads.it</p>
+                      <span className={`inline-block mt-1 text-xs font-semibold px-2 py-0.5 rounded-full ${ws.has_gestisci ? 'bg-hermes-100 text-hermes-700' : 'bg-gray-100 text-gray-500'}`}>
+                        {ws.has_gestisci ? '📋 Registra + Gestisci' : '🎙️ Solo Registra'}
+                      </span>
                     </div>
                   </div>
                   <span className="text-xs text-gray-400">{new Date(ws.creato_il).toLocaleDateString('it-IT')}</span>

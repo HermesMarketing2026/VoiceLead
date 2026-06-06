@@ -1,8 +1,9 @@
 'use client'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import type { Lead, LeadFormData } from '@/lib/types'
 import { campiMancanti, calcolaCompletamento } from '@/lib/types'
+import { leggiSessione } from '@/lib/session'
 import MicButton from './MicButton'
 import CardScanner from './CardScanner'
 
@@ -27,6 +28,11 @@ export default function LeadForm({ lead, workspaceId }: Props) {
   const [errore, setErrore] = useState<string | null>(null)
   const [promuovendo, setPromuovendo] = useState(false)
   const [promoEsito, setPromoEsito] = useState<string | null>(null)
+  const [hasGestisci, setHasGestisci] = useState(false)
+
+  useEffect(() => {
+    setHasGestisci(leggiSessione()?.hasGestisci ?? false)
+  }, [])
 
   const mancanti = campiMancanti(form)
   const completamento = calcolaCompletamento(form)
@@ -244,8 +250,8 @@ export default function LeadForm({ lead, workspaceId }: Props) {
         </button>
       </div>
 
-      {/* Sposta in Gestisci — solo per lead completi non ancora in gestione */}
-      {!isNuovo && mancanti.length === 0 && !lead?.in_gestione && (
+      {/* Sposta in Gestisci — solo per lead completi, non ancora in gestione, workspace con Gestisci abilitato */}
+      {!isNuovo && hasGestisci && mancanti.length === 0 && !lead?.in_gestione && (
         <div>
           {promoEsito ? (
             <div className="rounded-xl bg-green-50 border border-green-200 px-4 py-3 text-sm text-green-800">

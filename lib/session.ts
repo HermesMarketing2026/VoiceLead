@@ -5,11 +5,18 @@ interface Sessione {
   workspaceId?: string
   nomeAzienda?: string
   logoUrl?: string
+  hasGestisci?: boolean
   scadenza: number
 }
 
-export function salvaSessione(tipo: 'admin' | 'workspace', workspaceId?: string, nomeAzienda?: string, logoUrl?: string) {
-  const payload: Sessione = { tipo, workspaceId, nomeAzienda, logoUrl, scadenza: Date.now() + DURATA_MS }
+export function salvaSessione(
+  tipo: 'admin' | 'workspace',
+  workspaceId?: string,
+  nomeAzienda?: string,
+  logoUrl?: string,
+  hasGestisci?: boolean,
+) {
+  const payload: Sessione = { tipo, workspaceId, nomeAzienda, logoUrl, hasGestisci, scadenza: Date.now() + DURATA_MS }
   localStorage.setItem('vl_sessione', JSON.stringify(payload))
 }
 

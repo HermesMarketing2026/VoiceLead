@@ -21,14 +21,21 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
 
   const { data: esistente } = await supabase
     .from('leads')
-    .select('stato, in_gestione')
+    .select('stato, in_gestione, workspace_id')
     .eq('id', params.id)
     .single()
 
   const stato = esistente?.stato === 'esportato' ? 'esportato' : nuovoStato
 
-  // Promuovi automaticamente in gestisci se diventa completo per la prima volta
-  const diventaCompleto = nuovoStato === 'completo' && esistente?.stato !== 'completo' && !esistente?.in_gestione
+  // Controlla se il workspace ha Gestisci abilitato
+  let workspaceHasGestisci = false
+  if (esistente?.workspace_id) {
+    const { data: ws } = await supabase.from('workspaces').select('has_gestisci').eq('id', esistente.workspace_id).single()
+    workspaceHasGestisci = ws?.has_gestisci ?? false
+  }
+
+  // Promuovi automaticamente in gestisci se diventa completo per la prima volta e il workspace lo supporta
+  const diventaCompleto = workspaceHasGestisci && nuovoStato === 'completo' && esistente?.stato !== 'completo' && !esistente?.in_gestione
   const extraFields = diventaCompleto
     ? { in_gestione: true, data_entrata_gestione: new Date().toISOString(), stato_gestione: 'nuovo' }
     : {}

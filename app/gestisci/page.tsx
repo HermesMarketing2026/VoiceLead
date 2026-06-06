@@ -66,10 +66,10 @@ function GestisciDashboard() {
       )
       setLeads(leadsConAzione)
 
-      // Lead chiusi negli ultimi 7 giorni
-      const settimanaFa = Date.now() - 7 * 24 * 60 * 60 * 1000
+      // Lead chiusi negli ultimi 30 giorni (poi cancellati automaticamente per GDPR)
+      const trentaGiorni = Date.now() - 30 * 24 * 60 * 60 * 1000
       const recentiChiusi = data.filter(l =>
-        !l.in_gestione && l.esito && l.data_esito && new Date(l.data_esito).getTime() > settimanaFa
+        !l.in_gestione && l.esito && l.data_esito && new Date(l.data_esito).getTime() > trentaGiorni
       )
       setChiusi(recentiChiusi)
     } finally {
@@ -231,12 +231,23 @@ function GestisciDashboard() {
                           </span>
                         </div>
                         <p className="text-sm text-gray-500 truncate">{lead.azienda}</p>
-                        {lead.data_esito && (
-                          <p className="text-xs text-gray-400 mt-0.5">
-                            Chiusa il {new Date(lead.data_esito).toLocaleDateString('it-IT')}
-                            {lead.durata_trattativa_giorni ? ` · ${lead.durata_trattativa_giorni} giorni` : ''}
-                          </p>
-                        )}
+                        {lead.data_esito && (() => {
+                          const chiusaIl = new Date(lead.data_esito)
+                          const scadenza = new Date(chiusaIl.getTime() + 30 * 24 * 60 * 60 * 1000)
+                          const rimanenti = Math.max(0, Math.ceil((scadenza.getTime() - Date.now()) / (1000 * 60 * 60 * 24)))
+                          const urgente = rimanenti <= 3
+                          return (
+                            <div className="mt-1 space-y-0.5">
+                              <p className="text-xs text-gray-400">
+                                Chiusa il {chiusaIl.toLocaleDateString('it-IT')}
+                                {lead.durata_trattativa_giorni ? ` · ${lead.durata_trattativa_giorni}gg` : ''}
+                              </p>
+                              <p className={`text-xs font-semibold ${urgente ? 'text-red-500' : 'text-gray-400'}`}>
+                                {urgente ? '🔴' : '🕐'} Sparisce tra {rimanenti} giorni
+                              </p>
+                            </div>
+                          )
+                        })()}
                       </div>
                       <button
                         onClick={() => riapri(lead.id)}
@@ -248,7 +259,7 @@ function GestisciDashboard() {
                     </li>
                   ))}
                 </ul>
-                <p className="text-xs text-gray-400 text-center mt-2">Visibili per 7 giorni dalla chiusura</p>
+                <p className="text-xs text-gray-400 text-center mt-2">Visibili per 30 giorni dalla chiusura, poi eliminati automaticamente per la privacy</p>
               </div>
             )}
           </>

@@ -14,6 +14,7 @@ export default function Home() {
   const [nomeAzienda, setNomeAzienda] = useState('')
   const [logoUrl, setLogoUrl] = useState('')
   const [slug, setSlug] = useState('')
+  const [hasGestisci, setHasGestisci] = useState(false)
   const [leadDaGestire, setLeadDaGestire] = useState(0)
 
   useEffect(() => {
@@ -35,6 +36,7 @@ export default function Home() {
       setWorkspaceId(sessione.workspaceId)
       setNomeAzienda(sessione.nomeAzienda || '')
       setLogoUrl(sessione.logoUrl || '')
+      setHasGestisci(sessione.hasGestisci ?? false)
       setVista('hub')
     } else {
       setVista('login')
@@ -42,13 +44,13 @@ export default function Home() {
   }, [])
 
   useEffect(() => {
-    if (workspaceId && vista === 'hub') {
+    if (workspaceId && vista === 'hub' && hasGestisci) {
       fetch(`/api/azioni?workspace_id=${workspaceId}`)
         .then(r => r.json())
         .then(d => setLeadDaGestire(d.count ?? 0))
         .catch(() => {})
     }
-  }, [workspaceId, vista])
+  }, [workspaceId, vista, hasGestisci])
 
   const onLogin = async (pin: string) => {
     const res = await fetch('/api/auth', {
@@ -58,10 +60,11 @@ export default function Home() {
     })
     const data = await res.json()
     if (!res.ok) throw new Error(data.error)
-    salvaSessione('workspace', data.workspaceId, data.nomeAzienda, data.logoUrl)
+    salvaSessione('workspace', data.workspaceId, data.nomeAzienda, data.logoUrl, data.hasGestisci)
     setWorkspaceId(data.workspaceId)
     setNomeAzienda(data.nomeAzienda)
     setLogoUrl(data.logoUrl || '')
+    setHasGestisci(data.hasGestisci ?? false)
     setVista('hub')
   }
 
@@ -107,16 +110,26 @@ export default function Home() {
             </div>
           </Link>
 
-          <Link
-            href={`/gestisci?workspace_id=${workspaceId}`}
-            className="flex flex-col items-center justify-center gap-3 rounded-2xl bg-white border-2 border-gray-200 px-6 py-10 text-gray-800 shadow-sm hover:border-hermes-300 hover:shadow-md active:scale-95 transition-all"
-          >
-            <span className="text-5xl">📋</span>
-            <div className="text-center">
-              <p className="text-xl font-bold">Gestisci</p>
-              <p className="text-sm text-gray-500 mt-0.5">Segui le trattative in corso</p>
+          {hasGestisci ? (
+            <Link
+              href={`/gestisci?workspace_id=${workspaceId}`}
+              className="flex flex-col items-center justify-center gap-3 rounded-2xl bg-white border-2 border-gray-200 px-6 py-10 text-gray-800 shadow-sm hover:border-hermes-300 hover:shadow-md active:scale-95 transition-all"
+            >
+              <span className="text-5xl">📋</span>
+              <div className="text-center">
+                <p className="text-xl font-bold">Gestisci</p>
+                <p className="text-sm text-gray-500 mt-0.5">Segui le trattative in corso</p>
+              </div>
+            </Link>
+          ) : (
+            <div className="flex flex-col items-center justify-center gap-3 rounded-2xl bg-gray-50 border-2 border-dashed border-gray-200 px-6 py-10 text-gray-300 cursor-not-allowed">
+              <span className="text-5xl opacity-30">📋</span>
+              <div className="text-center">
+                <p className="text-xl font-bold">Gestisci</p>
+                <p className="text-xs text-gray-300 mt-0.5">Non incluso nel tuo piano</p>
+              </div>
             </div>
-          </Link>
+          )}
         </div>
 
         {/* Counter lead da gestire */}
