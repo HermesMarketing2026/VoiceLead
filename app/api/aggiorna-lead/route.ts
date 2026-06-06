@@ -36,7 +36,7 @@ export async function POST(req: NextRequest) {
         "- In qualsiasi altro caso (follow-up, richiama, appuntamento, proposta da fare, ecc.) → esito=null. " +
         "Restituisci SOLO un JSON con questi campi: { " +
         "esito: 'vinto' | 'perso' | null, " +
-        "nuovoStato: string (uno tra: nuovo/contattato/appuntamento/proposta/trattativa — lascia invariato se non cambia; ignorato se esito non è null), " +
+        "nuovoStato: string (uno tra: nuovo/trattativa — usa 'trattativa' appena c'è un contatto o un follow-up attivo; lascia invariato se non cambia; ignorato se esito non è null), " +
         "azioneSuccessiva: string (se esito non è null scrivi 'Trattativa chiusa'), " +
         "scadenza: string (data ISO 8601 se menzionata esplicitamente, altrimenti null; ignorata se esito non è null), " +
         "noteAggiornamento: string (riassunto breve) }. " +
@@ -124,7 +124,7 @@ export async function POST(req: NextRequest) {
     aggiornamento_dettato: testo,
   }).select().single()
 
-  const statiValidi = ['nuovo', 'contattato', 'appuntamento', 'proposta', 'trattativa']
+  const statiValidi = ['nuovo', 'trattativa']
   if (parsed.nuovoStato && statiValidi.includes(parsed.nuovoStato) && parsed.nuovoStato !== lead.stato_gestione) {
     await supabase.from('leads').update({ stato_gestione: parsed.nuovoStato }).eq('id', lead_id)
   }

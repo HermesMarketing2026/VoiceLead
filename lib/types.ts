@@ -1,5 +1,5 @@
 export type StatoLead = 'bozza' | 'completo' | 'esportato'
-export type StatoGestione = 'nuovo' | 'contattato' | 'appuntamento' | 'proposta' | 'trattativa'
+export type StatoGestione = 'nuovo' | 'trattativa'
 export type EsitoGestione = 'vinto' | 'perso'
 
 export interface Workspace {
@@ -68,16 +68,11 @@ export const LABEL_CAMPI: Record<keyof LeadFormData, string> = {
   note: 'Note',
 }
 
-export const STEP_GESTIONE: StatoGestione[] = [
-  'nuovo', 'contattato', 'appuntamento', 'proposta', 'trattativa'
-]
+export const STEP_GESTIONE: StatoGestione[] = ['nuovo', 'trattativa']
 
 export const LABEL_STATO_GESTIONE: Record<StatoGestione, string> = {
   nuovo: 'Nuovo',
-  contattato: 'Contattato',
-  appuntamento: 'Appuntamento',
-  proposta: 'Proposta',
-  trattativa: 'Trattativa',
+  trattativa: 'In trattativa',
 }
 
 export function calcolaCompletamento(lead: LeadFormData): number {
