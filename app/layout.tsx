@@ -5,7 +5,7 @@ import CookieBanner from '@/components/CookieBanner'
 import GTMLoader from '@/components/GTMLoader'
 
 export const viewport: Viewport = {
-  themeColor: '#E05A1F',
+  themeColor: '#ffffff',
   width: 'device-width',
   initialScale: 1,
   maximumScale: 1,
@@ -22,8 +22,8 @@ export const metadata: Metadata = {
     title: 'VoiceLeads',
   },
   icons: {
-    icon: '/favicon.png',
-    apple: '/favicon.png',
+    icon: '/icon-192.png',
+    apple: '/apple-touch-icon.png',
   },
 }
 
@@ -31,7 +31,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="it">
       <head>
-        <link rel="apple-touch-icon" href="/favicon.png" />
+        <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
         <link rel="stylesheet" href="https://sibforms.com/forms/end-form/build/sib-styles.css" />
         <style>{`
           #sib-container input::placeholder { font-family: Helvetica, sans-serif; text-align: left; color: #c0ccda; }
