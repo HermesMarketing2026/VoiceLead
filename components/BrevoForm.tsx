@@ -103,7 +103,7 @@ const formHTML = `
         </div>
       </div>
       <div style="padding:8px 0;">
-        <div class="sib-optin sib-form-block">
+        <div class="sib-optin sib-form-block" data-required="true">
           <div class="form__entry entry_mcq">
             <div class="form__label-row">
               <div class="entry__choice">
@@ -111,7 +111,8 @@ const formHTML = `
                   <input type="checkbox" class="input_replaced" value="1" id="OPT_IN" name="OPT_IN" required/>
                   <span class="checkbox checkbox_tick_positive"></span>
                   <span style="font-family:Helvetica,sans-serif;font-size:12px;text-align:left;color:#3C4858;background-color:transparent;">
-                    Ho letto l'<a href="https://www.voiceleads.it/privacy" rel="nofollow">Informativa sulla Privacy</a> e acconsento al trattamento dei miei dati personali da parte di Hermes Marketing per essere ricontattato in merito ai servizi VoiceLeads. I dati non saranno ceduti a terzi.
+                    <p>Ho letto l&#39;<a href="https://www.voiceleads.it/privacy" rel="nofollow">Informativa sulla Privacy</a> e acconsento al trattamento dei miei dati personali da parte di Hermes Marketing per essere ricontattato in merito ai servizi VoiceLeads. I dati non saranno ceduti a terzi.</p>
+                    <span data-required="*" style="display:inline;" class="entry__label entry__label_optin"></span>
                   </span>
                 </label>
               </div>
