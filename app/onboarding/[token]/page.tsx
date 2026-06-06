@@ -105,7 +105,7 @@ export default function OnboardingPage() {
       setStepAnimazione(i + 1)
     }
     await new Promise(r => setTimeout(r, 800))
-    router.push(`/${slug}`)
+    window.location.href = `https://${slug}.voiceleads.it`
   }
 
   const invia = async () => {
