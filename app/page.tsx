@@ -6,7 +6,13 @@ import PinLogin from '@/components/PinLogin'
 import LandingPage from '@/components/LandingPage'
 import { salvaSessione, leggiSessione, cancellaSessione } from '@/lib/session'
 
-type Vista = 'loading' | 'landing' | 'login' | 'hub'
+type Vista = 'loading' | 'landing' | 'login' | 'seleziona-commerciale' | 'hub'
+
+interface CommercialCard {
+  id: string
+  nome: string
+  cognome: string
+}
 
 export default function Home() {
   const [vista, setVista] = useState<Vista>('loading')
@@ -18,6 +24,8 @@ export default function Home() {
   const [leadDaGestire, setLeadDaGestire] = useState(0)
   const [utenteId, setUtenteId] = useState<string | null>(null)
   const [nomeUtente, setNomeUtente] = useState<string | null>(null)
+  const [ruoloUtente, setRuoloUtente] = useState<'admin' | 'commerciale' | null>(null)
+  const [commerciali, setCommerciali] = useState<CommercialCard[]>([])
 
   useEffect(() => {
     const host = window.location.hostname
@@ -39,6 +47,24 @@ export default function Home() {
       setNomeAzienda(sessione.nomeAzienda || '')
       setLogoUrl(sessione.logoUrl || '')
       setHasGestisci(sessione.hasGestisci ?? false)
+      setRuoloUtente(sessione.ruoloUtente ?? null)
+
+      // Responsabile senza commerciale selezionato → mostra selezione
+      if (sessione.ruoloUtente === 'admin' && !sessione.utenteId) {
+        fetch(`/api/utenti?workspace_id=${sessione.workspaceId}`)
+          .then(r => r.json())
+          .then(data => {
+            if (Array.isArray(data) && data.length > 0) {
+              setCommerciali(data)
+              setVista('seleziona-commerciale')
+            } else {
+              setVista('hub')
+            }
+          })
+          .catch(() => setVista('hub'))
+        return
+      }
+
       setUtenteId(sessione.utenteId ?? null)
       setNomeUtente(sessione.nomeUtente ?? null)
       setVista('hub')
@@ -67,19 +93,59 @@ export default function Home() {
     })
     const data = await res.json()
     if (!res.ok) throw new Error(data.error)
-    salvaSessione('workspace', data.workspaceId, data.nomeAzienda, data.logoUrl, data.hasGestisci, data.utenteId ?? undefined, data.nomeUtente ?? undefined, data.ruoloUtente ?? undefined)
+
     setWorkspaceId(data.workspaceId)
     setNomeAzienda(data.nomeAzienda)
     setLogoUrl(data.logoUrl || '')
     setHasGestisci(data.hasGestisci ?? false)
+    setRuoloUtente(data.ruoloUtente ?? null)
+
+    // Responsabile con commerciali → mostra selezione prima di entrare
+    if (data.ruoloUtente === 'admin') {
+      salvaSessione('workspace', data.workspaceId, data.nomeAzienda, data.logoUrl, data.hasGestisci, undefined, undefined, 'admin')
+      const res2 = await fetch(`/api/utenti?workspace_id=${data.workspaceId}`)
+      const utentiData = await res2.json()
+      if (Array.isArray(utentiData) && utentiData.length > 0) {
+        setCommerciali(utentiData)
+        setVista('seleziona-commerciale')
+        return
+      }
+      // Nessun commerciale → entra come admin normale
+      setUtenteId(null)
+      setNomeUtente(null)
+      setVista('hub')
+      return
+    }
+
+    // Commerciale normale
+    salvaSessione('workspace', data.workspaceId, data.nomeAzienda, data.logoUrl, data.hasGestisci, data.utenteId ?? undefined, data.nomeUtente ?? undefined, data.ruoloUtente ?? undefined)
     setUtenteId(data.utenteId ?? null)
     setNomeUtente(data.nomeUtente ?? null)
     setVista('hub')
   }
 
+  const selezionaCommerciale = (c: CommercialCard) => {
+    const nome = `${c.nome} ${c.cognome}`
+    salvaSessione('workspace', workspaceId!, nomeAzienda, logoUrl, hasGestisci, c.id, nome, 'admin')
+    setUtenteId(c.id)
+    setNomeUtente(nome)
+    setVista('hub')
+  }
+
+  const cambiaCommerciale = () => {
+    // Torna alla selezione senza perdere la sessione admin
+    salvaSessione('workspace', workspaceId!, nomeAzienda, logoUrl, hasGestisci, undefined, undefined, 'admin')
+    setUtenteId(null)
+    setNomeUtente(null)
+    setVista('seleziona-commerciale')
+  }
+
   const logout = () => {
     cancellaSessione()
     setWorkspaceId(null)
+    setRuoloUtente(null)
+    setUtenteId(null)
+    setNomeUtente(null)
     setVista('login')
   }
 
@@ -89,10 +155,61 @@ export default function Home() {
     <AppShell><PinLogin titolo="VoiceLeads" slug={slug} onSuccess={onLogin} /></AppShell>
   )
 
+  // ── Schermata selezione commerciale (responsabile) ──
+  if (vista === 'seleziona-commerciale') {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-gray-50 flex items-center justify-center px-4 py-8">
+        <div className="w-full max-w-sm space-y-4">
+          <div className="bg-white rounded-3xl border border-gray-200 shadow-xl overflow-hidden">
+            <div className="bg-gradient-to-br from-hermes-500 to-hermes-700 px-6 pt-8 pb-6 text-center relative overflow-hidden">
+              <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                <div className="w-32 h-32 rounded-full border border-white/10 animate-ping" style={{ animationDuration: '3s' }} />
+                <div className="absolute w-48 h-48 rounded-full border border-white/10 animate-ping" style={{ animationDuration: '3s', animationDelay: '0.5s' }} />
+              </div>
+              {logoUrl && (
+                <div className="mb-3 relative z-10">
+                  <img src={logoUrl} alt={nomeAzienda} className="h-10 w-auto mx-auto object-contain brightness-0 invert opacity-90" />
+                </div>
+              )}
+              <div className="relative z-10">
+                <p className="text-white/70 text-sm mb-1">Pannello responsabile</p>
+                <h1 className="text-white text-xl font-bold">Di chi vuoi vedere i lead?</h1>
+                <p className="text-white/60 text-xs mt-1">{nomeAzienda}</p>
+              </div>
+            </div>
+
+            <div className="px-6 py-5 space-y-3">
+              {commerciali.map(c => (
+                <button
+                  key={c.id}
+                  onClick={() => selezionaCommerciale(c)}
+                  className="w-full flex items-center gap-4 rounded-2xl border-2 border-gray-200 px-4 py-3.5 hover:border-hermes-400 hover:bg-hermes-50 active:scale-95 transition-all text-left"
+                >
+                  <div className="w-10 h-10 rounded-full bg-hermes-100 flex items-center justify-center text-hermes-600 font-bold text-base shrink-0">
+                    {c.nome[0]}{c.cognome[0]}
+                  </div>
+                  <div>
+                    <p className="font-semibold text-gray-900">{c.nome} {c.cognome}</p>
+                    <p className="text-xs text-gray-400">Commerciale</p>
+                  </div>
+                  <span className="ml-auto text-gray-300 text-lg">›</span>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <button onClick={logout} className="w-full text-center text-xs text-gray-400 hover:text-gray-600 py-2 transition-colors">
+            Esci
+          </button>
+        </div>
+      </div>
+    )
+  }
+
+  // ── Hub principale ──
   return (
     <AppShell>
       <div className="space-y-8">
-        {/* Header azienda */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             {logoUrl && <img src={logoUrl} alt={nomeAzienda} className="h-8 w-auto object-contain" />}
@@ -104,12 +221,18 @@ export default function Home() {
               }
             </div>
           </div>
-          <button onClick={logout} className="text-xs text-gray-400 hover:text-gray-600 px-2 py-1 rounded-lg hover:bg-gray-100 transition-colors">
-            Esci
-          </button>
+          <div className="flex items-center gap-2">
+            {ruoloUtente === 'admin' && commerciali.length > 0 && (
+              <button onClick={cambiaCommerciale} className="text-xs text-hermes-500 hover:text-hermes-700 px-2 py-1 rounded-lg hover:bg-hermes-50 transition-colors">
+                Cambia ↩
+              </button>
+            )}
+            <button onClick={logout} className="text-xs text-gray-400 hover:text-gray-600 px-2 py-1 rounded-lg hover:bg-gray-100 transition-colors">
+              Esci
+            </button>
+          </div>
         </div>
 
-        {/* Due pulsanti principali */}
         <div className="grid grid-cols-1 gap-4">
           <Link
             href={`/registra?workspace_id=${workspaceId}${utenteId ? `&utente_id=${utenteId}` : ''}`}
@@ -144,15 +267,12 @@ export default function Home() {
           )}
         </div>
 
-        {/* Counter lead da gestire */}
         <div className={`rounded-2xl px-5 py-4 text-center border ${
-          leadDaGestire > 0
-            ? 'bg-amber-50 border-amber-200'
-            : 'bg-gray-50 border-gray-200'
+          leadDaGestire > 0 ? 'bg-amber-50 border-amber-200' : 'bg-gray-50 border-gray-200'
         }`}>
           {leadDaGestire > 0 ? (
             <p className="text-amber-800 font-semibold">
-              ⚠️ <span className="text-xl font-bold">{leadDaGestire}</span> {leadDaGestire === 1 ? 'lead da gestire' : 'lead da gestire'} oggi
+              ⚠️ <span className="text-xl font-bold">{leadDaGestire}</span> lead da gestire oggi
             </p>
           ) : (
             <p className="text-gray-400 text-sm">Nessuna azione in scadenza oggi</p>

@@ -193,11 +193,11 @@ export default function Admin() {
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className={labelClass}>Nome referente</label>
+              <label className={labelClass}>Nome responsabile</label>
               <input className={inputClass} value={formModifica.nome_referente} onChange={e => setFormModifica(f => ({ ...f, nome_referente: e.target.value }))} placeholder="Mario" />
             </div>
             <div>
-              <label className={labelClass}>Cognome referente</label>
+              <label className={labelClass}>Cognome responsabile</label>
               <input className={inputClass} value={formModifica.cognome_referente} onChange={e => setFormModifica(f => ({ ...f, cognome_referente: e.target.value }))} placeholder="Rossi" />
             </div>
           </div>
@@ -342,11 +342,11 @@ export default function Admin() {
         </div>
         <div className="grid grid-cols-2 gap-3">
           <div>
-            <label className={labelClass}>Nome referente</label>
+            <label className={labelClass}>Nome responsabile</label>
             <input className={inputClass} value={form.nome_referente} onChange={e => setForm(f => ({ ...f, nome_referente: e.target.value }))} placeholder="Mario" />
           </div>
           <div>
-            <label className={labelClass}>Cognome referente</label>
+            <label className={labelClass}>Cognome responsabile</label>
             <input className={inputClass} value={form.cognome_referente} onChange={e => setForm(f => ({ ...f, cognome_referente: e.target.value }))} placeholder="Rossi" />
           </div>
         </div>
