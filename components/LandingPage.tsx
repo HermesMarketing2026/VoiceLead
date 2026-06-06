@@ -1,25 +1,95 @@
 'use client'
-import { useState } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import BrevoForm from './BrevoForm'
 
 export default function LandingPage() {
   const [annuale, setAnnuale] = useState(false)
+  const [mostraAccedi, setMostraAccedi] = useState(false)
+  const [nomeAzienda, setNomeAzienda] = useState('')
+  const [cercando, setCercando] = useState(false)
+  const [erroreAccesso, setErroreAccesso] = useState<string | null>(null)
+  const inputRef = useRef<HTMLInputElement>(null)
+
+  useEffect(() => {
+    if (mostraAccedi) setTimeout(() => inputRef.current?.focus(), 50)
+  }, [mostraAccedi])
+
+  const accedi = async () => {
+    if (!nomeAzienda.trim()) return
+    setCercando(true)
+    setErroreAccesso(null)
+    try {
+      const res = await fetch(`/api/workspaces?cerca=${encodeURIComponent(nomeAzienda.trim())}`)
+      const data = await res.json()
+      if (!res.ok || !data.slug) throw new Error('Azienda non trovata')
+      window.location.href = `https://${data.slug}.voiceleads.it`
+    } catch {
+      setErroreAccesso('Azienda non trovata. Controlla il nome o contattaci.')
+    } finally {
+      setCercando(false)
+    }
+  }
 
   return (
     <div className="min-h-screen bg-white overflow-x-hidden">
 
       {/* NAV */}
-      <nav className="bg-white border-b border-gray-100 px-6 py-4 sticky top-0 z-20">
-        <div className="max-w-5xl mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <img src="/logo-hermes.png" alt="Hermes Marketing" className="h-8 w-auto" />
-            <span className="font-bold text-gray-900 text-lg tracking-tight">VoiceLeads</span>
+      <div className="sticky top-0 z-20 flex justify-center px-4 py-3 pointer-events-none">
+        <nav className="pointer-events-auto w-full max-w-3xl bg-white/90 backdrop-blur-md border border-gray-200 rounded-full shadow-lg px-4 py-2.5 flex items-center justify-between">
+          {/* Logo */}
+          <div className="flex items-center gap-2.5">
+            <img src="/logo-hermes.png" alt="Hermes Marketing" className="h-7 w-auto" />
+            <span className="font-bold text-gray-900 text-base tracking-tight">VoiceLeads</span>
           </div>
-          <a href="#prezzi" className="bg-hermes-500 text-white font-semibold px-5 py-2 rounded-xl text-sm hover:bg-hermes-600 transition-colors shadow-sm">
+
+          {/* Links centro */}
+          <div className="hidden md:flex items-center gap-6 text-sm font-medium text-gray-600">
+            <a href="#pacchetti" className="hover:text-gray-900 transition-colors">Funzionalità</a>
+            <a href="#prezzi" className="hover:text-gray-900 transition-colors">Prezzi</a>
+            <a href="#richiesta" className="hover:text-gray-900 transition-colors">Contatti</a>
+            <button
+              onClick={() => { setMostraAccedi(a => !a); setErroreAccesso(null); setNomeAzienda('') }}
+              className="hover:text-gray-900 transition-colors"
+            >
+              Accedi
+            </button>
+          </div>
+
+          {/* CTA con bordo gradiente */}
+          <a
+            href="#prezzi"
+            className="relative text-sm font-bold px-5 py-2 rounded-full text-white transition-all hover:opacity-90 active:scale-95"
+            style={{ background: 'linear-gradient(135deg, #ff7930, #ff4500)' }}
+          >
             Vedi i prezzi
           </a>
-        </div>
-      </nav>
+        </nav>
+
+        {/* Dropdown Accedi */}
+        {mostraAccedi && (
+          <div className="pointer-events-auto absolute top-16 left-1/2 -translate-x-1/2 w-80 bg-white rounded-2xl shadow-xl border border-gray-200 p-5 z-30">
+            <p className="text-sm font-bold text-gray-900 mb-1">Accedi al tuo workspace</p>
+            <p className="text-xs text-gray-400 mb-3">Inserisci il nome della tua azienda</p>
+            <input
+              ref={inputRef}
+              type="text"
+              value={nomeAzienda}
+              onChange={e => { setNomeAzienda(e.target.value); setErroreAccesso(null) }}
+              onKeyDown={e => e.key === 'Enter' && accedi()}
+              placeholder="Es. Hermes Marketing"
+              className="w-full rounded-xl border border-gray-200 px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-hermes-400 bg-gray-50 focus:bg-white transition-colors mb-3"
+            />
+            {erroreAccesso && <p className="text-xs text-red-500 mb-2">{erroreAccesso}</p>}
+            <button
+              onClick={accedi}
+              disabled={cercando || !nomeAzienda.trim()}
+              className="w-full rounded-xl bg-hermes-500 py-2.5 text-sm font-semibold text-white hover:bg-hermes-600 disabled:opacity-40 transition-colors"
+            >
+              {cercando ? 'Ricerca…' : 'Vai al workspace →'}
+            </button>
+          </div>
+        )}
+      </div>
 
       {/* HERO */}
       <section className="bg-gradient-to-br from-hermes-600 via-hermes-500 to-orange-400 text-white">

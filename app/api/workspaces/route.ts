@@ -13,7 +13,23 @@ function generaSlug(nomeAzienda: string): string {
     .substring(0, 30)
 }
 
-export async function GET() {
+export async function GET(req: NextRequest) {
+  const cerca = req.nextUrl.searchParams.get('cerca')
+
+  // Ricerca pubblica per nome azienda (usata dal form Accedi in landing)
+  if (cerca) {
+    const { data, error } = await supabase
+      .from('workspaces')
+      .select('slug, nome_azienda')
+      .ilike('nome_azienda', `%${cerca}%`)
+      .limit(1)
+      .single()
+
+    if (error || !data) return NextResponse.json({ error: 'Non trovato' }, { status: 404 })
+    return NextResponse.json({ slug: data.slug, nome_azienda: data.nome_azienda })
+  }
+
+  // Lista completa (admin)
   const { data, error } = await supabase
     .from('workspaces')
     .select('*')

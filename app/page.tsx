@@ -4,6 +4,7 @@ import Link from 'next/link'
 import AppShell from '@/components/AppShell'
 import PinLogin from '@/components/PinLogin'
 import LandingPage from '@/components/LandingPage'
+import AdminPanel from '@/app/admin/AdminPanel'
 import { salvaSessione, leggiSessione, cancellaSessione } from '@/lib/session'
 
 type Vista = 'loading' | 'landing' | 'login' | 'seleziona-commerciale' | 'hub'
@@ -36,6 +37,11 @@ export default function Home() {
 
     if (!slugRilevato || slugRilevato === 'www') {
       setVista('landing')
+      return
+    }
+
+    if (slugRilevato === 'admin') {
+      setVista('admin' as any)
       return
     }
 
@@ -150,6 +156,7 @@ export default function Home() {
   }
 
   if (vista === 'loading') return null
+  if ((vista as any) === 'admin') return <AdminPanel />
   if (vista === 'landing') return <LandingPage />
   if (vista === 'login') return (
     <AppShell><PinLogin titolo="VoiceLeads" slug={slug} onSuccess={onLogin} /></AppShell>
