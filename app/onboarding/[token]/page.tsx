@@ -38,6 +38,8 @@ export default function OnboardingPage() {
   const [nomeAzienda, setNomeAzienda] = useState('')
   const [nomeReferente, setNomeReferente] = useState('')
   const [cognomeReferente, setCognomeReferente] = useState('')
+  const [pinReferente, setPinReferente] = useState('')
+  const [pinReferenteConferma, setPinReferenteConferma] = useState('')
   const [logoFile, setLogoFile] = useState<File | null>(null)
   const [logoPreview, setLogoPreview] = useState<string | null>(null)
   const [fatturato, setFatturato] = useState('')
@@ -88,6 +90,8 @@ export default function OnboardingPage() {
   const validaForm = () => {
     if (!nomeAzienda.trim()) return 'Inserisci il nome della tua azienda'
     if (!nomeReferente.trim() || !cognomeReferente.trim()) return 'Inserisci nome e cognome del responsabile'
+    if (!/^\d{6}$/.test(pinReferente)) return 'Il PIN del responsabile deve essere di 6 cifre'
+    if (pinReferente !== pinReferenteConferma) return 'I PIN del responsabile non coincidono'
     for (let i = 0; i < commerciali.length; i++) {
       const c = commerciali[i]
       if (!c.nome.trim() || !c.cognome.trim()) return `Inserisci nome e cognome del commerciale ${i + 1}`
@@ -127,6 +131,7 @@ export default function OnboardingPage() {
           nome_azienda: nomeAzienda,
           nome_referente: nomeReferente,
           cognome_referente: cognomeReferente,
+          pin_referente: pinReferente,
           logo_url: logoUrl,
           fatturato,
           num_dipendenti: numDipendenti,
@@ -170,45 +175,71 @@ export default function OnboardingPage() {
 
   if (fase === 'animazione') {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-orange-50 to-amber-50 flex items-center justify-center px-4">
+      <div className="min-h-screen bg-gradient-to-br from-orange-50 via-amber-50 to-orange-100 flex items-center justify-center px-4">
+        <style>{`
+          @keyframes wings {
+            0%   { transform: translateY(0px) rotate(-2deg); }
+            25%  { transform: translateY(-14px) rotate(2deg); }
+            50%  { transform: translateY(-6px) rotate(-1deg); }
+            75%  { transform: translateY(-18px) rotate(3deg); }
+            100% { transform: translateY(0px) rotate(-2deg); }
+          }
+          @keyframes glow-pulse {
+            0%, 100% { opacity: 0.15; transform: scale(1); }
+            50%       { opacity: 0.35; transform: scale(1.15); }
+          }
+          .hermes-fly { animation: wings 1.6s ease-in-out infinite; }
+          .hermes-glow { animation: glow-pulse 1.6s ease-in-out infinite; }
+        `}</style>
+
         <div className="text-center max-w-sm w-full">
-          {/* Logo con animazione */}
-          <div className="relative w-24 h-24 mx-auto mb-8">
-            <Image
-              src="/logo-hermes.png"
-              alt="Hermes"
-              fill
-              className="object-contain animate-bounce"
-              style={{ animationDuration: '1.2s' }}
-            />
+          {/* Logo animato */}
+          <div className="relative w-32 h-32 mx-auto mb-8">
+            {/* Alone luminoso */}
+            <div className="hermes-glow absolute inset-0 rounded-full bg-orange-400 blur-2xl" />
+            <div className="hermes-fly relative w-full h-full">
+              <Image src="/logo-hermes.png" alt="Hermes" fill className="object-contain drop-shadow-lg" />
+            </div>
           </div>
 
-          <h2 className="text-xl font-bold text-gray-900 mb-2">
+          <h2 className="text-2xl font-bold text-gray-900 mb-1">
             Stiamo creando il tuo workspace
           </h2>
-          <p className="text-gray-500 text-sm mb-8">Ci vorrà solo un momento...</p>
+          <p className="text-gray-400 text-sm mb-10">L'AI di Hermes sta configurando tutto per te...</p>
 
-          {/* Steps */}
-          <div className="space-y-3 text-left">
+          {/* Steps progressivi */}
+          <div className="space-y-3 text-left bg-white/60 backdrop-blur-sm rounded-2xl p-5 border border-white shadow-sm">
             {STEPS_ANIMAZIONE.map((step, i) => (
               <div
                 key={i}
-                className={`flex items-center gap-3 transition-all duration-500 ${
-                  i < stepAnimazione ? 'opacity-100' : 'opacity-20'
+                className={`flex items-center gap-3 transition-all duration-700 ${
+                  i < stepAnimazione ? 'opacity-100 translate-x-0' : 'opacity-25'
                 }`}
               >
-                <div className={`w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 transition-colors duration-300 ${
-                  i < stepAnimazione ? 'bg-orange-500' : 'bg-gray-200'
+                <div className={`w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 transition-all duration-500 ${
+                  i < stepAnimazione ? 'bg-orange-500 scale-110' : 'bg-gray-200'
                 }`}>
-                  {i < stepAnimazione && (
-                    <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  {i < stepAnimazione ? (
+                    <svg className="w-3.5 h-3.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
                     </svg>
+                  ) : (
+                    <div className="w-2 h-2 rounded-full bg-gray-300" />
                   )}
                 </div>
-                <span className="text-sm text-gray-700">{step}</span>
+                <span className={`text-sm transition-colors duration-500 ${i < stepAnimazione ? 'text-gray-800 font-medium' : 'text-gray-400'}`}>
+                  {step}
+                </span>
               </div>
             ))}
+          </div>
+
+          {/* Barra progresso */}
+          <div className="mt-6 h-1.5 bg-gray-200 rounded-full overflow-hidden">
+            <div
+              className="h-full bg-gradient-to-r from-orange-400 to-amber-500 rounded-full transition-all duration-700 ease-out"
+              style={{ width: `${(stepAnimazione / STEPS_ANIMAZIONE.length) * 100}%` }}
+            />
           </div>
         </div>
       </div>
@@ -327,6 +358,34 @@ export default function OnboardingPage() {
                   onChange={e => setCognomeReferente(e.target.value)}
                   placeholder="Rossi"
                   className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400"
+                />
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">PIN accesso (6 cifre) *</label>
+                <input
+                  type="password"
+                  inputMode="numeric"
+                  maxLength={6}
+                  value={pinReferente}
+                  onChange={e => setPinReferente(e.target.value.replace(/\D/g, ''))}
+                  placeholder="••••••"
+                  className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Conferma PIN *</label>
+                <input
+                  type="password"
+                  inputMode="numeric"
+                  maxLength={6}
+                  value={pinReferenteConferma}
+                  onChange={e => setPinReferenteConferma(e.target.value.replace(/\D/g, ''))}
+                  placeholder="••••••"
+                  className={`w-full border rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400 ${
+                    pinReferenteConferma && pinReferente !== pinReferenteConferma ? 'border-red-300' : 'border-gray-200'
+                  }`}
                 />
               </div>
             </div>

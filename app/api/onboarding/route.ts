@@ -41,6 +41,7 @@ export async function POST(req: NextRequest) {
     nome_azienda,
     nome_referente,
     cognome_referente,
+    pin_referente,
     logo_url,
     fatturato,
     num_dipendenti,
@@ -50,6 +51,9 @@ export async function POST(req: NextRequest) {
 
   if (!token || !nome_azienda || !nome_referente || !cognome_referente)
     return NextResponse.json({ error: 'Campi obbligatori mancanti' }, { status: 400 })
+
+  if (!pin_referente || !/^\d{6}$/.test(pin_referente))
+    return NextResponse.json({ error: 'PIN responsabile non valido' }, { status: 400 })
 
   // 1. Verifica token
   const { data: tokenData, error: tokenError } = await supabase
@@ -68,7 +72,7 @@ export async function POST(req: NextRequest) {
 
   // 3. Crea workspace
   const slug = generaSlug(nome_azienda)
-  const pin = generaPin()
+  const pin = pin_referente
 
   const { data: workspace, error: wsError } = await supabase
     .from('workspaces')
