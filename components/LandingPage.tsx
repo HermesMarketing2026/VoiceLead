@@ -31,7 +31,7 @@ export default function LandingPage() {
   }
 
   return (
-    <div className="min-h-screen bg-white overflow-x-hidden">
+    <div className="min-h-screen bg-white overflow-x-clip">
 
       {/* NAV */}
       <div className="sticky top-0 z-20 flex justify-center px-4 py-3 pointer-events-none">
