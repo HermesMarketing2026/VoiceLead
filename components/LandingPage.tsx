@@ -44,7 +44,7 @@ export default function LandingPage() {
 
           {/* Links centro */}
           <div className="hidden md:flex items-center gap-6 text-sm font-medium text-gray-600">
-            <a href="#pacchetti" className="hover:text-gray-900 transition-colors">Funzionalità</a>
+            <a href="#funzionalita" className="hover:text-gray-900 transition-colors">Funzionalità</a>
             <a href="#prezzi" className="hover:text-gray-900 transition-colors">Prezzi</a>
             <a href="#richiesta" className="hover:text-gray-900 transition-colors">Contatti</a>
             <button
@@ -169,7 +169,7 @@ export default function LandingPage() {
       </section>
 
       {/* MULTI-UTENTE */}
-      <section className="py-16 md:py-24 px-6">
+      <section id="funzionalita" className="py-16 md:py-24 px-6">
         <div className="max-w-5xl mx-auto">
           <p className="text-center text-hermes-500 text-sm font-semibold uppercase tracking-widest mb-3">Per i team</p>
           <h2 className="text-3xl md:text-4xl font-bold text-gray-900 text-center mb-4">Ogni commerciale ha il suo spazio</h2>

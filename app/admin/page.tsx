@@ -1,6 +1,6 @@
 'use client'
 import { useEffect, useState } from 'react'
-import type { Workspace, Utente } from '@/lib/types'
+import type { Workspace, Utente, ProvisioningToken } from '@/lib/types'
 import PinLogin from '@/components/PinLogin'
 import { salvaSessione, leggiSessione, cancellaSessione } from '@/lib/session'
 import AppShell from '@/components/AppShell'
@@ -28,6 +28,12 @@ export default function Admin() {
   const [erroreUtente, setErroreUtente] = useState<string | null>(null)
   const [confermaEliminaUtente, setConfermaEliminaUtente] = useState<string | null>(null)
   const [eliminazioneUtente, setEliminazioneUtente] = useState<string | null>(null)
+  // Token onboarding
+  const [tokens, setTokens] = useState<ProvisioningToken[]>([])
+  const [formToken, setFormToken] = useState({ piano: 'registra' as 'registra' | 'registra_gestisci', max_commerciali: 1, google_sheet_id: '' })
+  const [creazioneToken, setCreazioneToken] = useState(false)
+  const [nuovoLink, setNuovoLink] = useState<string | null>(null)
+  const [linkCopiato, setLinkCopiato] = useState(false)
 
   useEffect(() => {
     const sessione = leggiSessione()
@@ -36,8 +42,49 @@ export default function Admin() {
   }, [])
 
   useEffect(() => {
-    if (autenticato) caricaWorkspaces()
+    if (autenticato) {
+      caricaWorkspaces()
+      caricaTokens()
+    }
   }, [autenticato])
+
+  const caricaTokens = async () => {
+    const res = await fetch('/api/provisioning-tokens')
+    const data = await res.json()
+    setTokens(Array.isArray(data) ? data : [])
+  }
+
+  const creaToken = async () => {
+    if (!formToken.google_sheet_id) return
+    setCreazioneToken(true)
+    setNuovoLink(null)
+    try {
+      const res = await fetch('/api/provisioning-tokens', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formToken),
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error)
+      const link = `${window.location.origin}/onboarding/${data.token}`
+      setNuovoLink(link)
+      setFormToken({ piano: 'registra', max_commerciali: 1, google_sheet_id: '' })
+      caricaTokens()
+    } finally {
+      setCreazioneToken(false)
+    }
+  }
+
+  const copiaLink = async (link: string) => {
+    await navigator.clipboard.writeText(link)
+    setLinkCopiato(true)
+    setTimeout(() => setLinkCopiato(false), 2000)
+  }
+
+  const eliminaToken = async (id: string) => {
+    await fetch(`/api/provisioning-tokens/${id}`, { method: 'DELETE' })
+    caricaTokens()
+  }
 
   const caricaWorkspaces = async () => {
     const res = await fetch('/api/workspaces')
@@ -409,6 +456,103 @@ export default function Admin() {
           </div>
         </div>
       )}
+
+      {/* Link onboarding */}
+      <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 space-y-4">
+        <h2 className="text-xs font-bold text-hermes-500 uppercase tracking-wider">🔗 Genera link onboarding</h2>
+        <p className="text-xs text-gray-400">Genera un link da mandare al cliente — configurerà da solo il proprio workspace.</p>
+
+        <div>
+          <label className={labelClass}>Piano</label>
+          <div className="grid grid-cols-2 gap-2">
+            {(['registra', 'registra_gestisci'] as const).map(p => (
+              <button
+                key={p}
+                onClick={() => setFormToken(f => ({ ...f, piano: p }))}
+                className={`rounded-xl border-2 px-3 py-2.5 text-sm font-medium transition-colors ${
+                  formToken.piano === p ? 'border-hermes-400 bg-hermes-50 text-hermes-700' : 'border-gray-200 text-gray-500'
+                }`}
+              >
+                {p === 'registra' ? '🎙️ Solo Registra' : '📋 Registra + Gestisci'}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div>
+          <label className={labelClass}>N° commerciali</label>
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => setFormToken(f => ({ ...f, max_commerciali: Math.max(1, f.max_commerciali - 1) }))}
+              className="w-10 h-10 rounded-xl border border-gray-200 text-lg font-bold text-gray-600 hover:bg-gray-50 flex items-center justify-center"
+            >−</button>
+            <span className="text-2xl font-bold text-gray-800 w-8 text-center">{formToken.max_commerciali}</span>
+            <button
+              onClick={() => setFormToken(f => ({ ...f, max_commerciali: Math.min(20, f.max_commerciali + 1) }))}
+              className="w-10 h-10 rounded-xl border border-gray-200 text-lg font-bold text-gray-600 hover:bg-gray-50 flex items-center justify-center"
+            >+</button>
+          </div>
+        </div>
+
+        <div>
+          <label className={labelClass}>Google Sheet ID</label>
+          <input
+            className={inputClass}
+            value={formToken.google_sheet_id}
+            onChange={e => setFormToken(f => ({ ...f, google_sheet_id: e.target.value }))}
+            placeholder="1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgVE2upms"
+          />
+        </div>
+
+        <button
+          onClick={creaToken}
+          disabled={creazioneToken || !formToken.google_sheet_id}
+          className="w-full rounded-xl bg-hermes-500 py-3 text-sm font-semibold text-white hover:bg-hermes-600 disabled:opacity-40 shadow-sm"
+        >
+          {creazioneToken ? 'Generazione…' : '🔗 Genera link'}
+        </button>
+
+        {nuovoLink && (
+          <div className="bg-green-50 border border-green-200 rounded-xl p-4 space-y-2">
+            <p className="text-xs font-semibold text-green-700">Link generato! Mandalo al cliente:</p>
+            <div className="flex items-center gap-2 bg-white border border-green-200 rounded-lg px-3 py-2">
+              <span className="text-xs font-mono text-gray-600 flex-1 truncate">{nuovoLink}</span>
+              <button
+                onClick={() => copiaLink(nuovoLink)}
+                className="text-xs font-semibold text-hermes-600 hover:text-hermes-800 shrink-0"
+              >
+                {linkCopiato ? '✅ Copiato!' : '📋 Copia'}
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Token attivi */}
+        {tokens.filter(t => !t.usato).length > 0 && (
+          <div className="border-t border-gray-100 pt-4 space-y-2">
+            <p className="text-xs font-semibold text-gray-500">Link in attesa ({tokens.filter(t => !t.usato).length})</p>
+            {tokens.filter(t => !t.usato).map(t => (
+              <div key={t.id} className="flex items-center justify-between bg-gray-50 rounded-xl px-3 py-2.5">
+                <div>
+                  <span className="text-xs font-medium text-gray-700">
+                    {t.piano === 'registra_gestisci' ? '📋' : '🎙️'} {t.piano === 'registra_gestisci' ? 'Registra + Gestisci' : 'Solo Registra'} · {t.max_commerciali} comm.
+                  </span>
+                  <p className="text-xs text-gray-400 font-mono mt-0.5">Scade: {new Date(t.scadenza).toLocaleDateString('it-IT')}</p>
+                </div>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => copiaLink(`${window.location.origin}/onboarding/${t.token}`)}
+                    className="text-xs text-hermes-600 hover:text-hermes-800 font-medium"
+                  >
+                    Copia
+                  </button>
+                  <button onClick={() => eliminaToken(t.id)} className="text-xs text-red-400 hover:text-red-600">🗑️</button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
 
       {/* Lista workspace */}
       <div className="space-y-3">

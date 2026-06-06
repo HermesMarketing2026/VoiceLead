@@ -23,6 +23,21 @@ export interface Workspace {
   pin: string
   creato_il: string
   has_gestisci: boolean
+  fatturato?: string
+  num_dipendenti?: string
+  settore?: string
+}
+
+export interface ProvisioningToken {
+  id: string
+  token: string
+  piano: 'registra' | 'registra_gestisci'
+  max_commerciali: number
+  google_sheet_id: string
+  usato: boolean
+  workspace_id_creato: string | null
+  scadenza: string
+  creato_il: string
 }
 
 export interface Lead {
