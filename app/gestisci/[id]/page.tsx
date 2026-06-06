@@ -173,10 +173,19 @@ function SchedaGestisciInner({ id }: { id: string }) {
     const res = await fetch('/api/aggiorna-lead', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ lead_id: id, testo }),
+      body: JSON.stringify({ lead_id: id, testo, workspace_id: workspaceId }),
     })
     const data = await res.json()
     if (!res.ok) throw new Error(data.error)
+
+    // Claude ha rilevato un esito definitivo → redirect automatico
+    if (data.chiusaAutomaticamente) {
+      const emoji = data.esito === 'vinto' ? '🏆' : '❌'
+      setNota(`${emoji} Trattativa ${data.esito === 'vinto' ? 'vinta' : 'persa'} — ${data.noteAggiornamento}`)
+      setTimeout(() => router.push(`/gestisci?workspace_id=${workspaceId}`), 2000)
+      return
+    }
+
     setNota(`✅ ${data.noteAggiornamento}`)
     await caricaLead()
     await caricaAzioni()

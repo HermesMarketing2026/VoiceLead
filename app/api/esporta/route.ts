@@ -48,11 +48,12 @@ export async function POST(req: NextRequest) {
     })
     const foglioVuoto = !esistenti.data.values || esistenti.data.values.length === 0
 
-    const intestazione = ['Nome', 'Cognome', 'Azienda', 'Email', 'Telefono', 'Note', 'Data registrazione']
+    const intestazione = ['Nome', 'Cognome', 'Azienda', 'Email', 'Telefono', 'Note', 'Data registrazione', 'Fase trattativa']
     const righe = (leads as Lead[]).map(l => [
       l.nome, l.cognome, l.azienda, l.email, l.telefono,
       l.note ?? '',
       new Date(l.data_registrazione).toLocaleString('it-IT'),
+      'in trattativa',
     ])
 
     await sheets.spreadsheets.values.append({
