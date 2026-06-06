@@ -16,7 +16,7 @@ export async function POST(req: NextRequest) {
 
   const { data, error } = await supabase
     .from('workspaces')
-    .select('id, pin, nome_azienda, slug, logo_url, has_gestisci')
+    .select('id, pin, nome_azienda, slug, logo_url')
     .eq('slug', slug)
     .single()
 
@@ -26,11 +26,20 @@ export async function POST(req: NextRequest) {
   }
   if (pin !== data.pin) return NextResponse.json({ error: 'PIN non corretto' }, { status: 401 })
 
+  // has_gestisci: leggi separatamente, fallback false se colonna non esiste ancora (migrazione v4)
+  let hasGestisci = false
+  const { data: wsExtra, error: wsExtraError } = await supabase
+    .from('workspaces')
+    .select('has_gestisci')
+    .eq('id', data.id)
+    .single()
+  if (!wsExtraError) hasGestisci = wsExtra?.has_gestisci ?? false
+
   return NextResponse.json({
     tipo: 'workspace',
     workspaceId: data.id,
     nomeAzienda: data.nome_azienda,
     logoUrl: data.logo_url ?? '',
-    hasGestisci: data.has_gestisci ?? false,
+    hasGestisci,
   })
 }

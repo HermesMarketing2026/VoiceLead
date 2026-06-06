@@ -5,9 +5,19 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
   const body = await req.json()
   const { nome_azienda, google_sheet_id, logo_url, nome_referente, cognome_referente, has_gestisci } = body
 
+  const updatePayload: Record<string, unknown> = {
+    nome_azienda,
+    google_sheet_id,
+    logo_url: logo_url || null,
+    nome_referente: nome_referente || null,
+    cognome_referente: cognome_referente || null,
+  }
+  // Includi has_gestisci solo se la migrazione v4 è stata eseguita
+  if (has_gestisci !== undefined) updatePayload.has_gestisci = has_gestisci
+
   const { data, error } = await supabase
     .from('workspaces')
-    .update({ nome_azienda, google_sheet_id, logo_url: logo_url || null, nome_referente: nome_referente || null, cognome_referente: cognome_referente || null, has_gestisci: has_gestisci ?? false })
+    .update(updatePayload)
     .eq('id', params.id)
     .select()
     .single()
