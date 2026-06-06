@@ -111,7 +111,7 @@ export default function LandingPage() {
                 { icon: '📷', label: 'Foto biglietto da visita' },
                 { icon: '📋', label: 'Gestione trattative AI' },
                 { icon: '👥', label: 'Multi-commerciale' },
-                { icon: '📤', label: 'Sync Google Sheets' },
+                { icon: '📥', label: 'Export CSV' },
               ].map(({ icon, label }) => (
                 <span key={label} className="flex items-center gap-1.5 bg-white/15 text-white text-xs font-semibold px-3 py-1.5 rounded-full border border-white/20">
                   {icon} {label}
@@ -129,7 +129,7 @@ export default function LandingPage() {
                 <p className="text-xs font-bold text-white/60 uppercase tracking-wide mb-2">🎙️ Registra</p>
                 <p className="text-sm italic font-semibold">"Ho incontrato Mario Rossi di Acme, email mario@acme.it…"</p>
                 <div className="mt-3 bg-green-400 text-green-900 text-xs font-bold rounded-lg px-3 py-1.5 text-center">
-                  ✓ Lead pronto per Sheets
+                  ✓ Lead pronto per l'export
                 </div>
               </div>
               <div className="bg-white/20 rounded-2xl p-4">
@@ -264,7 +264,7 @@ export default function LandingPage() {
                 { n: '1', titolo: 'Apri l\'app dopo l\'appuntamento', testo: 'Appena esci. Mentre i dettagli sono freschi.' },
                 { n: '2', titolo: 'Voce o foto', testo: 'Detta il contatto oppure fotografa il biglietto da visita.' },
                 { n: '3', titolo: 'L\'AI estrae tutto', testo: 'Nome, cognome, azienda, email, telefono. Automatico.' },
-                { n: '4', titolo: 'Esporta su Sheets', testo: 'Un click e il lead finisce nel tuo Google Sheets condiviso con la colonna Commerciale.' },
+                { n: '4', titolo: 'Esporta quando vuoi', testo: 'Un click e scarichi un CSV con tutti i lead pronti: nome, azienda, contatti, commerciale. Importi su Excel, Sheets o qualsiasi CRM.' },
               ].map(({ n, titolo, testo }) => (
                 <div key={n} className="flex gap-4 bg-white rounded-2xl border border-gray-200 p-4">
                   <div className="w-8 h-8 rounded-full bg-hermes-500 text-white font-bold text-sm flex items-center justify-center shrink-0">{n}</div>
@@ -281,7 +281,7 @@ export default function LandingPage() {
                 { n: '5', titolo: 'Il lead entra in trattativa', testo: 'Appena completato, entra automaticamente in Gestisci.' },
                 { n: '6', titolo: 'Detti un aggiornamento', testo: '"Ho chiamato Mario, vuole un preventivo entro venerdì." L\'AI fissa il reminder.' },
                 { n: '7', titolo: 'Reminder intelligenti', testo: 'La dashboard ti mostra chi richiamare oggi. Nessuna scadenza dimenticata.' },
-                { n: '8', titolo: 'Chiudi con un dettato', testo: '"Mario ha firmato" → Vinto. "Non è interessato" → Perso. Tutto su Sheets in automatico.' },
+                { n: '8', titolo: 'Chiudi con un dettato', testo: '"Mario ha firmato" → Vinto. "Non è interessato" → Perso. Tracciato automaticamente nel diario trattative.' },
               ].map(({ n, titolo, testo }) => (
                 <div key={n} className="flex gap-4 bg-white rounded-2xl border border-hermes-200 p-4">
                   <div className="w-8 h-8 rounded-full bg-hermes-100 text-hermes-700 font-bold text-sm flex items-center justify-center shrink-0">{n}</div>
@@ -376,7 +376,7 @@ export default function LandingPage() {
                   '🎙️ Dettatura vocale in italiano',
                   '📷 Scansione biglietto da visita',
                   '🤖 Estrazione dati AI automatica',
-                  '📤 Export su Google Sheets',
+                  '📥 Export CSV quando vuoi',
                   '👥 Accessi multi-commerciale',
                   '🔑 Pannello responsabile incluso',
                   '🔒 Cancellazione automatica 30gg',
@@ -433,7 +433,7 @@ export default function LandingPage() {
                   '🎙️ Aggiornamenti vocali sulla trattativa',
                   '⏰ Reminder automatici con scadenza AI',
                   '🏆 Chiusura vinto/perso con un dettato',
-                  '📊 Sync automatico fase trattativa su Sheets',
+                  '📊 Storico trattative completo per commerciale',
                 ].map(f => (
                   <li key={f} className="flex items-start gap-2 text-sm text-gray-700 font-medium">
                     <span>{f}</span>
@@ -499,7 +499,7 @@ export default function LandingPage() {
               { icon: '📷', titolo: 'Foto biglietto da visita', testo: 'Scatta e via. L\'AI legge il biglietto e compila tutti i campi in automatico. Funziona con biglietti in più lingue.' },
               { icon: '👥', titolo: 'Multi-commerciale nativo', testo: 'Ogni commerciale ha il suo PIN e vede solo i propri lead. Il responsabile monitora tutti con un tap, senza PIN aggiuntivo.' },
               { icon: '⚡', titolo: 'Velocità reale sul campo', testo: 'Non aspetti di tornare in ufficio. Registri e aggiorni subito, tra un appuntamento e l\'altro.' },
-              { icon: '📊', titolo: 'Google Sheets integrato', testo: 'Lead, fase trattativa, esito finale e commerciale di riferimento: tutto si sincronizza automaticamente sul tuo foglio condiviso.' },
+              { icon: '📥', titolo: 'Export CSV on demand', testo: 'Scarica i tuoi lead in un click: CSV pronto con nome, azienda, contatti, commerciale e data. Importi su Excel, Google Sheets o qualsiasi CRM senza configurazioni.' },
               { icon: '🔒', titolo: 'Dati protetti e cancellazione automatica', testo: 'Ogni workspace è protetto da PIN. I dati vengono eliminati automaticamente dopo 30 giorni, in linea con il GDPR.' },
             ].map(({ icon, titolo, testo }) => (
               <div key={titolo} className="bg-white rounded-2xl border border-gray-200 p-6 shadow-sm flex gap-4">
