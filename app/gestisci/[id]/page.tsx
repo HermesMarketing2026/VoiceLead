@@ -14,33 +14,30 @@ function BarraProgresso({ stato, esito }: { stato: StatoGestione; esito: string 
   const current = esito ? steps.length - 1 : STEP_GESTIONE.indexOf(stato)
 
   return (
-    <div className="w-full">
-      <div className="flex items-center">
-        {steps.map((step, i) => {
-          const attivo = i <= current
-          const isLast = i === steps.length - 1
-          return (
-            <div key={step} className="flex items-center flex-1">
-              <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold shrink-0 transition-colors ${
+    <div className="flex items-start w-full">
+      {steps.map((step, i) => {
+        const attivo = i <= current
+        const isLast = i === steps.length - 1
+        return (
+          <div key={step} className="flex items-start flex-1">
+            {/* Cerchio + label */}
+            <div className="flex flex-col items-center gap-1.5 shrink-0">
+              <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold transition-colors ${
                 attivo ? 'bg-hermes-500 text-white' : 'bg-gray-200 text-gray-400'
               }`}>
                 {i < current ? '✓' : i + 1}
               </div>
-              {!isLast && (
-                <div className={`h-1 flex-1 transition-colors ${i < current ? 'bg-hermes-500' : 'bg-gray-200'}`} />
-              )}
+              <span className={`text-xs text-center leading-tight ${attivo ? 'text-hermes-600 font-semibold' : 'text-gray-400'}`}>
+                {labels[i]}
+              </span>
             </div>
-          )
-        })}
-      </div>
-      <div className="flex justify-between mt-1.5">
-        {labels.map((label, i) => (
-          <span key={i} className={`text-xs ${i <= current ? 'text-hermes-600 font-semibold' : 'text-gray-400'}`}
-            style={{ width: `${100 / steps.length}%`, textAlign: i === 0 ? 'left' : i === steps.length - 1 ? 'right' : 'center' }}>
-            {label}
-          </span>
-        ))}
-      </div>
+            {/* Linea connettore */}
+            {!isLast && (
+              <div className={`h-1 flex-1 mt-3 mx-1 transition-colors rounded-full ${i < current ? 'bg-hermes-500' : 'bg-gray-200'}`} />
+            )}
+          </div>
+        )
+      })}
     </div>
   )
 }
