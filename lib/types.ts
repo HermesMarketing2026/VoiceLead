@@ -1,4 +1,6 @@
 export type StatoLead = 'bozza' | 'completo' | 'esportato'
+export type StatoGestione = 'nuovo' | 'contattato' | 'appuntamento' | 'proposta' | 'trattativa'
+export type EsitoGestione = 'vinto' | 'perso'
 
 export interface Workspace {
   id: string
@@ -23,6 +25,25 @@ export interface Lead {
   note: string | null
   data_registrazione: string
   stato: StatoLead
+  // Gestisci fields
+  stato_gestione: StatoGestione
+  in_gestione: boolean
+  data_entrata_gestione: string | null
+  data_esito: string | null
+  esito: EsitoGestione | null
+  durata_trattativa_giorni: number | null
+}
+
+export interface Azione {
+  id: string
+  lead_id: string
+  testo: string
+  scadenza: string
+  scadenza_automatica: boolean
+  completata: boolean
+  data_completamento: string | null
+  aggiornamento_dettato: string | null
+  created_at: string
 }
 
 export interface LeadFormData {
@@ -45,6 +66,18 @@ export const LABEL_CAMPI: Record<keyof LeadFormData, string> = {
   email: 'Email',
   telefono: 'Telefono',
   note: 'Note',
+}
+
+export const STEP_GESTIONE: StatoGestione[] = [
+  'nuovo', 'contattato', 'appuntamento', 'proposta', 'trattativa'
+]
+
+export const LABEL_STATO_GESTIONE: Record<StatoGestione, string> = {
+  nuovo: 'Nuovo',
+  contattato: 'Contattato',
+  appuntamento: 'Appuntamento',
+  proposta: 'Proposta',
+  trattativa: 'Trattativa',
 }
 
 export function calcolaCompletamento(lead: LeadFormData): number {

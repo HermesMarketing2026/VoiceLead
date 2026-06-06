@@ -25,6 +25,8 @@ export default function LeadForm({ lead, workspaceId }: Props) {
   const [eliminazione, setEliminazione] = useState(false)
   const [confermaElimina, setConfermaElimina] = useState(false)
   const [errore, setErrore] = useState<string | null>(null)
+  const [promuovendo, setPromuovendo] = useState(false)
+  const [promoEsito, setPromoEsito] = useState<string | null>(null)
 
   const mancanti = campiMancanti(form)
   const completamento = calcolaCompletamento(form)
@@ -66,6 +68,24 @@ export default function LeadForm({ lead, workspaceId }: Props) {
       setErrore(e.message)
     } finally {
       setSalvataggio(false)
+    }
+  }
+
+  const spostaInGestisci = async () => {
+    setPromuovendo(true)
+    setPromoEsito(null)
+    try {
+      const res = await fetch('/api/gestisci/promuovi', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ lead_id: lead!.id }),
+      })
+      if (!res.ok) throw new Error('Errore')
+      setPromoEsito('✅ Lead spostato in Gestisci!')
+    } catch {
+      setPromoEsito('❌ Errore durante lo spostamento')
+    } finally {
+      setPromuovendo(false)
     }
   }
 
@@ -223,6 +243,26 @@ export default function LeadForm({ lead, workspaceId }: Props) {
           {salvataggio ? 'Salvataggio…' : 'Salva lead'}
         </button>
       </div>
+
+      {/* Sposta in Gestisci — solo per lead completi non ancora in gestione */}
+      {!isNuovo && mancanti.length === 0 && !lead?.in_gestione && (
+        <div>
+          {promoEsito ? (
+            <div className="rounded-xl bg-green-50 border border-green-200 px-4 py-3 text-sm text-green-800">
+              {promoEsito}
+            </div>
+          ) : (
+            <button
+              type="button"
+              onClick={spostaInGestisci}
+              disabled={promuovendo}
+              className="w-full rounded-xl border-2 border-hermes-300 py-3 text-sm font-semibold text-hermes-600 hover:bg-hermes-50 disabled:opacity-50 transition-colors"
+            >
+              {promuovendo ? 'Spostamento…' : '📋 Sposta in Gestisci'}
+            </button>
+          )}
+        </div>
+      )}
 
       {!isNuovo && (
         <div className="pb-6">
