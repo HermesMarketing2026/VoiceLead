@@ -8,6 +8,7 @@ export default function LandingPage() {
   const [nomeAzienda, setNomeAzienda] = useState('')
   const [cercando, setCercando] = useState(false)
   const [erroreAccesso, setErroreAccesso] = useState<string | null>(null)
+  const [menuAperto, setMenuAperto] = useState(false)
   const inputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
@@ -42,7 +43,7 @@ export default function LandingPage() {
             <span className="font-bold text-gray-900 text-base tracking-tight">VoiceLeads</span>
           </div>
 
-          {/* Links centro */}
+          {/* Links centro — desktop */}
           <div className="hidden md:flex items-center gap-6 text-sm font-medium text-gray-600">
             <a href="#funzionalita" className="hover:text-gray-900 transition-colors">Funzionalità</a>
             <a href="#prezzi" className="hover:text-gray-900 transition-colors">Prezzi</a>
@@ -55,15 +56,62 @@ export default function LandingPage() {
             </button>
           </div>
 
-          {/* CTA con bordo gradiente */}
+          {/* CTA desktop */}
           <a
             href="#prezzi"
-            className="relative text-sm font-bold px-5 py-2 rounded-full text-white transition-all hover:opacity-90 active:scale-95"
+            className="hidden md:block relative text-sm font-bold px-5 py-2 rounded-full text-white transition-all hover:opacity-90 active:scale-95"
             style={{ background: 'linear-gradient(135deg, #ff7930, #ff4500)' }}
           >
             Vedi i prezzi
           </a>
+
+          {/* Hamburger mobile */}
+          <button
+            onClick={() => setMenuAperto(m => !m)}
+            className="md:hidden flex flex-col justify-center items-center w-9 h-9 rounded-full hover:bg-gray-100 transition-colors gap-1.5"
+            aria-label="Menu"
+          >
+            <span className={`block w-5 h-0.5 bg-gray-700 transition-all duration-200 ${menuAperto ? 'rotate-45 translate-y-2' : ''}`} />
+            <span className={`block w-5 h-0.5 bg-gray-700 transition-all duration-200 ${menuAperto ? 'opacity-0' : ''}`} />
+            <span className={`block w-5 h-0.5 bg-gray-700 transition-all duration-200 ${menuAperto ? '-rotate-45 -translate-y-2' : ''}`} />
+          </button>
         </nav>
+
+        {/* Menu mobile dropdown */}
+        {menuAperto && (
+          <div className="pointer-events-auto absolute top-16 left-4 right-4 bg-white rounded-2xl shadow-xl border border-gray-200 p-4 z-30 md:hidden">
+            <div className="flex flex-col gap-1">
+              {[
+                { href: '#funzionalita', label: 'Funzionalità' },
+                { href: '#prezzi', label: 'Prezzi' },
+                { href: '#richiesta', label: 'Contatti' },
+              ].map(({ href, label }) => (
+                <a
+                  key={href}
+                  href={href}
+                  onClick={() => setMenuAperto(false)}
+                  className="px-4 py-3 rounded-xl text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+                >
+                  {label}
+                </a>
+              ))}
+              <button
+                onClick={() => { setMenuAperto(false); setMostraAccedi(true) }}
+                className="px-4 py-3 rounded-xl text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors text-left"
+              >
+                Accedi
+              </button>
+              <a
+                href="#prezzi"
+                onClick={() => setMenuAperto(false)}
+                className="mt-1 px-4 py-3 rounded-xl text-sm font-bold text-white text-center transition-all"
+                style={{ background: 'linear-gradient(135deg, #ff7930, #ff4500)' }}
+              >
+                Vedi i prezzi →
+              </a>
+            </div>
+          </div>
+        )}
 
         {/* Dropdown Accedi */}
         {mostraAccedi && (
@@ -486,6 +534,96 @@ export default function LandingPage() {
           <p className="text-center text-xs text-gray-400 mt-8">
             Prezzi per utente commerciale. Il responsabile accede gratuitamente. IVA esclusa.
           </p>
+
+          {/* Tabella comparativa */}
+          <div className="mt-16">
+            <h3 className="text-xl font-bold text-gray-900 text-center mb-8">Confronta i piani nel dettaglio</h3>
+            <div className="overflow-x-auto rounded-2xl border border-gray-200 shadow-sm bg-white">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b border-gray-100">
+                    <th className="text-left px-6 py-4 text-gray-500 font-medium w-1/2">Funzionalità</th>
+                    <th className="px-6 py-4 text-center font-bold text-gray-900">
+                      <div className="flex flex-col items-center gap-1">
+                        <span className="text-xs text-gray-400 font-normal uppercase tracking-wide">Base</span>
+                        <span>Registra</span>
+                      </div>
+                    </th>
+                    <th className="px-6 py-4 text-center font-bold text-hermes-600 bg-hermes-50">
+                      <div className="flex flex-col items-center gap-1">
+                        <span className="text-xs text-hermes-400 font-normal uppercase tracking-wide">Pro</span>
+                        <span>Registra + Gestisci</span>
+                      </div>
+                    </th>
+                    <th className="px-6 py-4 text-center font-bold text-gray-100 bg-gray-900 rounded-tr-2xl">
+                      <div className="flex flex-col items-center gap-1">
+                        <span className="text-xs text-gray-400 font-normal uppercase tracking-wide">Enterprise</span>
+                        <span>Su misura</span>
+                      </div>
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {[
+                    { label: 'Dettatura vocale in italiano', base: true, pro: true, ent: true },
+                    { label: 'Scansione biglietto da visita', base: true, pro: true, ent: true },
+                    { label: 'Estrazione dati AI automatica', base: true, pro: true, ent: true },
+                    { label: 'Export CSV on demand', base: true, pro: true, ent: true },
+                    { label: 'Accessi multi-commerciale', base: true, pro: true, ent: true },
+                    { label: 'Pannello responsabile', base: true, pro: true, ent: true },
+                    { label: 'Cancellazione automatica 30gg (GDPR)', base: true, pro: true, ent: true },
+                    { label: 'Dashboard trattative con stati', base: false, pro: true, ent: true },
+                    { label: 'Aggiornamenti vocali sulla trattativa', base: false, pro: true, ent: true },
+                    { label: 'Reminder intelligenti con scadenza AI', base: false, pro: true, ent: true },
+                    { label: 'Chiusura vinto/perso con un dettato', base: false, pro: true, ent: true },
+                    { label: 'Storico trattative per commerciale', base: false, pro: true, ent: true },
+                    { label: 'White label e brand aziendale', base: false, pro: false, ent: true },
+                    { label: 'Integrazioni custom (CRM, ERP…)', base: false, pro: false, ent: true },
+                    { label: 'Dominio personalizzato', base: false, pro: false, ent: true },
+                    { label: 'Account manager dedicato', base: false, pro: false, ent: true },
+                    { label: 'SLA e contratto dedicato', base: false, pro: false, ent: true },
+                  ].map(({ label, base, pro, ent }, i) => (
+                    <tr key={label} className={`border-b border-gray-50 ${i % 2 === 0 ? 'bg-white' : 'bg-gray-50/50'}`}>
+                      <td className="px-6 py-3.5 text-gray-700">{label}</td>
+                      <td className="px-6 py-3.5 text-center">
+                        {base
+                          ? <span className="text-green-500 text-lg">✓</span>
+                          : <span className="text-gray-200 text-lg">—</span>}
+                      </td>
+                      <td className="px-6 py-3.5 text-center bg-hermes-50/50">
+                        {pro
+                          ? <span className="text-green-500 text-lg font-bold">✓</span>
+                          : <span className="text-gray-200 text-lg">—</span>}
+                      </td>
+                      <td className="px-6 py-3.5 text-center bg-gray-900">
+                        {ent
+                          ? <span className="text-green-400 text-lg">✓</span>
+                          : <span className="text-gray-700 text-lg">—</span>}
+                      </td>
+                    </tr>
+                  ))}
+                  <tr>
+                    <td className="px-6 py-5" />
+                    <td className="px-6 py-5 text-center">
+                      <a href="#richiesta" className="inline-block rounded-xl border-2 border-hermes-400 text-hermes-600 font-bold px-5 py-2.5 hover:bg-hermes-50 transition-colors text-sm">
+                        Inizia con Base
+                      </a>
+                    </td>
+                    <td className="px-6 py-5 text-center bg-hermes-50/50">
+                      <a href="#richiesta" className="inline-block rounded-xl bg-hermes-500 text-white font-bold px-5 py-2.5 hover:bg-hermes-600 transition-colors text-sm shadow">
+                        Inizia con Pro
+                      </a>
+                    </td>
+                    <td className="px-6 py-5 text-center bg-gray-900 rounded-br-2xl">
+                      <a href="#richiesta" className="inline-block rounded-xl bg-white text-gray-900 font-bold px-5 py-2.5 hover:bg-gray-100 transition-colors text-sm">
+                        Contattaci
+                      </a>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
         </div>
       </section>
 
