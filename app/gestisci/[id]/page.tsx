@@ -152,6 +152,8 @@ function SchedaGestisciInner({ id }: { id: string }) {
   const [nota, setNota] = useState<string | null>(null)
   const [testoManuale, setTestoManuale] = useState('')
   const [invioManuale, setInvioManuale] = useState(false)
+  const [confermaElimina, setConfermaElimina] = useState(false)
+  const [eliminando, setEliminando] = useState(false)
 
   const caricaLead = async () => {
     const res = await fetch(`/api/leads/${id}`)
@@ -212,6 +214,22 @@ function SchedaGestisciInner({ id }: { id: string }) {
       body: JSON.stringify({ id: azId, completata }),
     })
     caricaAzioni()
+  }
+
+  const eliminaTrattativa = async () => {
+    setEliminando(true)
+    try {
+      const res = await fetch('/api/gestisci/elimina', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ lead_id: id }),
+      })
+      if (!res.ok) throw new Error('Errore')
+      router.push(`/gestisci?workspace_id=${workspaceId}`)
+    } catch {
+      setEliminando(false)
+      setConfermaElimina(false)
+    }
   }
 
   const confermaChiudi = async (esito: 'vinto' | 'perso') => {
@@ -407,6 +425,44 @@ function SchedaGestisciInner({ id }: { id: string }) {
             </div>
           </div>
         )}
+
+        {/* Elimina trattativa */}
+        <div className="border-t border-gray-200 pt-4">
+          {!confermaElimina ? (
+            <button
+              onClick={() => setConfermaElimina(true)}
+              className="w-full rounded-xl border border-gray-200 py-3 text-sm font-medium text-gray-400 hover:text-red-500 hover:border-red-200 hover:bg-red-50 transition-colors"
+            >
+              🗑️ Elimina trattativa
+            </button>
+          ) : (
+            <div className="rounded-xl bg-gray-50 border border-gray-200 p-4 space-y-3">
+              <p className="text-sm text-gray-700 font-medium text-center">
+                Rimuovere questa trattativa da Gestisci?
+              </p>
+              <p className="text-xs text-gray-400 text-center">
+                Il lead rimane in Registra. Le azioni vengono cancellate.
+              </p>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => setConfermaElimina(false)}
+                  disabled={eliminando}
+                  className="flex-1 rounded-xl border border-gray-300 py-2.5 text-sm font-medium text-gray-600 hover:bg-white transition-colors"
+                >
+                  Annulla
+                </button>
+                <button
+                  onClick={eliminaTrattativa}
+                  disabled={eliminando}
+                  className="flex-1 rounded-xl bg-gray-700 py-2.5 text-sm font-semibold text-white hover:bg-gray-800 disabled:opacity-50 transition-colors"
+                >
+                  {eliminando ? 'Rimozione…' : 'Sì, elimina'}
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+
       </div>
     </AppShell>
   )
