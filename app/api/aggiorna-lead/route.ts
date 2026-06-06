@@ -21,6 +21,8 @@ export async function POST(req: NextRequest) {
     noteAggiornamento: string
   }
 
+  const annoCorrente = new Date().getFullYear()
+
   try {
     const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
     const message = await client.messages.create({
@@ -39,6 +41,7 @@ export async function POST(req: NextRequest) {
         "scadenza: string (data ISO 8601 se menzionata esplicitamente, altrimenti null; ignorata se esito non è null), " +
         "noteAggiornamento: string (riassunto breve) }. " +
         `Stato attuale: ${lead.stato_gestione}. ` +
+        `Anno corrente: ${annoCorrente}. Se viene menzionata una data senza anno (es. 'il 12 giugno', 'venerdì prossimo'), usa sempre l'anno ${annoCorrente}. ` +
         "Se scadenza è null e esito è null, l'app imposterà +3 giorni automaticamente.",
       messages: [{ role: 'user', content: testo }],
     })
@@ -100,7 +103,12 @@ export async function POST(req: NextRequest) {
   let scadenza: string
   let scadenzaAutomatica: boolean
   if (parsed.scadenza) {
-    scadenza = new Date(parsed.scadenza).toISOString()
+    const d = new Date(parsed.scadenza)
+    // Se la data è già passata, spostala all'anno prossimo
+    if (d.getTime() < Date.now()) {
+      d.setFullYear(d.getFullYear() + 1)
+    }
+    scadenza = d.toISOString()
     scadenzaAutomatica = false
   } else {
     const d = new Date(); d.setDate(d.getDate() + 3)
