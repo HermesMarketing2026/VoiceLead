@@ -267,7 +267,7 @@ export default function LandingPage() {
             </span>
           </div>
 
-          <div className="grid md:grid-cols-2 gap-8 max-w-3xl mx-auto">
+          <div className="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto">
 
             {/* Piano Base */}
             <div className="rounded-3xl border-2 border-gray-200 bg-white p-8 shadow-sm">
@@ -324,7 +324,7 @@ export default function LandingPage() {
             {/* Piano Pro */}
             <div className="rounded-3xl border-2 border-hermes-400 bg-gradient-to-br from-hermes-50 to-orange-50 p-8 shadow-lg relative">
               <div className="absolute -top-3.5 left-1/2 -translate-x-1/2">
-                <span className="bg-hermes-500 text-white text-xs font-bold px-4 py-1.5 rounded-full shadow">⭐ Più scelto</span>
+                <span className="bg-hermes-500 text-white text-xs font-bold px-4 py-1.5 rounded-full shadow">🔥 Best value</span>
               </div>
               <div className="flex items-center gap-3 mb-2">
                 <div className="w-12 h-12 rounded-2xl bg-hermes-500 flex items-center justify-center text-2xl">📋</div>
@@ -372,6 +372,42 @@ export default function LandingPage() {
               </ul>
               <a href="#richiesta" className="block w-full text-center rounded-xl bg-hermes-500 text-white font-bold py-3.5 hover:bg-hermes-600 transition-colors shadow-md">
                 Inizia con Pro →
+              </a>
+            </div>
+
+            {/* Piano Enterprise */}
+            <div className="rounded-3xl border-2 border-gray-800 bg-gray-900 p-8 shadow-lg relative flex flex-col">
+              <div className="flex items-center gap-3 mb-2">
+                <div className="w-12 h-12 rounded-2xl bg-gray-700 flex items-center justify-center text-2xl">🏢</div>
+                <div>
+                  <p className="text-xs font-bold text-gray-400 uppercase tracking-wide">Enterprise</p>
+                  <p className="text-xl font-extrabold text-white">Su misura</p>
+                </div>
+              </div>
+
+              <div className="my-6">
+                <p className="text-3xl font-extrabold text-white">Offerta<br />personalizzata</p>
+                <p className="text-sm text-gray-400 mt-2">Prezzo su volume e requisiti</p>
+              </div>
+
+              <ul className="space-y-3 mb-8 flex-1">
+                {[
+                  '✅ Tutto il Piano Pro incluso',
+                  '🎨 White label — brand aziendale',
+                  '🔗 Integrazioni custom (CRM, ERP…)',
+                  '📐 Workflow su misura',
+                  '🏷️ Dominio personalizzato',
+                  '🤝 Account manager dedicato',
+                  '⚡ Onboarding e formazione team',
+                  '🔒 SLA e contratto dedicato',
+                ].map(f => (
+                  <li key={f} className="flex items-start gap-2 text-sm text-gray-300">
+                    <span>{f}</span>
+                  </li>
+                ))}
+              </ul>
+              <a href="#richiesta" className="block w-full text-center rounded-xl bg-white text-gray-900 font-bold py-3.5 hover:bg-gray-100 transition-colors shadow-md">
+                Richiedi un'offerta →
               </a>
             </div>
 
