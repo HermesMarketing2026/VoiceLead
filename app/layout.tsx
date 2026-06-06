@@ -29,7 +29,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="it">
+    <html lang="it" style={{ scrollBehavior: 'smooth' }}>
       <head>
         <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
         <link rel="stylesheet" href="https://sibforms.com/forms/end-form/build/sib-styles.css" />
