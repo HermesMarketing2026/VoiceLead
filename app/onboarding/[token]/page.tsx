@@ -177,28 +177,30 @@ export default function OnboardingPage() {
     return (
       <div className="min-h-screen bg-gradient-to-br from-orange-50 via-amber-50 to-orange-100 flex items-center justify-center px-4">
         <style>{`
-          @keyframes wings {
-            0%   { transform: translateY(0px) rotate(-2deg); }
-            25%  { transform: translateY(-14px) rotate(2deg); }
-            50%  { transform: translateY(-6px) rotate(-1deg); }
-            75%  { transform: translateY(-18px) rotate(3deg); }
-            100% { transform: translateY(0px) rotate(-2deg); }
+          @keyframes flap {
+            0%   { transform: translateY(0px) scaleY(1); }
+            15%  { transform: translateY(-10px) scaleY(0.85); }
+            30%  { transform: translateY(-18px) scaleY(1); }
+            45%  { transform: translateY(-10px) scaleY(0.88); }
+            60%  { transform: translateY(-20px) scaleY(1); }
+            75%  { transform: translateY(-12px) scaleY(0.9); }
+            90%  { transform: translateY(-6px) scaleY(1); }
+            100% { transform: translateY(0px) scaleY(1); }
           }
           @keyframes glow-pulse {
-            0%, 100% { opacity: 0.15; transform: scale(1); }
-            50%       { opacity: 0.35; transform: scale(1.15); }
+            0%, 100% { opacity: 0.12; transform: scale(1); }
+            50%       { opacity: 0.3; transform: scale(1.2); }
           }
-          .hermes-fly { animation: wings 1.6s ease-in-out infinite; }
-          .hermes-glow { animation: glow-pulse 1.6s ease-in-out infinite; }
+          .hermes-flap { animation: flap 1.4s ease-in-out infinite; transform-origin: center bottom; }
+          .hermes-glow { animation: glow-pulse 1.4s ease-in-out infinite; }
         `}</style>
 
         <div className="text-center max-w-sm w-full">
-          {/* Logo animato */}
-          <div className="relative w-32 h-32 mx-auto mb-8">
-            {/* Alone luminoso */}
+          {/* Favicon animata */}
+          <div className="relative w-28 h-28 mx-auto mb-8">
             <div className="hermes-glow absolute inset-0 rounded-full bg-orange-400 blur-2xl" />
-            <div className="hermes-fly relative w-full h-full">
-              <Image src="/logo-hermes.png" alt="Hermes" fill className="object-contain drop-shadow-lg" />
+            <div className="hermes-flap relative w-full h-full">
+              <Image src="/favicon.png" alt="Hermes" fill className="object-contain drop-shadow-lg" />
             </div>
           </div>
 
