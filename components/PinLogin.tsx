@@ -81,6 +81,17 @@ export default function PinLogin({ titolo, sottotitolo, slug, onSuccess }: Props
     setErrore(null)
   }
 
+  useEffect(() => {
+    if (schermata !== 'pin') return
+    const handler = (e: KeyboardEvent) => {
+      if (e.key >= '0' && e.key <= '9') digita(e.key)
+      else if (e.key === 'Backspace') cancella()
+      else if (e.key === 'Enter') conferma()
+    }
+    window.addEventListener('keydown', handler)
+    return () => window.removeEventListener('keydown', handler)
+  }, [schermata, pin, caricamento])
+
   const tasti = ['1','2','3','4','5','6','7','8','9','','0','⌫']
   const logoUrl = info?.logo_url
 
