@@ -423,6 +423,33 @@ function SchedaGestisciInner({ id }: { id: string }) {
           </div>
         )}
 
+        {/* Riapri trattativa — visibile solo se chiusa */}
+        {lead.esito && (
+          <div className={`rounded-2xl border-2 p-5 space-y-3 ${
+            lead.esito === 'vinto' ? 'bg-green-50 border-green-300' : 'bg-red-50 border-red-300'
+          }`}>
+            <p className="text-sm font-bold text-center text-gray-800">
+              Trattativa chiusa come{' '}
+              <span className={lead.esito === 'vinto' ? 'text-green-700' : 'text-red-700'}>
+                {lead.esito === 'vinto' ? '🏆 VINTO' : '❌ PERSO'}
+              </span>
+            </p>
+            <button
+              onClick={async () => {
+                await fetch('/api/gestisci/riapri', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ lead_id: id }),
+                })
+                caricaLead()
+              }}
+              className="w-full rounded-xl border border-gray-300 bg-white py-2.5 text-sm font-semibold text-gray-700 hover:bg-gray-50 transition-colors"
+            >
+              ↩ Riapri trattativa
+            </button>
+          </div>
+        )}
+
         {/* Elimina trattativa */}
         <div className="border-t border-gray-200 pt-4">
           {!confermaElimina ? (
