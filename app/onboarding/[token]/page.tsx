@@ -20,7 +20,7 @@ const SETTORI = [
 const STEPS_ANIMAZIONE = [
   'Inizializziamo il tuo workspace...',
   'Configuriamo i tuoi commerciali...',
-  'Importiamo il foglio Google Sheets...',
+  'Prepariamo l\'export CSV dei lead...',
   'Stiamo sistemando gli ultimi dettagli...',
   'Il tuo workspace è quasi pronto!',
 ]
@@ -152,10 +152,10 @@ export default function OnboardingPage() {
 
   if (fase === 'caricamento') {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #ff7930, #ff4500)' }}>
         <div className="text-center">
-          <div className="w-8 h-8 border-2 border-orange-500 border-t-transparent rounded-full animate-spin mx-auto mb-3" />
-          <p className="text-gray-500 text-sm">Verifica in corso...</p>
+          <div className="w-8 h-8 border-2 border-white border-t-transparent rounded-full animate-spin mx-auto mb-3" />
+          <p className="text-white/70 text-sm">Verifica in corso...</p>
         </div>
       </div>
     )
@@ -163,8 +163,8 @@ export default function OnboardingPage() {
 
   if (fase === 'errore') {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
-        <div className="bg-white rounded-2xl p-8 max-w-sm w-full text-center shadow-sm border border-gray-100">
+      <div className="min-h-screen flex items-center justify-center px-4" style={{ background: 'linear-gradient(135deg, #ff7930, #ff4500)' }}>
+        <div className="bg-white rounded-2xl p-8 max-w-sm w-full text-center shadow-xl">
           <div className="text-4xl mb-4">⚠️</div>
           <h2 className="text-lg font-semibold text-gray-900 mb-2">Link non valido</h2>
           <p className="text-gray-500 text-sm">{errore}</p>
@@ -175,7 +175,7 @@ export default function OnboardingPage() {
 
   if (fase === 'animazione') {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-orange-50 via-amber-50 to-orange-100 flex items-center justify-center px-4">
+      <div className="min-h-screen flex items-center justify-center px-4" style={{ background: 'linear-gradient(135deg, #ff7930, #ff4500)' }}>
         <style>{`
           @keyframes flap {
             0%   { transform: translateY(0px) scaleY(1); }
@@ -188,8 +188,8 @@ export default function OnboardingPage() {
             100% { transform: translateY(0px) scaleY(1); }
           }
           @keyframes glow-pulse {
-            0%, 100% { opacity: 0.12; transform: scale(1); }
-            50%       { opacity: 0.3; transform: scale(1.2); }
+            0%, 100% { opacity: 0.2; transform: scale(1); }
+            50%       { opacity: 0.5; transform: scale(1.2); }
           }
           .hermes-flap { animation: flap 1.4s ease-in-out infinite; transform-origin: center bottom; }
           .hermes-glow { animation: glow-pulse 1.4s ease-in-out infinite; }
@@ -198,24 +198,24 @@ export default function OnboardingPage() {
         <div className="text-center max-w-sm w-full">
           {/* Favicon animata */}
           <div className="relative w-28 h-28 mx-auto mb-8">
-            <div className="hermes-glow absolute inset-0 rounded-full bg-orange-400 blur-2xl" />
+            <div className="hermes-glow absolute inset-0 rounded-full bg-white blur-2xl" />
             <div className="hermes-flap relative w-full h-full">
               <Image src="/favicon.png" alt="Hermes" fill className="object-contain drop-shadow-lg" />
             </div>
           </div>
 
-          <h2 className="text-2xl font-bold text-gray-900 mb-1">
+          <h2 className="text-2xl font-bold text-white mb-1">
             Stiamo creando il tuo workspace
           </h2>
-          <p className="text-gray-400 text-sm mb-10">L'AI di Hermes sta configurando tutto per te...</p>
+          <p className="text-white/70 text-sm mb-10">L'AI di Hermes sta configurando tutto per te...</p>
 
           {/* Steps progressivi */}
-          <div className="space-y-3 text-left bg-white/60 backdrop-blur-sm rounded-2xl p-5 border border-white shadow-sm">
+          <div className="space-y-3 text-left bg-white rounded-2xl p-5 shadow-xl">
             {STEPS_ANIMAZIONE.map((step, i) => (
               <div
                 key={i}
                 className={`flex items-center gap-3 transition-all duration-700 ${
-                  i < stepAnimazione ? 'opacity-100 translate-x-0' : 'opacity-25'
+                  i < stepAnimazione ? 'opacity-100' : 'opacity-30'
                 }`}
               >
                 <div className={`w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 transition-all duration-500 ${
@@ -229,7 +229,7 @@ export default function OnboardingPage() {
                     <div className="w-2 h-2 rounded-full bg-gray-300" />
                   )}
                 </div>
-                <span className={`text-sm transition-colors duration-500 ${i < stepAnimazione ? 'text-gray-800 font-medium' : 'text-gray-400'}`}>
+                <span className={`text-sm transition-colors duration-500 ${i < stepAnimazione ? 'text-gray-900 font-medium' : 'text-gray-400'}`}>
                   {step}
                 </span>
               </div>
@@ -237,9 +237,9 @@ export default function OnboardingPage() {
           </div>
 
           {/* Barra progresso */}
-          <div className="mt-6 h-1.5 bg-gray-200 rounded-full overflow-hidden">
+          <div className="mt-6 h-1.5 bg-white/30 rounded-full overflow-hidden">
             <div
-              className="h-full bg-gradient-to-r from-orange-400 to-amber-500 rounded-full transition-all duration-700 ease-out"
+              className="h-full bg-white rounded-full transition-all duration-700 ease-out"
               style={{ width: `${(stepAnimazione / STEPS_ANIMAZIONE.length) * 100}%` }}
             />
           </div>
@@ -250,16 +250,16 @@ export default function OnboardingPage() {
 
   // --- FORM ---
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen" style={{ background: 'linear-gradient(135deg, #ff7930, #ff4500)' }}>
       <div className="max-w-xl mx-auto px-4 py-10">
         {/* Header */}
         <div className="text-center mb-10">
           <div className="relative w-14 h-14 mx-auto mb-4">
-            <Image src="/logo-hermes.png" alt="Hermes" fill className="object-contain" />
+            <Image src="/favicon.png" alt="Hermes" fill className="object-contain drop-shadow-lg" />
           </div>
-          <h1 className="text-2xl font-bold text-gray-900">Configura il tuo workspace</h1>
-          <p className="text-gray-500 text-sm mt-1">
-            Piano: <span className="font-medium text-orange-600">
+          <h1 className="text-2xl font-bold text-white">Configura il tuo workspace</h1>
+          <p className="text-white/70 text-sm mt-1">
+            Piano: <span className="font-semibold text-white">
               {piano === 'registra_gestisci' ? 'Registra + Gestisci' : 'Registra'}
             </span>
           </p>
@@ -267,7 +267,7 @@ export default function OnboardingPage() {
 
         <div className="space-y-6">
           {/* Azienda */}
-          <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+          <div className="bg-white rounded-2xl p-6 shadow-xl">
             <h3 className="font-semibold text-gray-900 mb-4">La tua azienda</h3>
             <div className="space-y-4">
               <div>
@@ -339,7 +339,7 @@ export default function OnboardingPage() {
           </div>
 
           {/* Responsabile */}
-          <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+          <div className="bg-white rounded-2xl p-6 shadow-xl">
             <h3 className="font-semibold text-gray-900 mb-4">Responsabile del workspace</h3>
             <div className="grid grid-cols-2 gap-3">
               <div>
@@ -395,7 +395,7 @@ export default function OnboardingPage() {
 
           {/* Commerciali */}
           {commerciali.length > 0 && (
-            <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+            <div className="bg-white rounded-2xl p-6 shadow-xl">
               <h3 className="font-semibold text-gray-900 mb-1">
                 {commerciali.length === 1 ? 'Il tuo commerciale' : `I tuoi ${commerciali.length} commerciali`}
               </h3>
@@ -461,22 +461,23 @@ export default function OnboardingPage() {
           )}
 
           {erroreForm && (
-            <div className="bg-red-50 border border-red-200 rounded-xl px-4 py-3 text-sm text-red-700">
-              {erroreForm}
+            <div className="bg-white/20 border border-white/40 rounded-xl px-4 py-3 text-sm text-white font-medium">
+              ⚠️ {erroreForm}
             </div>
           )}
 
           <button
             onClick={invia}
             disabled={invio}
-            className="w-full bg-orange-500 hover:bg-orange-600 disabled:bg-orange-300 text-white font-semibold rounded-2xl py-4 text-base transition-colors"
+            className="w-full text-white font-bold rounded-2xl py-4 text-base transition-all shadow-xl"
+            style={{ background: 'rgba(0,0,0,0.25)', border: '1px solid rgba(255,255,255,0.3)' }}
           >
             {invio ? 'Creazione in corso...' : 'Crea il mio workspace →'}
           </button>
 
-          <p className="text-center text-xs text-gray-400 pb-4">
+          <p className="text-center text-xs text-white/60 pb-4">
             Cliccando "Crea il mio workspace" accetti i{' '}
-            <a href="/privacy" className="underline">termini di utilizzo</a>
+            <a href="/privacy" className="underline text-white/80">termini di utilizzo</a>
           </p>
         </div>
       </div>
