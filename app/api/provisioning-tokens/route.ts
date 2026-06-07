@@ -41,7 +41,7 @@ export async function POST(req: NextRequest) {
       cap: cap ?? null,
       citta: citta ?? null,
       provincia: provincia ?? null,
-      stato: 'bypass',
+      stato: 'verificato',
       note_verifica: 'Bypass verifica bonifico — ordine creato manualmente',
       provisioning_token_id: data.id,
     }])
