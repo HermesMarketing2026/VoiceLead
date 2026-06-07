@@ -14,6 +14,12 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
         </div>
       </header>
       <div className="max-w-2xl mx-auto px-4 py-6">{children}</div>
+      <footer className="max-w-2xl mx-auto px-4 pb-8 pt-2 flex items-center justify-center gap-4 flex-wrap">
+        <a href="/privacy" target="_blank" className="text-[10px] text-white/15 hover:text-white/35 transition-colors">Privacy Policy</a>
+        <a href="/dpa" target="_blank" className="text-[10px] text-white/15 hover:text-white/35 transition-colors">DPA</a>
+        <a href="mailto:privacy@hermesmarketing.it?subject=Richiesta cancellazione dati&body=Workspace: " className="text-[10px] text-white/15 hover:text-white/35 transition-colors">Cancellazione dati (Art. 17)</a>
+        <a href="mailto:privacy@hermesmarketing.it?subject=Richiesta export dati&body=Workspace: " className="text-[10px] text-white/15 hover:text-white/35 transition-colors">Export dati (Art. 20)</a>
+      </footer>
     </div>
   )
 }

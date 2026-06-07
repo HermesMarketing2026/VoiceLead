@@ -54,6 +54,9 @@ export default function Admin() {
   const [creazioneToken, setCreazioneToken] = useState(false)
   const [nuovoLink, setNuovoLink] = useState<string | null>(null)
   const [linkCopiato, setLinkCopiato] = useState(false)
+  const [linkOnboardingWs, setLinkOnboardingWs] = useState<string | null>(null)
+  const [linkOnboardingWsCopiato, setLinkOnboardingWsCopiato] = useState(false)
+  const [formCrea, setFormCrea] = useState({ piano: 'registra' as 'registra' | 'registra_gestisci', max_commerciali: 2 })
 
   useEffect(() => {
     const sessione = leggiSessione()
@@ -129,6 +132,7 @@ export default function Admin() {
     setCreazione(true)
     setErrore(null)
     setNuovoWs(null)
+    setLinkOnboardingWs(null)
     try {
       const res = await fetch('/api/workspaces', {
         method: 'POST',
@@ -138,8 +142,20 @@ export default function Admin() {
       const data = await res.json()
       if (!res.ok) throw new Error(data.error)
       setNuovoWs(data)
+      // Genera automaticamente il link di onboarding per configurare il workspace
+      const resToken = await fetch('/api/provisioning-tokens', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ piano: formCrea.piano === 'registra_gestisci' ? 'registra_gestisci' : 'registra', max_commerciali: formCrea.max_commerciali }),
+      })
+      const tokenData = await resToken.json()
+      if (resToken.ok && tokenData.token) {
+        setLinkOnboardingWs(`${window.location.origin}/onboarding/${tokenData.token}`)
+      }
       setForm({ nome_azienda: '', logo_url: '', nome_referente: '', cognome_referente: '', has_gestisci: false })
+      setFormCrea({ piano: 'registra', max_commerciali: 2 })
       caricaWorkspaces()
+      caricaTokens()
     } catch (e: any) {
       setErrore(e.message)
     } finally {
@@ -469,7 +485,11 @@ export default function Admin() {
 
       {/* Crea workspace */}
       <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 space-y-4">
-        <h2 className="text-xs font-bold text-hermes-500 uppercase tracking-wider">➕ Nuovo workspace cliente</h2>
+        <div>
+          <h2 className="text-xs font-bold text-hermes-500 uppercase tracking-wider">➕ Nuovo workspace cliente</h2>
+          <p className="text-xs text-gray-400 mt-1">Crea il workspace e configura tu stesso i commerciali tramite il link di onboarding generato automaticamente.</p>
+        </div>
+
         <div>
           <label className={labelClass}>Nome azienda cliente</label>
           <input className={inputClass} value={form.nome_azienda} onChange={e => setForm(f => ({ ...f, nome_azienda: e.target.value }))} placeholder="Es. Mulino Val d'Orcia" />
@@ -489,36 +509,49 @@ export default function Admin() {
           <input className={inputClass} value={form.logo_url} onChange={e => setForm(f => ({ ...f, logo_url: e.target.value }))} placeholder="https://esempio.com/logo.png" />
           {form.logo_url && <img src={form.logo_url} alt="Anteprima" className="mt-2 h-10 object-contain rounded border border-gray-100 p-1" />}
         </div>
-        {/* Toggle Gestisci */}
-        <div
-          onClick={() => setForm(f => ({ ...f, has_gestisci: !f.has_gestisci }))}
-          className={`flex items-center justify-between rounded-xl border-2 px-4 py-3 cursor-pointer transition-colors ${
-            form.has_gestisci ? 'border-hermes-400 bg-hermes-50' : 'border-gray-200 bg-gray-50'
-          }`}
-        >
-          <div>
-            <p className={`text-sm font-bold ${form.has_gestisci ? 'text-hermes-700' : 'text-gray-600'}`}>
-              📋 Abilita Gestisci trattative
-            </p>
-            <p className="text-xs text-gray-400 mt-0.5">
-              {form.has_gestisci ? 'Pacchetto completo — Registra + Gestisci' : 'Solo Registra lead (Pacchetto base)'}
-            </p>
+
+        {/* Piano */}
+        <div>
+          <label className={labelClass}>Piano abbonamento</label>
+          <div className="grid grid-cols-2 gap-2">
+            {(['registra', 'registra_gestisci'] as const).map(p => (
+              <button key={p}
+                onClick={() => {
+                  setFormCrea(f => ({ ...f, piano: p }))
+                  setForm(f => ({ ...f, has_gestisci: p === 'registra_gestisci' }))
+                }}
+                className={`rounded-xl border-2 px-3 py-2.5 text-sm font-medium transition-colors ${
+                  formCrea.piano === p ? 'border-hermes-400 bg-hermes-50 text-hermes-700' : 'border-gray-200 text-gray-500'
+                }`}
+              >
+                {p === 'registra' ? '🎙️ Solo Registra' : '📋 Registra + Gestisci'}
+              </button>
+            ))}
           </div>
-          <div className={`w-12 h-6 rounded-full transition-colors relative ${form.has_gestisci ? 'bg-hermes-500' : 'bg-gray-300'}`}>
-            <div className={`absolute top-1 w-4 h-4 bg-white rounded-full shadow transition-all ${form.has_gestisci ? 'left-7' : 'left-1'}`} />
+        </div>
+
+        {/* N° commerciali */}
+        <div>
+          <label className={labelClass}>N° commerciali da configurare</label>
+          <div className="flex items-center gap-3">
+            <button onClick={() => setFormCrea(f => ({ ...f, max_commerciali: Math.max(1, f.max_commerciali - 1) }))}
+              className="w-10 h-10 rounded-xl border border-gray-200 text-lg font-bold text-gray-600 hover:bg-gray-50 flex items-center justify-center">−</button>
+            <span className="text-2xl font-bold text-gray-800 w-8 text-center">{formCrea.max_commerciali}</span>
+            <button onClick={() => setFormCrea(f => ({ ...f, max_commerciali: Math.min(20, f.max_commerciali + 1) }))}
+              className="w-10 h-10 rounded-xl border border-gray-200 text-lg font-bold text-gray-600 hover:bg-gray-50 flex items-center justify-center">+</button>
           </div>
         </div>
 
         {errore && <p className="text-sm text-red-500">{errore}</p>}
         <button onClick={creaWorkspace} disabled={creazione || !form.nome_azienda}
           className="w-full rounded-xl bg-hermes-500 py-3 text-sm font-semibold text-white hover:bg-hermes-600 disabled:opacity-40 shadow-sm">
-          {creazione ? 'Creazione…' : 'Crea workspace'}
+          {creazione ? 'Creazione in corso…' : '✅ Crea workspace e genera link'}
         </button>
       </div>
 
-      {/* Credenziali nuovo workspace */}
+      {/* Risultato creazione workspace */}
       {nuovoWs && (
-        <div className="rounded-2xl bg-green-50 border border-green-200 p-5 space-y-3">
+        <div className="rounded-2xl bg-green-50 border border-green-200 p-5 space-y-4">
           <p className="font-bold text-green-800">✅ Workspace creato!</p>
           <div className="bg-white rounded-xl border border-green-200 p-4 space-y-2 text-sm">
             <div className="flex items-center justify-between">
@@ -526,10 +559,28 @@ export default function Admin() {
               <span className="font-mono font-semibold text-gray-800">{nuovoWs.slug}.voiceleads.it</span>
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-gray-500">PIN:</span>
+              <span className="text-gray-500">PIN responsabile:</span>
               <span className="font-mono text-2xl font-bold tracking-widest text-hermes-500">{nuovoWs.pin}</span>
             </div>
           </div>
+          {linkOnboardingWs && (
+            <div className="space-y-2">
+              <p className="text-xs font-semibold text-green-700">Link di onboarding generato — configuralo tu stesso o mandalo al cliente:</p>
+              <div className="flex items-center gap-2 bg-white border border-green-200 rounded-xl px-3 py-2">
+                <span className="text-xs font-mono text-gray-600 flex-1 truncate">{linkOnboardingWs}</span>
+                <button
+                  onClick={async () => { await navigator.clipboard.writeText(linkOnboardingWs); setLinkOnboardingWsCopiato(true); setTimeout(() => setLinkOnboardingWsCopiato(false), 2000) }}
+                  className="text-xs font-semibold text-hermes-600 hover:text-hermes-800 shrink-0"
+                >
+                  {linkOnboardingWsCopiato ? '✅ Copiato!' : '📋 Copia'}
+                </button>
+              </div>
+              <a href={linkOnboardingWs} target="_blank" rel="noreferrer"
+                className="flex items-center justify-center gap-2 w-full rounded-xl bg-hermes-500 py-3 text-sm font-bold text-white hover:bg-hermes-600 transition-colors">
+                🚀 Configura workspace ora →
+              </a>
+            </div>
+          )}
         </div>
       )}
 
@@ -580,15 +631,22 @@ export default function Admin() {
 
         {nuovoLink && (
           <div className="bg-green-50 border border-green-200 rounded-xl p-4 space-y-2">
-            <p className="text-xs font-semibold text-green-700">Link generato! Mandalo al cliente:</p>
+            <p className="text-xs font-semibold text-green-700">Link generato!</p>
             <div className="flex items-center gap-2 bg-white border border-green-200 rounded-lg px-3 py-2">
               <span className="text-xs font-mono text-gray-600 flex-1 truncate">{nuovoLink}</span>
-              <button
-                onClick={() => copiaLink(nuovoLink)}
-                className="text-xs font-semibold text-hermes-600 hover:text-hermes-800 shrink-0"
-              >
+              <button onClick={() => copiaLink(nuovoLink)} className="text-xs font-semibold text-hermes-600 hover:text-hermes-800 shrink-0">
                 {linkCopiato ? '✅ Copiato!' : '📋 Copia'}
               </button>
+            </div>
+            <div className="grid grid-cols-2 gap-2">
+              <button onClick={() => copiaLink(nuovoLink)}
+                className="rounded-lg border border-green-300 py-2 text-xs font-semibold text-green-700 hover:bg-green-100 transition-colors">
+                📋 Copia e manda al cliente
+              </button>
+              <a href={nuovoLink} target="_blank" rel="noreferrer"
+                className="rounded-lg bg-hermes-500 py-2 text-xs font-bold text-white text-center hover:bg-hermes-600 transition-colors">
+                🚀 Configura tu stesso →
+              </a>
             </div>
           </div>
         )}
@@ -710,44 +768,15 @@ export default function Admin() {
         </a>
       </div>
 
-      {/* Sezione GDPR */}
-      <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 space-y-4">
-        <h2 className="text-xs font-bold text-blue-500 uppercase tracking-wider">🔒 GDPR — Gestione dati</h2>
-        <p className="text-xs text-gray-500 leading-relaxed">
-          Usa questa sezione per rispondere a richieste di cancellazione o portabilità dati
-          da parte degli interessati (Art. 17 e 20 GDPR).
-        </p>
-        <div className="grid md:grid-cols-2 gap-3">
-          <a
-            href="mailto:privacy@hermesmarketing.it?subject=Richiesta cancellazione dati&body=Workspace ID: %0AMotivo: diritto all'oblio Art. 17 GDPR"
-            className="flex items-center gap-3 rounded-xl border border-gray-200 p-4 hover:bg-gray-50 transition-colors"
-          >
-            <span className="text-2xl">🗑️</span>
-            <div>
-              <p className="text-sm font-semibold text-gray-800">Richiesta cancellazione</p>
-              <p className="text-xs text-gray-400">Invia richiesta formale via email</p>
-            </div>
-          </a>
-          <a
-            href="mailto:privacy@hermesmarketing.it?subject=Richiesta export dati&body=Workspace ID: %0AMotivo: portabilità dati Art. 20 GDPR"
-            className="flex items-center gap-3 rounded-xl border border-gray-200 p-4 hover:bg-gray-50 transition-colors"
-          >
-            <span className="text-2xl">📤</span>
-            <div>
-              <p className="text-sm font-semibold text-gray-800">Richiesta export dati</p>
-              <p className="text-xs text-gray-400">Portabilità dati Art. 20 GDPR</p>
-            </div>
-          </a>
-        </div>
-        <div className="rounded-xl bg-blue-50 border border-blue-100 p-4 flex gap-3">
-          <span className="text-blue-400 text-lg shrink-0">ℹ️</span>
-          <div className="text-xs text-blue-600 space-y-1">
-            <p><strong>Documenti legali disponibili:</strong></p>
-            <div className="flex gap-3 flex-wrap mt-1">
-              <a href="/privacy" target="_blank" className="underline hover:text-blue-800">Privacy Policy</a>
-              <a href="/cookie" target="_blank" className="underline hover:text-blue-800">Cookie Policy</a>
-              <a href="/dpa" target="_blank" className="underline hover:text-blue-800">DPA (Art. 28 GDPR)</a>
-            </div>
+      {/* Nota GDPR */}
+      <div className="rounded-xl bg-blue-50 border border-blue-100 p-4 flex gap-3">
+        <span className="text-blue-400 text-lg shrink-0">ℹ️</span>
+        <div className="text-xs text-blue-600 space-y-1.5">
+          <p><strong>Richieste GDPR dei clienti</strong> — Le richieste di cancellazione o portabilità dati (Art. 17 e 20 GDPR) vengono inoltrate direttamente dai clienti tramite il loro workspace. Ricevi le richieste a <strong>privacy@hermesmarketing.it</strong>.</p>
+          <div className="flex gap-3 flex-wrap pt-1">
+            <a href="/privacy" target="_blank" className="underline hover:text-blue-800">Privacy Policy</a>
+            <a href="/cookie" target="_blank" className="underline hover:text-blue-800">Cookie Policy</a>
+            <a href="/dpa" target="_blank" className="underline hover:text-blue-800">DPA (Art. 28 GDPR)</a>
           </div>
         </div>
       </div>
