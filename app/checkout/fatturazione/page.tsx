@@ -24,6 +24,7 @@ function FatturazioneForm() {
   const [form, setForm] = useState({
     ragione_sociale: '',
     partita_iva: '',
+    email: '',
     codice_sdi: '',
     pec: '',
     indirizzo: '',
@@ -40,6 +41,8 @@ function FatturazioneForm() {
     if (!form.ragione_sociale.trim()) return 'Inserisci la ragione sociale'
     if (!/^\d{11}$/.test(form.partita_iva.replace(/\s/g, '')))
       return 'La Partita IVA deve essere di 11 cifre'
+    if (!form.email.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email))
+      return 'Inserisci un\'email valida per le comunicazioni'
     if (!form.codice_sdi && !form.pec)
       return 'Inserisci almeno il Codice SDI o la PEC'
     if (!form.indirizzo.trim()) return 'Inserisci l\'indirizzo'
@@ -94,6 +97,18 @@ function FatturazioneForm() {
               placeholder="12345678901"
               className="w-full border border-gray-300 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-hermes-400"
             />
+          </div>
+
+          <div>
+            <label className="block text-xs font-semibold text-gray-600 mb-1">Email per comunicazioni e fatture *</label>
+            <input
+              type="email"
+              value={form.email}
+              onChange={e => aggiorna('email', e.target.value)}
+              placeholder="amministrazione@azienda.it"
+              className="w-full border border-gray-300 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-hermes-400"
+            />
+            <p className="text-xs text-gray-400 mt-1">Qui invieremo fatture e comunicazioni importanti</p>
           </div>
         </div>
 

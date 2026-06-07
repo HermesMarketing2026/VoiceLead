@@ -38,7 +38,6 @@ export default function OnboardingPage() {
   const [nomeAzienda, setNomeAzienda] = useState('')
   const [nomeReferente, setNomeReferente] = useState('')
   const [cognomeReferente, setCognomeReferente] = useState('')
-  const [emailReferente, setEmailReferente] = useState('')
   const [pinReferente, setPinReferente] = useState('')
   const [pinReferenteConferma, setPinReferenteConferma] = useState('')
   const [logoFile, setLogoFile] = useState<File | null>(null)
@@ -91,7 +90,6 @@ export default function OnboardingPage() {
   const validaForm = () => {
     if (!nomeAzienda.trim()) return 'Inserisci il nome della tua azienda'
     if (!nomeReferente.trim() || !cognomeReferente.trim()) return 'Inserisci nome e cognome del responsabile'
-    if (!emailReferente.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailReferente)) return 'Inserisci un\'email valida per il responsabile'
     if (!/^\d{6}$/.test(pinReferente)) return 'Il PIN del responsabile deve essere di 6 cifre'
     if (pinReferente !== pinReferenteConferma) return 'I PIN del responsabile non coincidono'
     for (let i = 0; i < commerciali.length; i++) {
@@ -133,7 +131,6 @@ export default function OnboardingPage() {
           nome_azienda: nomeAzienda,
           nome_referente: nomeReferente,
           cognome_referente: cognomeReferente,
-          email_referente: emailReferente,
           pin_referente: pinReferente,
           logo_url: logoUrl,
           fatturato,
@@ -324,17 +321,20 @@ export default function OnboardingPage() {
               {/* Logo */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Logo aziendale (opzionale)</label>
-                <label className="flex items-center gap-3 border-2 border-dashed border-gray-200 rounded-xl px-4 py-3 cursor-pointer hover:border-orange-300 transition-colors">
+                <label className="flex items-center gap-3 border-2 border-dashed border-gray-300 rounded-xl px-4 py-4 cursor-pointer hover:border-orange-400 hover:bg-orange-50 transition-colors">
                   {logoPreview ? (
-                    <img src={logoPreview} alt="logo" className="w-10 h-10 object-contain rounded" />
+                    <img src={logoPreview} alt="logo" className="w-10 h-10 object-contain rounded flex-shrink-0" />
                   ) : (
-                    <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center">
-                      <svg className="w-5 h-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <div className="w-10 h-10 bg-orange-50 border border-orange-200 rounded-lg flex items-center justify-center flex-shrink-0">
+                      <svg className="w-5 h-5 text-orange-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                       </svg>
                     </div>
                   )}
-                  <span className="text-sm text-gray-500">{logoPreview ? 'Cambia logo' : 'Carica il tuo logo'}</span>
+                  <div>
+                    <span className="text-sm font-medium text-gray-700">{logoPreview ? 'Cambia logo' : 'Carica il tuo logo'}</span>
+                    {!logoPreview && <p className="text-xs text-gray-400 mt-0.5">PNG, JPG, SVG</p>}
+                  </div>
                   <input type="file" accept="image/*" className="hidden" onChange={handleLogo} />
                 </label>
               </div>
@@ -365,17 +365,6 @@ export default function OnboardingPage() {
                   className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400"
                 />
               </div>
-            </div>
-            <div className="mt-3">
-              <label className="block text-sm font-medium text-gray-700 mb-1">Email aziendale *</label>
-              <input
-                type="email"
-                value={emailReferente}
-                onChange={e => setEmailReferente(e.target.value)}
-                placeholder="mario.rossi@azienda.it"
-                className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400"
-              />
-              <p className="text-xs text-gray-400 mt-1">Usata per comunicazioni e fatture da Hermes Marketing</p>
             </div>
             <div className="grid grid-cols-2 gap-3 mt-3">
               <div>
