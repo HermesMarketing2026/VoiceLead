@@ -434,7 +434,7 @@ export default function LandingPage() {
                   </li>
                 ))}
               </ul>
-              <a href="#richiesta" className="block w-full text-center rounded-xl border-2 border-hermes-400 text-hermes-600 font-bold py-3.5 hover:bg-hermes-50 transition-colors">
+              <a href={`/checkout?piano=base${annuale ? '&fatturazione=annuale' : ''}`} className="block w-full text-center rounded-xl border-2 border-hermes-400 text-hermes-600 font-bold py-3.5 hover:bg-hermes-50 transition-colors">
                 Inizia con Base →
               </a>
             </div>
@@ -488,7 +488,7 @@ export default function LandingPage() {
                   </li>
                 ))}
               </ul>
-              <a href="#richiesta" className="block w-full text-center rounded-xl bg-hermes-500 text-white font-bold py-3.5 hover:bg-hermes-600 transition-colors shadow-md">
+              <a href={`/checkout?piano=pro${annuale ? '&fatturazione=annuale' : ''}`} className="block w-full text-center rounded-xl bg-hermes-500 text-white font-bold py-3.5 hover:bg-hermes-600 transition-colors shadow-md">
                 Inizia con Pro →
               </a>
             </div>
@@ -605,12 +605,12 @@ export default function LandingPage() {
                   <tr>
                     <td className="px-6 py-5" />
                     <td className="px-6 py-5 text-center">
-                      <a href="#richiesta" className="inline-block rounded-xl border-2 border-hermes-400 text-hermes-600 font-bold px-5 py-2.5 hover:bg-hermes-50 transition-colors text-sm">
+                      <a href={`/checkout?piano=base${annuale ? '&fatturazione=annuale' : ''}`} className="inline-block rounded-xl border-2 border-hermes-400 text-hermes-600 font-bold px-5 py-2.5 hover:bg-hermes-50 transition-colors text-sm">
                         Inizia con Base
                       </a>
                     </td>
                     <td className="px-6 py-5 text-center bg-hermes-50/50">
-                      <a href="#richiesta" className="inline-block rounded-xl bg-hermes-500 text-white font-bold px-5 py-2.5 hover:bg-hermes-600 transition-colors text-sm shadow">
+                      <a href={`/checkout?piano=pro${annuale ? '&fatturazione=annuale' : ''}`} className="inline-block rounded-xl bg-hermes-500 text-white font-bold px-5 py-2.5 hover:bg-hermes-600 transition-colors text-sm shadow">
                         Inizia con Pro
                       </a>
                     </td>
