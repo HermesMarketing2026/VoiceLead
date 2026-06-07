@@ -1,5 +1,5 @@
 'use client'
-import { useState, Suspense } from 'react'
+import { useState, useRef, Suspense } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
 
@@ -11,41 +11,60 @@ function PagamentoForm() {
   const fatturazione = params.get('fatturazione') ?? 'mensile'
   const commerciali = Number(params.get('commerciali') ?? 1)
   const totale = Number(params.get('totale') ?? 0)
-  const token = params.get('token') ?? ''
 
   const pianoLabel = piano === 'base' ? 'Piano Base — Registra' : 'Piano Pro — Registra + Gestisci'
   const periodoLabel = fatturazione === 'mensile' ? 'mese' : 'anno'
-
   const causale = `VoiceLead ${piano.toUpperCase()} ${commerciali}ut ${fatturazione.slice(0, 3).toUpperCase()}`
 
   const [copiato, setCopiato] = useState<string | null>(null)
-
   const copia = (testo: string, campo: string) => {
     navigator.clipboard.writeText(testo)
     setCopiato(campo)
     setTimeout(() => setCopiato(null), 2000)
   }
 
-  const [confermato, setConfermato] = useState(false)
-  const [caricamento, setCaricamento] = useState(false)
-  const [errore, setErrore] = useState<string | null>(null)
+  // Upload ricevuta
+  const inputRef = useRef<HTMLInputElement>(null)
+  const [file, setFile] = useState<File | null>(null)
+  const [stato, setStato] = useState<'idle' | 'verifica' | 'errore' | 'ok'>('idle')
+  const [errori, setErrori] = useState<string[]>([])
 
-  const prosegui = async () => {
-    setCaricamento(true)
-    setErrore(null)
+  const onFile = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const f = e.target.files?.[0]
+    if (f) { setFile(f); setStato('idle'); setErrori([]) }
+  }
+
+  const verifica = async () => {
+    if (!file) return
+    setStato('verifica')
+    setErrori([])
+
+    const datiFatturazione = (() => {
+      try { return JSON.parse(sessionStorage.getItem('voicelead_fatturazione') ?? '{}') }
+      catch { return {} }
+    })()
+
+    const form = new FormData()
+    form.append('file', file)
+    form.append('piano', piano)
+    form.append('fatturazione', fatturazione)
+    form.append('commerciali', String(commerciali))
+    form.append('totale', String(totale))
+    form.append('dati_fatturazione', JSON.stringify(datiFatturazione))
+
     try {
-      const pianoApi = piano === 'pro' ? 'registra_gestisci' : 'registra'
-      const res = await fetch('/api/provisioning-tokens', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ piano: pianoApi, max_commerciali: commerciali }),
-      })
+      const res = await fetch('/api/checkout/verifica-bonifico', { method: 'POST', body: form })
       const data = await res.json()
-      if (!res.ok) throw new Error(data.error)
-      router.push(`/onboarding/${data.token}`)
-    } catch (e: any) {
-      setErrore(e.message ?? 'Errore nella creazione del workspace')
-      setCaricamento(false)
+      if (data.ok) {
+        setStato('ok')
+        setTimeout(() => router.push(`/onboarding/${data.token}`), 1200)
+      } else {
+        setStato('errore')
+        setErrori(data.errori ?? [data.error ?? 'Errore sconosciuto'])
+      }
+    } catch {
+      setStato('errore')
+      setErrori(['Errore di connessione. Riprova.'])
     }
   }
 
@@ -55,10 +74,12 @@ function PagamentoForm() {
 
         {/* Header */}
         <div>
-          <Link href={`/checkout?piano=${piano}`} className="text-sm text-gray-400 hover:text-gray-600">← Torna alla configurazione</Link>
+          <Link href={`/checkout/fatturazione?piano=${piano}&fatturazione=${fatturazione}&commerciali=${commerciali}&totale=${totale}`} className="text-sm text-gray-400 hover:text-gray-600">
+            ← Torna ai dati di fatturazione
+          </Link>
           <h1 className="text-2xl font-extrabold text-gray-900 mt-3">Pagamento tramite bonifico</h1>
           <p className="text-sm text-gray-500 mt-1">
-            Effettua il bonifico con i dati qui sotto. Il tuo workspace sarà attivato entro 24h lavorative dalla ricezione.
+            Effettua il bonifico, poi carica la ricevuta qui sotto per attivare subito il tuo workspace.
           </p>
         </div>
 
@@ -114,12 +135,12 @@ function PagamentoForm() {
           ))}
 
           <div className="bg-amber-50 border border-amber-200 rounded-xl px-4 py-3 mt-2">
-            <p className="text-xs text-amber-800 font-semibold">⚠️ Importante: inserisci esattamente la causale indicata</p>
-            <p className="text-xs text-amber-700 mt-0.5">Permette di abbinare il pagamento al tuo ordine in modo automatico.</p>
+            <p className="text-xs text-amber-800 font-semibold">⚠️ Inserisci esattamente la causale indicata</p>
+            <p className="text-xs text-amber-700 mt-0.5">Permette di verificare il pagamento in automatico.</p>
           </div>
         </div>
 
-        {/* Importo da versare */}
+        {/* Importo */}
         <div className="bg-hermes-500 rounded-2xl p-5 text-white text-center shadow-md">
           <p className="text-sm font-semibold opacity-80 mb-1">Importo da versare</p>
           <p className="text-4xl font-extrabold">€{totale}</p>
@@ -127,35 +148,88 @@ function PagamentoForm() {
           <p className="text-xs opacity-60 mt-1">Totale con IVA: €{(totale * 1.22).toFixed(2)} / {periodoLabel}</p>
         </div>
 
-        {/* Conferma */}
-        <div className="bg-white rounded-2xl border border-gray-200 p-5 shadow-sm">
-          <label className="flex items-start gap-3 cursor-pointer">
-            <input
-              type="checkbox"
-              checked={confermato}
-              onChange={e => setConfermato(e.target.checked)}
-              className="mt-0.5 w-5 h-5 rounded border-gray-300 text-hermes-500 focus:ring-hermes-400"
-            />
-            <span className="text-sm text-gray-700">
-              Ho letto il riepilogo ordine e confermo di voler procedere con il bonifico bancario per attivare il mio piano VoiceLead.
-            </span>
-          </label>
-        </div>
+        {/* Upload ricevuta */}
+        <div className="bg-white rounded-2xl border-2 border-gray-200 p-5 shadow-sm space-y-4">
+          <div>
+            <p className="font-bold text-gray-900">Carica la ricevuta del bonifico</p>
+            <p className="text-sm text-gray-500 mt-1">
+              L'AI verifica importo, IBAN e causale e attiva il tuo workspace in automatico.
+            </p>
+          </div>
 
-        {/* Pulsante temporaneo per simulazione */}
-        <div className="border-2 border-dashed border-gray-300 rounded-2xl p-4 bg-gray-50">
-          <p className="text-xs text-gray-400 text-center mb-3 font-medium uppercase tracking-wide">— Solo per test del flusso —</p>
-          {errore && (
-            <div className="mb-3 rounded-xl bg-red-50 border border-red-200 px-4 py-3 text-sm text-red-700">{errore}</div>
-          )}
+          {/* Drop area */}
           <button
-            onClick={prosegui}
-            disabled={!confermato || caricamento}
-            className="w-full rounded-xl bg-green-600 text-white font-bold py-4 text-base hover:bg-green-700 transition-colors shadow-md disabled:opacity-40 disabled:cursor-not-allowed"
+            type="button"
+            onClick={() => inputRef.current?.click()}
+            className={`w-full border-2 border-dashed rounded-xl px-4 py-8 text-center transition-colors ${
+              file
+                ? 'border-hermes-300 bg-hermes-50'
+                : 'border-gray-300 hover:border-hermes-300 hover:bg-hermes-50/30'
+            }`}
           >
-            {caricamento ? '⏳ Creazione workspace…' : '✅ Ho effettuato il pagamento'}
+            {file ? (
+              <div>
+                <p className="text-2xl mb-1">📄</p>
+                <p className="text-sm font-semibold text-hermes-700">{file.name}</p>
+                <p className="text-xs text-gray-400 mt-0.5">{(file.size / 1024).toFixed(0)} KB — clicca per cambiare</p>
+              </div>
+            ) : (
+              <div>
+                <p className="text-3xl mb-2">📤</p>
+                <p className="text-sm font-semibold text-gray-700">Clicca per caricare</p>
+                <p className="text-xs text-gray-400 mt-1">PDF o immagine (JPG, PNG)</p>
+              </div>
+            )}
           </button>
-          <p className="text-xs text-gray-400 text-center mt-2">Questo pulsante verrà rimosso una volta integrato Stripe</p>
+          <input
+            ref={inputRef}
+            type="file"
+            accept=".pdf,image/jpeg,image/png,image/webp"
+            className="hidden"
+            onChange={onFile}
+          />
+
+          {/* Stato verifica */}
+          {stato === 'verifica' && (
+            <div className="flex items-center gap-3 bg-blue-50 border border-blue-200 rounded-xl px-4 py-3">
+              <div className="w-5 h-5 border-2 border-blue-500 border-t-transparent rounded-full animate-spin shrink-0" />
+              <div>
+                <p className="text-sm font-semibold text-blue-800">Analisi in corso…</p>
+                <p className="text-xs text-blue-600">L'AI sta leggendo la tua ricevuta</p>
+              </div>
+            </div>
+          )}
+
+          {stato === 'ok' && (
+            <div className="flex items-center gap-3 bg-green-50 border border-green-200 rounded-xl px-4 py-3">
+              <span className="text-xl">✅</span>
+              <div>
+                <p className="text-sm font-semibold text-green-800">Pagamento verificato!</p>
+                <p className="text-xs text-green-600">Sto attivando il tuo workspace…</p>
+              </div>
+            </div>
+          )}
+
+          {stato === 'errore' && errori.length > 0 && (
+            <div className="bg-red-50 border border-red-200 rounded-xl px-4 py-3 space-y-1">
+              <p className="text-sm font-semibold text-red-800">⚠️ Verifica non riuscita</p>
+              {errori.map((e, i) => (
+                <p key={i} className="text-xs text-red-700">{e}</p>
+              ))}
+              <p className="text-xs text-red-500 mt-2">
+                Controlla i dati del bonifico e ricarica la ricevuta, oppure scrivi a{' '}
+                <a href="mailto:info@hermesai.it" className="underline">info@hermesai.it</a>.
+              </p>
+            </div>
+          )}
+
+          <button
+            onClick={verifica}
+            disabled={!file || stato === 'verifica' || stato === 'ok'}
+            className="w-full rounded-xl bg-hermes-500 text-white font-bold py-4 text-base hover:bg-hermes-600 transition-colors shadow-md disabled:opacity-40 disabled:cursor-not-allowed"
+          >
+            {stato === 'verifica' ? '🔍 Verifica in corso…' : stato === 'ok' ? '✅ Verificato!' : '🔍 Verifica e attiva il workspace'}
+          </button>
         </div>
 
         <p className="text-center text-xs text-gray-400 pb-6">

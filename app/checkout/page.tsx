@@ -59,7 +59,7 @@ function CheckoutForm() {
       totale: String(totale),
       ...(token ? { token } : {}),
     })
-    router.push(`/checkout/pagamento?${qs}`)
+    router.push(`/checkout/fatturazione?${qs}`)
   }
 
   return (
@@ -156,7 +156,7 @@ function CheckoutForm() {
           onClick={vai}
           className="w-full rounded-xl bg-hermes-500 text-white font-bold py-4 text-base hover:bg-hermes-600 transition-colors shadow-md"
         >
-          Vai al pagamento →
+          Continua →
         </button>
 
         <p className="text-center text-xs text-gray-400">
