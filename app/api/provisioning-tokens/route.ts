@@ -27,16 +27,25 @@ export async function POST(req: NextRequest) {
 
   // Se vengono passati dati di fatturazione, salva l'ordine collegato al token
   if (dati_fatturazione && totale !== undefined) {
-    await supabase.from('ordini').insert([{
+    const { ragione_sociale, partita_iva, codice_sdi, pec, indirizzo, cap, citta, provincia } = dati_fatturazione
+    const { error: ordineError } = await supabase.from('ordini').insert([{
       piano,
       fatturazione: fatturazione ?? null,
       max_commerciali,
       totale,
-      ...dati_fatturazione,
+      ragione_sociale: ragione_sociale ?? null,
+      partita_iva: partita_iva ?? null,
+      codice_sdi: codice_sdi ?? null,
+      pec: pec ?? null,
+      indirizzo: indirizzo ?? null,
+      cap: cap ?? null,
+      citta: citta ?? null,
+      provincia: provincia ?? null,
       stato: 'bypass',
       note_verifica: 'Bypass verifica bonifico — ordine creato manualmente',
       provisioning_token_id: data.id,
     }])
+    if (ordineError) console.error('[provisioning-tokens] ordine insert error:', ordineError)
   }
 
   return NextResponse.json(data, { status: 201 })

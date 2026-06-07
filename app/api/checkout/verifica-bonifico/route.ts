@@ -103,14 +103,22 @@ Se un campo non è leggibile, metti null.`,
       ? `OK — importo: €${importoRicevuta}, IBAN: ${ibanRicevuta}, causale: ${estratto.causale}`
       : errori.join(' ')
 
+    const { ragione_sociale, partita_iva, codice_sdi, pec, indirizzo, cap, citta, provincia } = dati_fatturazione
+
     if (errori.length > 0) {
-      // Salva ordine come fallito per storico
       await supabase.from('ordini').insert([{
         piano: piano === 'pro' ? 'registra_gestisci' : 'registra',
         fatturazione,
         max_commerciali: commerciali,
         totale,
-        ...dati_fatturazione,
+        ragione_sociale: ragione_sociale ?? null,
+        partita_iva: partita_iva ?? null,
+        codice_sdi: codice_sdi ?? null,
+        pec: pec ?? null,
+        indirizzo: indirizzo ?? null,
+        cap: cap ?? null,
+        citta: citta ?? null,
+        provincia: provincia ?? null,
         stato: 'fallito',
         note_verifica: noteVerifica,
       }])
@@ -136,7 +144,14 @@ Se un campo non è leggibile, metti null.`,
       fatturazione,
       max_commerciali: commerciali,
       totale,
-      ...dati_fatturazione,
+      ragione_sociale: ragione_sociale ?? null,
+      partita_iva: partita_iva ?? null,
+      codice_sdi: codice_sdi ?? null,
+      pec: pec ?? null,
+      indirizzo: indirizzo ?? null,
+      cap: cap ?? null,
+      citta: citta ?? null,
+      provincia: provincia ?? null,
       stato: 'verificato',
       note_verifica: noteVerifica,
       provisioning_token_id: tokenData.id,
