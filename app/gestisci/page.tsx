@@ -5,6 +5,7 @@ import Link from 'next/link'
 import type { Lead, Azione } from '@/lib/types'
 import { LABEL_STATO_GESTIONE } from '@/lib/types'
 import AppShell from '@/components/AppShell'
+import { FaqGestisci } from '@/components/FaqInApp'
 import { leggiSessione } from '@/lib/session'
 
 interface LeadConAzione extends Lead {
@@ -264,6 +265,8 @@ function GestisciDashboard() {
             )}
           </>
         )}
+
+        <FaqGestisci />
       </div>
     </AppShell>
   )

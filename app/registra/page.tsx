@@ -6,6 +6,7 @@ import type { Lead } from '@/lib/types'
 import { calcolaCompletamento } from '@/lib/types'
 import StatoBadge from '@/components/StatoBadge'
 import AppShell from '@/components/AppShell'
+import { FaqRegistra } from '@/components/FaqInApp'
 import { leggiSessione } from '@/lib/session'
 
 type Filtro = 'tutti' | 'completo' | 'bozza'
@@ -242,6 +243,8 @@ function RegistraDashboard() {
             })}
           </ul>
         )}
+
+        <FaqRegistra />
       </div>
     </AppShell>
   )
