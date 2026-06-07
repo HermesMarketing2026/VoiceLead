@@ -87,7 +87,7 @@ function SuccessoContent() {
 
         <p className="text-center text-xs text-gray-400">
           Hai bisogno di aiuto? Scrivici a{' '}
-          <a href="mailto:info@hermesai.it" className="text-hermes-500 underline">info@hermesai.it</a>
+          <a href="mailto:info@hermesmarketing.it" className="text-hermes-500 underline">info@hermesmarketing.it</a>
         </p>
 
         <div className="text-center pb-6">

@@ -118,7 +118,7 @@ export default function CookiePolicy() {
             <h2 className="text-lg font-bold text-gray-900 mb-3">Contatti</h2>
             <p>
               Per qualsiasi domanda relativa ai cookie o alla privacy, scrivi a:{' '}
-              <strong>privacy@hermesmarketing.it</strong>
+              <strong>info@hermesmarketing.it</strong>
             </p>
             <p className="mt-2">
               Per il trattamento dei dati personali, consulta la nostra{' '}

@@ -46,6 +46,7 @@ export async function POST(req: NextRequest) {
     nome_azienda,
     nome_referente,
     cognome_referente,
+    email_referente,
     pin_referente,
     logo_url,
     fatturato,
@@ -56,6 +57,9 @@ export async function POST(req: NextRequest) {
 
   if (!token || !nome_azienda || !nome_referente || !cognome_referente)
     return NextResponse.json({ error: 'Campi obbligatori mancanti' }, { status: 400 })
+
+  if (!email_referente || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email_referente))
+    return NextResponse.json({ error: 'Email non valida' }, { status: 400 })
 
   if (!pin_referente || !/^\d{6}$/.test(pin_referente))
     return NextResponse.json({ error: 'PIN responsabile non valido' }, { status: 400 })
@@ -88,6 +92,7 @@ export async function POST(req: NextRequest) {
       logo_url: logo_url || null,
       nome_referente,
       cognome_referente,
+      email: email_referente,
       has_gestisci: tokenData.piano === 'registra_gestisci',
       fatturato: fatturato || null,
       num_dipendenti: num_dipendenti || null,

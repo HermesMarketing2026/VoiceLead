@@ -772,7 +772,7 @@ export default function Admin() {
       <div className="rounded-xl bg-blue-50 border border-blue-100 p-4 flex gap-3">
         <span className="text-blue-400 text-lg shrink-0">ℹ️</span>
         <div className="text-xs text-blue-600 space-y-1.5">
-          <p><strong>Richieste GDPR dei clienti</strong> — Le richieste di cancellazione o portabilità dati (Art. 17 e 20 GDPR) vengono inoltrate direttamente dai clienti tramite il loro workspace. Ricevi le richieste a <strong>privacy@hermesmarketing.it</strong>.</p>
+          <p><strong>Richieste GDPR dei clienti</strong> — Le richieste di cancellazione o portabilità dati (Art. 17 e 20 GDPR) vengono inoltrate direttamente dai clienti tramite il loro workspace. Ricevi le richieste a <strong>info@hermesmarketing.it</strong>.</p>
           <div className="flex gap-3 flex-wrap pt-1">
             <a href="/privacy" target="_blank" className="underline hover:text-blue-800">Privacy Policy</a>
             <a href="/cookie" target="_blank" className="underline hover:text-blue-800">Cookie Policy</a>

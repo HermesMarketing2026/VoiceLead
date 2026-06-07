@@ -214,7 +214,7 @@ export default function DPA() {
             <p className="text-xs text-blue-700 font-semibold mb-2">📋 Come formalizzare questo accordo</p>
             <p className="text-xs text-blue-600 leading-relaxed">
               Per i clienti che necessitano di un DPA firmato in formato cartaceo o PDF (es. grandi aziende,
-              enti pubblici), scrivere a <strong>privacy@hermesmarketing.it</strong>.
+              enti pubblici), scrivere a <strong>info@hermesmarketing.it</strong>.
               Provvederemo a inviare il documento completo con firma digitale entro 5 giorni lavorativi.
             </p>
           </div>

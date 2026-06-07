@@ -86,7 +86,7 @@ function TrialScadutoContent() {
 
         <p className="text-center text-hermes-200 text-xs">
           Hai domande?{' '}
-          <a href="mailto:info@hermesai.it" className="text-white underline">Contattaci</a>
+          <a href="mailto:info@hermesmarketing.it" className="text-white underline">Contattaci</a>
         </p>
       </div>
     </div>

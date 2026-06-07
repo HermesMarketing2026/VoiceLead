@@ -38,6 +38,7 @@ export default function OnboardingPage() {
   const [nomeAzienda, setNomeAzienda] = useState('')
   const [nomeReferente, setNomeReferente] = useState('')
   const [cognomeReferente, setCognomeReferente] = useState('')
+  const [emailReferente, setEmailReferente] = useState('')
   const [pinReferente, setPinReferente] = useState('')
   const [pinReferenteConferma, setPinReferenteConferma] = useState('')
   const [logoFile, setLogoFile] = useState<File | null>(null)
@@ -90,6 +91,7 @@ export default function OnboardingPage() {
   const validaForm = () => {
     if (!nomeAzienda.trim()) return 'Inserisci il nome della tua azienda'
     if (!nomeReferente.trim() || !cognomeReferente.trim()) return 'Inserisci nome e cognome del responsabile'
+    if (!emailReferente.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailReferente)) return 'Inserisci un\'email valida per il responsabile'
     if (!/^\d{6}$/.test(pinReferente)) return 'Il PIN del responsabile deve essere di 6 cifre'
     if (pinReferente !== pinReferenteConferma) return 'I PIN del responsabile non coincidono'
     for (let i = 0; i < commerciali.length; i++) {
@@ -131,6 +133,7 @@ export default function OnboardingPage() {
           nome_azienda: nomeAzienda,
           nome_referente: nomeReferente,
           cognome_referente: cognomeReferente,
+          email_referente: emailReferente,
           pin_referente: pinReferente,
           logo_url: logoUrl,
           fatturato,
@@ -363,7 +366,18 @@ export default function OnboardingPage() {
                 />
               </div>
             </div>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="mt-3">
+              <label className="block text-sm font-medium text-gray-700 mb-1">Email aziendale *</label>
+              <input
+                type="email"
+                value={emailReferente}
+                onChange={e => setEmailReferente(e.target.value)}
+                placeholder="mario.rossi@azienda.it"
+                className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400"
+              />
+              <p className="text-xs text-gray-400 mt-1">Usata per comunicazioni e fatture da Hermes Marketing</p>
+            </div>
+            <div className="grid grid-cols-2 gap-3 mt-3">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">PIN accesso (6 cifre) *</label>
                 <input

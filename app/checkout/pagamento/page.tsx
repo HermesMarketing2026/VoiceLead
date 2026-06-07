@@ -239,7 +239,7 @@ function PagamentoForm() {
               ))}
               <p className="text-xs text-red-500 mt-2">
                 Controlla i dati del bonifico e ricarica la ricevuta, oppure scrivi a{' '}
-                <a href="mailto:info@hermesai.it" className="underline">info@hermesai.it</a>.
+                <a href="mailto:info@hermesmarketing.it" className="underline">info@hermesmarketing.it</a>.
               </p>
             </div>
           )}
@@ -292,7 +292,7 @@ function PagamentoForm() {
 
         <p className="text-center text-xs text-gray-400 pb-6">
           Hai domande? Scrivici a{' '}
-          <a href="mailto:info@hermesai.it" className="text-hermes-500 underline">info@hermesai.it</a>
+          <a href="mailto:info@hermesmarketing.it" className="text-hermes-500 underline">info@hermesmarketing.it</a>
         </p>
       </div>
     </div>
