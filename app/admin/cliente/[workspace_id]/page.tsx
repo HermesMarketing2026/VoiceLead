@@ -95,7 +95,12 @@ export default function SchedaClientePage() {
       {/* Controlli — nascosti in stampa */}
       <div className="print:hidden bg-gray-50 px-6 py-4 border-b border-gray-200 flex items-center justify-between gap-4">
         <div>
-          <button onClick={() => router.back()} className="text-sm text-gray-500 hover:text-gray-700">← Admin</button>
+          <button
+            onClick={() => { if (window.history.length > 1) router.back(); else window.close() }}
+            className="text-sm text-gray-500 hover:text-gray-700"
+          >
+            ← Torna all'admin
+          </button>
           <h1 className="text-lg font-bold text-gray-900 mt-1">Scheda cliente — {ws.nome_azienda}</h1>
         </div>
         <button
@@ -143,19 +148,32 @@ export default function SchedaClientePage() {
         </div>
 
         {/* Dati fatturazione */}
-        {ordine && (
-          <div>
-            <h2 className="text-xs font-bold text-hermes-500 uppercase tracking-widest mb-3">Dati fatturazione</h2>
+        <div>
+          <h2 className="text-xs font-bold text-hermes-500 uppercase tracking-widest mb-3">Dati fatturazione</h2>
+          {ordine ? (
             <div className="bg-gray-50 rounded-xl p-4 space-y-0">
               <Riga label="Ragione sociale" valore={ordine.ragione_sociale} />
               <Riga label="Partita IVA" valore={ordine.partita_iva} />
               <Riga label="Codice SDI" valore={ordine.codice_sdi} />
               <Riga label="PEC" valore={ordine.pec} />
               <Riga label="Indirizzo" valore={`${ordine.indirizzo}, ${ordine.cap} ${ordine.citta} (${ordine.provincia})`} />
+              <Riga label="Importo fatturabile" valore={`€${Number(ordine.totale).toFixed(2)} + IVA`} />
               <Riga label="Ordine registrato il" valore={fmt(ordine.creato_il)} />
             </div>
-          </div>
-        )}
+          ) : (
+            <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 text-sm text-amber-800">
+              <p className="font-semibold mb-1">⚠️ Nessun ordine collegato</p>
+              <p className="text-xs text-amber-700 leading-relaxed">
+                {ws.fatturazione === 'prova'
+                  ? 'Workspace in prova gratuita — i dati di fatturazione verranno raccolti al momento dell\'abbonamento.'
+                  : 'Questo workspace non ha un ordine verificato. I dati di fatturazione potrebbero essere stati inseriti con flusso manuale o il bonifico non è ancora stato verificato.'}
+              </p>
+              <p className="text-xs text-amber-600 mt-2">
+                Per raccogliere i dati fiscali, chiedi al cliente di completare il checkout tramite <strong>voiceleads.it/checkout</strong>.
+              </p>
+            </div>
+          )}
+        </div>
 
         {/* Responsabile */}
         <div>
