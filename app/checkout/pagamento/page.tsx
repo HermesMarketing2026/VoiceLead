@@ -18,6 +18,8 @@ function PagamentoForm() {
 
   const [copiato, setCopiato] = useState<string | null>(null)
   const [bypass, setBypass] = useState(false)
+  const [bypassPin, setBypassPin] = useState('')
+  const [bypassErrore, setBypassErrore] = useState(false)
   const [bypassLoading, setBypassLoading] = useState(false)
 
   const saltoVerifica = async () => {
@@ -253,17 +255,34 @@ function PagamentoForm() {
 
         {/* Bypass per test */}
         <div className="border-2 border-dashed border-gray-300 rounded-2xl p-4 bg-gray-50">
-          <p className="text-xs text-gray-400 text-center mb-3 font-medium uppercase tracking-wide">— Solo per test del flusso —</p>
           {!bypass ? (
             <button onClick={() => setBypass(true)} className="w-full text-xs text-gray-400 hover:text-gray-600 underline py-1">
-              Ho effettuato il pagamento (salta verifica)
+              Ho effettuato il pagamento
             </button>
           ) : (
             <div className="space-y-2">
-              <p className="text-xs text-gray-500 text-center">Confermi di voler saltare la verifica AI?</p>
+              <p className="text-xs text-gray-500 text-center">Inserisci il codice per procedere</p>
+              <input
+                type="password"
+                inputMode="numeric"
+                maxLength={6}
+                value={bypassPin}
+                onChange={e => { setBypassPin(e.target.value.replace(/\D/g, '')); setBypassErrore(false) }}
+                placeholder="······"
+                className={`w-full border rounded-lg px-3 py-2 text-sm text-center tracking-widest font-mono focus:outline-none focus:ring-2 focus:ring-gray-300 ${bypassErrore ? 'border-red-300 bg-red-50' : 'border-gray-300'}`}
+                autoFocus
+              />
+              {bypassErrore && <p className="text-xs text-red-500 text-center">Codice non corretto</p>}
               <div className="flex gap-2">
-                <button onClick={() => setBypass(false)} className="flex-1 text-xs border border-gray-300 rounded-lg py-2 text-gray-500 hover:bg-gray-100">Annulla</button>
-                <button onClick={saltoVerifica} disabled={bypassLoading} className="flex-1 text-xs bg-green-600 text-white rounded-lg py-2 font-semibold hover:bg-green-700 disabled:opacity-50">
+                <button onClick={() => { setBypass(false); setBypassPin(''); setBypassErrore(false) }} className="flex-1 text-xs border border-gray-300 rounded-lg py-2 text-gray-500 hover:bg-gray-100">Annulla</button>
+                <button
+                  onClick={() => {
+                    if (bypassPin === '130325') saltoVerifica()
+                    else { setBypassErrore(true); setBypassPin('') }
+                  }}
+                  disabled={bypassLoading || bypassPin.length < 6}
+                  className="flex-1 text-xs bg-green-600 text-white rounded-lg py-2 font-semibold hover:bg-green-700 disabled:opacity-50"
+                >
                   {bypassLoading ? '⏳…' : '✅ Conferma'}
                 </button>
               </div>
