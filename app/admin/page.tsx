@@ -7,6 +7,23 @@ import AppShell from '@/components/AppShell'
 
 type Modalita = 'lista' | 'modifica'
 
+interface Ordine {
+  id: string
+  ragione_sociale: string
+  partita_iva: string
+  codice_sdi: string | null
+  pec: string | null
+  indirizzo: string
+  cap: string
+  citta: string
+  provincia: string
+  piano: string
+  fatturazione: string
+  max_commerciali: number
+  totale: number
+  creato_il: string
+}
+
 export default function Admin() {
   const [autenticato, setAutenticato] = useState(false)
   const [pronto, setPronto] = useState(false)
@@ -21,6 +38,9 @@ export default function Admin() {
   const [salvataggio, setSalvataggio] = useState(false)
   const [eliminazione, setEliminazione] = useState<string | null>(null)
   const [confermaElimina, setConfermaElimina] = useState<string | null>(null)
+  // Anagrafica cliente
+  const [ordineWs, setOrdineWs] = useState<Ordine | null>(null)
+
   // Utenti
   const [utenti, setUtenti] = useState<Utente[]>([])
   const [formUtente, setFormUtente] = useState({ nome: '', cognome: '', pin: '' })
@@ -130,8 +150,10 @@ export default function Admin() {
   const apriModifica = (ws: Workspace) => {
     setWsInModifica(ws)
     setFormModifica({ nome_azienda: ws.nome_azienda, logo_url: ws.logo_url ?? '', nome_referente: ws.nome_referente ?? '', cognome_referente: ws.cognome_referente ?? '', has_gestisci: ws.has_gestisci ?? false, pin: ws.pin })
+    setOrdineWs(null)
     setModalita('modifica')
     caricaUtenti(ws.id)
+    fetch(`/api/abbonamenti/${ws.id}`).then(r => r.json()).then(d => setOrdineWs(d.ordine ?? null))
   }
 
   const caricaUtenti = async (workspaceId: string) => {
@@ -291,6 +313,48 @@ export default function Admin() {
               {salvataggio ? 'Salvataggio…' : 'Salva modifiche'}
             </button>
           </div>
+        </div>
+
+        {/* Anagrafica cliente */}
+        <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 space-y-3">
+          <div className="flex items-center justify-between">
+            <h2 className="text-xs font-bold text-hermes-500 uppercase tracking-wider">🗂️ Anagrafica cliente</h2>
+            <a
+              href={`/admin/cliente/${wsInModifica.id}`}
+              target="_blank"
+              className="text-xs text-hermes-600 border border-hermes-300 rounded-lg px-3 py-1.5 hover:bg-hermes-50 font-medium"
+            >
+              🖨️ Scheda PDF
+            </a>
+          </div>
+
+          {/* Abbonamento */}
+          <div className="space-y-1">
+            <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mt-2">Abbonamento</p>
+            <div className="bg-gray-50 rounded-xl px-4 py-3 space-y-1.5 text-sm">
+              <div className="flex justify-between"><span className="text-gray-500">Piano</span><span className="font-semibold">{wsInModifica.has_gestisci ? 'Pro — Registra + Gestisci' : 'Base — Registra'}</span></div>
+              {wsInModifica.fatturazione && <div className="flex justify-between"><span className="text-gray-500">Fatturazione</span><span className="font-semibold capitalize">{wsInModifica.fatturazione}</span></div>}
+              {wsInModifica.scadenza_il && <div className="flex justify-between"><span className="text-gray-500">Scadenza</span><span className={`font-semibold ${wsInModifica.sospeso ? 'text-red-600' : 'text-gray-900'}`}>{new Date(wsInModifica.scadenza_il).toLocaleDateString('it-IT')}</span></div>}
+              <div className="flex justify-between"><span className="text-gray-500">Stato</span><span className={`font-bold ${wsInModifica.sospeso ? 'text-red-600' : 'text-green-600'}`}>{wsInModifica.sospeso ? 'Sospeso' : 'Attivo'}</span></div>
+            </div>
+          </div>
+
+          {/* Dati fatturazione */}
+          {ordineWs ? (
+            <div className="space-y-1">
+              <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mt-2">Dati fatturazione</p>
+              <div className="bg-gray-50 rounded-xl px-4 py-3 space-y-1.5 text-sm">
+                <div className="flex justify-between"><span className="text-gray-500">Ragione sociale</span><span className="font-semibold">{ordineWs.ragione_sociale}</span></div>
+                <div className="flex justify-between"><span className="text-gray-500">P.IVA</span><span className="font-mono font-semibold">{ordineWs.partita_iva}</span></div>
+                {ordineWs.codice_sdi && <div className="flex justify-between"><span className="text-gray-500">Codice SDI</span><span className="font-mono">{ordineWs.codice_sdi}</span></div>}
+                {ordineWs.pec && <div className="flex justify-between"><span className="text-gray-500">PEC</span><span className="text-xs">{ordineWs.pec}</span></div>}
+                <div className="flex justify-between"><span className="text-gray-500">Indirizzo</span><span className="text-right text-xs">{ordineWs.indirizzo}, {ordineWs.cap} {ordineWs.citta} ({ordineWs.provincia})</span></div>
+                <div className="flex justify-between"><span className="text-gray-500">Importo</span><span className="font-bold">€{Number(ordineWs.totale).toFixed(2)} + IVA</span></div>
+              </div>
+            </div>
+          ) : (
+            <p className="text-xs text-gray-400 italic">Nessun ordine verificato collegato a questo workspace.</p>
+          )}
         </div>
 
         {/* Sezione commerciali */}

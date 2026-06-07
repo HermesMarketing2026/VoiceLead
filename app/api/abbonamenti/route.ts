@@ -1,4 +1,4 @@
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import { supabase } from '@/lib/supabase'
 
 export async function GET() {
@@ -20,4 +20,13 @@ export async function GET() {
   if (ordiniError) return NextResponse.json({ error: ordiniError.message }, { status: 500 })
 
   return NextResponse.json({ workspaces: workspaces ?? [], ordini: ordini ?? [] })
+}
+
+export async function DELETE(req: NextRequest) {
+  const { id } = await req.json()
+  if (!id) return NextResponse.json({ error: 'id mancante' }, { status: 400 })
+
+  const { error } = await supabase.from('ordini').delete().eq('id', id)
+  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+  return NextResponse.json({ ok: true })
 }

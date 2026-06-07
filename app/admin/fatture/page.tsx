@@ -45,6 +45,16 @@ export default function FatturePage() {
   const [ordini, setOrdini] = useState<Ordine[]>([])
   const [workspaces, setWorkspaces] = useState<Workspace[]>([])
   const [caricamento, setCaricamento] = useState(true)
+  const [eliminando, setEliminando] = useState<string | null>(null)
+  const [confermaElimina, setConfermaElimina] = useState<string | null>(null)
+
+  const eliminaOrdine = async (id: string) => {
+    setEliminando(id)
+    await fetch('/api/abbonamenti', { method: 'DELETE', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id }) })
+    setOrdini(prev => prev.filter(o => o.id !== id))
+    setConfermaElimina(null)
+    setEliminando(null)
+  }
 
   useEffect(() => {
     const sessione = leggiSessione()
@@ -127,6 +137,7 @@ export default function FatturePage() {
                   <th className="px-3 py-2.5 font-semibold text-gray-700 border border-gray-200">Comm.</th>
                   <th className="px-3 py-2.5 font-semibold text-gray-700 border border-gray-200">Fattur.</th>
                   <th className="px-3 py-2.5 font-semibold text-gray-700 border border-gray-200 text-right">Totale</th>
+                  <th className="px-3 py-2.5 border border-gray-200 print:hidden" />
                 </tr>
               </thead>
               <tbody>
@@ -140,6 +151,18 @@ export default function FatturePage() {
                     <td className="px-3 py-2.5 border border-gray-200 text-center">{o.max_commerciali}</td>
                     <td className="px-3 py-2.5 border border-gray-200 capitalize">{o.fatturazione}</td>
                     <td className="px-3 py-2.5 border border-gray-200 text-right font-bold">€{Number(o.totale).toFixed(2)}</td>
+                    <td className="px-3 py-2.5 border border-gray-200 text-center print:hidden">
+                      {confermaElimina === o.id ? (
+                        <div className="flex gap-1 justify-center">
+                          <button onClick={() => setConfermaElimina(null)} className="text-xs text-gray-500 border border-gray-300 rounded px-2 py-1">No</button>
+                          <button onClick={() => eliminaOrdine(o.id)} disabled={eliminando === o.id} className="text-xs text-white bg-red-500 rounded px-2 py-1 disabled:opacity-50">
+                            {eliminando === o.id ? '…' : 'Sì'}
+                          </button>
+                        </div>
+                      ) : (
+                        <button onClick={() => setConfermaElimina(o.id)} className="text-xs text-red-400 hover:text-red-600">🗑️</button>
+                      )}
+                    </td>
                   </tr>
                 ))}
                 <tr className="bg-gray-900 text-white">

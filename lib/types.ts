@@ -25,6 +25,9 @@ export interface Workspace {
   fatturato?: string
   num_dipendenti?: string
   settore?: string
+  fatturazione?: string | null
+  scadenza_il?: string | null
+  sospeso?: boolean
 }
 
 export interface ProvisioningToken {
