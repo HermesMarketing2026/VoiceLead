@@ -5,6 +5,9 @@ export async function POST(req: NextRequest) {
   const { imageBase64, mediaType } = await req.json()
 
   if (!imageBase64) return NextResponse.json({ error: 'Immagine mancante' }, { status: 400 })
+  // base64 di un'immagine da 4MB ≈ ~5.3MB di stringa
+  if (typeof imageBase64 !== 'string' || imageBase64.length > 5_500_000)
+    return NextResponse.json({ error: 'Immagine troppo grande (max ~4 MB)' }, { status: 400 })
   if (!process.env.ANTHROPIC_API_KEY)
     return NextResponse.json({ error: 'ANTHROPIC_API_KEY non configurata' }, { status: 500 })
 

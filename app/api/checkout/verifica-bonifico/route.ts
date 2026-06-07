@@ -4,7 +4,7 @@ import { supabase } from '@/lib/supabase'
 
 const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
 
-const IBAN_HERMES = 'IT18W0306925611100000004414' // ← sostituisci con IBAN reale
+const IBAN_HERMES = 'IT18W0306925611100000004414'
 
 function normalizzaIban(s: string) {
   return s.replace(/\s/g, '').toUpperCase()

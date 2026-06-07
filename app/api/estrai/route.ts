@@ -4,6 +4,8 @@ import Anthropic from '@anthropic-ai/sdk'
 export async function POST(req: NextRequest) {
   const { testo } = await req.json()
   if (!testo) return NextResponse.json({ error: 'Testo mancante' }, { status: 400 })
+  if (typeof testo !== 'string' || testo.length > 2000)
+    return NextResponse.json({ error: 'Testo troppo lungo (max 2000 caratteri)' }, { status: 400 })
 
   if (!process.env.ANTHROPIC_API_KEY) {
     return NextResponse.json({ error: 'ANTHROPIC_API_KEY non configurata' }, { status: 500 })
