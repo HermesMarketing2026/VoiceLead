@@ -3,14 +3,14 @@ import Link from 'next/link'
 export const metadata = { title: 'Privacy Policy — VoiceLeads' }
 
 export default function PrivacyPolicy() {
-  const aggiornata = '05 giugno 2026'
+  const aggiornata = '07 giugno 2026'
 
   return (
     <div className="min-h-screen bg-white">
       <nav className="border-b border-gray-100 px-6 py-4">
         <div className="max-w-3xl mx-auto flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2">
-            <img src="/logo-hermes.png" alt="Hermes Marketing" className="h-7 w-auto" />
+            <img src="/favicon.png" alt="VoiceLeads" className="h-7 w-7" />
             <span className="font-bold text-gray-900">VoiceLeads</span>
           </Link>
           <Link href="/" className="text-sm text-gray-400 hover:text-gray-600">← Torna al sito</Link>
@@ -30,7 +30,7 @@ export default function PrivacyPolicy() {
               l'applicazione VoiceLeads è:
             </p>
             <div className="bg-gray-50 rounded-xl p-4 mt-3 font-mono text-xs space-y-1">
-              <p><strong>Hermes Marketing</strong></p>
+              <p><strong>Hermes Marketing S.r.l.s</strong></p>
               <p>Piazza Gae Aulenti 1, Torre B — 20124 Milano (MI)</p>
               <p>P.IVA: 14088840963</p>
               <p>Email: info@hermesmarketing.it</p>
@@ -60,6 +60,11 @@ export default function PrivacyPolicy() {
                 nei nostri sistemi.
               </li>
               <li>
+                <strong>Dati di fatturazione</strong> (raccolti al momento dell'abbonamento):
+                ragione sociale, Partita IVA, codice SDI, PEC, indirizzo di fatturazione.
+                Trattati ai fini dell'emissione della fattura elettronica.
+              </li>
+              <li>
                 <strong>Dati tecnici</strong>: indirizzo IP, tipo di browser, sistema operativo,
                 dati di navigazione raccolti automaticamente.
               </li>
@@ -79,8 +84,11 @@ export default function PrivacyPolicy() {
                 <tbody className="divide-y divide-gray-100">
                   {[
                     ['Erogazione del servizio VoiceLeads', 'Esecuzione del contratto (Art. 6(1)(b) GDPR)'],
+                    ['Attivazione e gestione prova gratuita 14 giorni', 'Esecuzione del contratto (Art. 6(1)(b) GDPR)'],
                     ['Registrazione e gestione lead commerciali', 'Legittimo interesse del titolare del trattamento cliente (Art. 6(1)(f) GDPR)'],
                     ['Elaborazione AI di testo, audio e immagini', 'Esecuzione del contratto (Art. 6(1)(b) GDPR)'],
+                    ['Gestione abbonamento e fatturazione (P.IVA, SDI, PEC)', 'Obbligo legale e esecuzione del contratto (Art. 6(1)(b)(c) GDPR)'],
+                    ['Verifica contabile bonifico tramite AI', 'Esecuzione del contratto (Art. 6(1)(b) GDPR)'],
                     ['Invio comunicazioni commerciali (form landing)', 'Consenso dell\'interessato (Art. 6(1)(a) GDPR)'],
                     ['Analisi statistica del sito (Google Tag Manager / Analytics)', 'Consenso dell\'interessato (Art. 6(1)(a) GDPR)'],
                     ['Sicurezza del sistema e prevenzione abusi', 'Legittimo interesse (Art. 6(1)(f) GDPR)'],
@@ -97,28 +105,26 @@ export default function PrivacyPolicy() {
           </section>
 
           <section>
-            <h2 className="text-lg font-bold text-gray-900 mb-3">4. Periodo di conservazione e trasferimento responsabilità</h2>
+            <h2 className="text-lg font-bold text-gray-900 mb-3">4. Periodo di conservazione</h2>
             <ul className="list-disc pl-5 space-y-2">
               <li>
-                <strong>Dati dei lead (non ancora esportati):</strong> conservati nell'applicazione
-                fino all'esportazione su Google Sheets del Cliente.
+                <strong>Dati dei lead:</strong> conservati nell'applicazione per tutta la durata
+                del workspace attivo. Il Cliente può esportarli in qualsiasi momento tramite
+                la funzione <strong>Export CSV</strong> disponibile nel proprio dashboard.
+                Dopo l'export, i dati presenti nel file CSV sono sotto il controllo esclusivo
+                del Cliente, che ne diventa <strong>unico Titolare del Trattamento</strong>.
               </li>
               <li>
-                <strong>Dati dei lead (esportati su Google Sheets):</strong> rimossi automaticamente
-                dall'applicazione VoiceLeads entro <strong>30 giorni dall'esportazione</strong>.
-                Il Cliente può richiedere la rimozione immediata tramite la funzione "Svuota archivio"
-                disponibile nel proprio dashboard.
+                <strong>Cancellazione automatica lead:</strong> i dati dei lead vengono rimossi
+                automaticamente dall'applicazione entro <strong>30 giorni dalla scadenza
+                o dalla disattivazione del workspace</strong>. Il Cliente può richiedere
+                la rimozione immediata scrivendo a info@hermesmarketing.it.
               </li>
-              <li>
-                <strong>Dopo l'esportazione:</strong> i dati presenti su Google Sheets sono sotto
-                il controllo esclusivo del Cliente, che ne diventa <strong>unico Titolare del Trattamento</strong>.
-                Hermes Marketing non ha accesso a tali dati e non è responsabile del loro trattamento
-                successivo all'esportazione.
-              </li>
-              <li><strong>Registrazioni vocali e immagini:</strong> non conservate — elaborate in tempo reale e immediatamente scartate.</li>
+              <li><strong>Registrazioni vocali e immagini:</strong> non conservate — elaborate in tempo reale dall'AI e immediatamente scartate.</li>
+              <li><strong>Dati di fatturazione (P.IVA, SDI, PEC, ecc.):</strong> conservati per 10 anni ai fini degli obblighi fiscali e contabili (Art. 2220 c.c.).</li>
               <li><strong>Dati di contatto (form landing):</strong> conservati fino a revoca del consenso o per un massimo di 3 anni.</li>
               <li><strong>Log tecnici:</strong> conservati per 12 mesi.</li>
-              <li><strong>Alla cessazione del servizio:</strong> tutti i dati residui cancellati entro 30 giorni.</li>
+              <li><strong>Alla cessazione definitiva del servizio:</strong> tutti i dati residui cancellati entro 30 giorni, salvo obblighi di conservazione legale.</li>
             </ul>
           </section>
 
@@ -216,7 +222,7 @@ export default function PrivacyPolicy() {
 
       <footer className="border-t border-gray-100 px-6 py-8 mt-12">
         <div className="max-w-3xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-gray-400">
-          <span>© {new Date().getFullYear()} Hermes Marketing</span>
+          <span>© {new Date().getFullYear()} Hermes Marketing S.r.l.s</span>
           <div className="flex gap-4">
             <Link href="/cookie" className="hover:text-gray-600">Cookie Policy</Link>
             <Link href="/dpa" className="hover:text-gray-600">DPA</Link>

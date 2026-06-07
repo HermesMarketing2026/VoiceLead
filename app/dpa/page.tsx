@@ -3,14 +3,14 @@ import Link from 'next/link'
 export const metadata = { title: 'Data Processing Agreement — VoiceLeads' }
 
 export default function DPA() {
-  const aggiornata = '05 giugno 2026'
+  const aggiornata = '07 giugno 2026'
 
   return (
     <div className="min-h-screen bg-white">
       <nav className="border-b border-gray-100 px-6 py-4">
         <div className="max-w-3xl mx-auto flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2">
-            <img src="/logo-hermes.png" alt="Hermes Marketing" className="h-7 w-auto" />
+            <img src="/favicon.png" alt="VoiceLeads" className="h-7 w-7" />
             <span className="font-bold text-gray-900">VoiceLeads</span>
           </Link>
           <Link href="/" className="text-sm text-gray-400 hover:text-gray-600">← Torna al sito</Link>
@@ -38,7 +38,7 @@ export default function DPA() {
             <div className="grid md:grid-cols-2 gap-4">
               <div className="bg-gray-50 rounded-xl p-4">
                 <p className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Responsabile del Trattamento</p>
-                <p className="font-semibold">Hermes Marketing</p>
+                <p className="font-semibold">Hermes Marketing S.r.l.s</p>
                 <p className="text-xs text-gray-500 mt-1">Piazza Gae Aulenti 1, Torre B — 20124 Milano</p>
                 <p className="text-xs text-gray-500">P.IVA: 14088840963</p>
                 <p className="text-xs text-gray-500">info@hermesmarketing.it</p>
@@ -170,24 +170,31 @@ export default function DPA() {
           <section>
             <h2 className="text-lg font-bold text-gray-900 mb-3">8. Cancellazione dei dati e trasferimento di responsabilità</h2>
             <p className="mb-3">
-              VoiceLeads è progettato come <strong>sistema di raccolta temporanea</strong>: i lead
-              vengono acquisiti tramite l'app e trasferiti sul Google Sheets del Cliente, che
-              rappresenta il sistema di archiviazione definitivo del Cliente stesso.
+              VoiceLeads conserva i dati dei lead per tutta la durata del workspace attivo.
+              Il Cliente può esportare i propri dati in qualsiasi momento tramite la funzione
+              <strong> Export CSV</strong> disponibile nel dashboard. Non vengono utilizzati
+              sistemi di archiviazione di terze parti (es. Google Sheets) per i dati dei lead.
             </p>
             <ul className="list-disc pl-5 space-y-2 mb-3">
               <li>
-                <strong>Lead esportati:</strong> rimossi automaticamente da VoiceLeads entro
-                30 giorni dall'esportazione. Il Cliente può richiedere la rimozione immediata
-                tramite la funzione "Svuota archivio" nel proprio dashboard.
+                <strong>Export CSV:</strong> una volta scaricato il file, i dati in esso contenuti
+                sono sotto il controllo esclusivo del Cliente, che ne diventa
+                <strong> unico Titolare del Trattamento</strong>. Hermes Marketing S.r.l.s non
+                ha accesso al file esportato e non è responsabile del trattamento successivo all'export.
               </li>
               <li>
-                <strong>Dopo l'esportazione su Google Sheets:</strong> il Cliente diventa unico
-                Titolare del Trattamento per quei dati. Hermes Marketing non ha accesso al
-                Google Sheets del Cliente e non è responsabile del trattamento successivo.
+                <strong>Scadenza abbonamento o prova gratuita:</strong> il workspace viene sospeso
+                automaticamente alla scadenza. I dati sono conservati per ulteriori 30 giorni
+                per consentire l'export o il rinnovo, poi cancellati definitivamente.
               </li>
               <li>
-                <strong>Alla cessazione del contratto:</strong> cancellazione di tutti i dati
-                residui entro 30 giorni. Su richiesta, export completo in CSV prima della cancellazione.
+                <strong>Alla cessazione definitiva del contratto:</strong> cancellazione di tutti
+                i dati dei lead entro 30 giorni. I dati di fatturazione (P.IVA, SDI, PEC, ordini)
+                sono conservati per 10 anni ai fini degli obblighi fiscali.
+              </li>
+              <li>
+                <strong>Cancellazione anticipata su richiesta:</strong> il Cliente può richiedere
+                la cancellazione immediata di tutti i dati dei lead scrivendo a info@hermesmarketing.it.
               </li>
             </ul>
             <p className="text-xs text-gray-500">
@@ -216,7 +223,7 @@ export default function DPA() {
 
       <footer className="border-t border-gray-100 px-6 py-8 mt-12">
         <div className="max-w-3xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-gray-400">
-          <span>© {new Date().getFullYear()} Hermes Marketing</span>
+          <span>© {new Date().getFullYear()} Hermes Marketing S.r.l.s</span>
           <div className="flex gap-4">
             <Link href="/privacy" className="hover:text-gray-600">Privacy Policy</Link>
             <Link href="/cookie" className="hover:text-gray-600">Cookie Policy</Link>
