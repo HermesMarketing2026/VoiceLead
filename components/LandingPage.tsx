@@ -38,7 +38,7 @@ export default function LandingPage() {
       <div className="fixed top-0 left-0 right-0 z-20 flex justify-center px-4 py-3 pointer-events-none">
         <nav className="pointer-events-auto w-full max-w-3xl bg-black/80 backdrop-blur-md border border-white/10 rounded-full shadow-2xl px-5 py-2.5 flex items-center justify-between">
           <div className="flex items-center gap-2.5">
-            <img src="/logo-hermes.png" alt="Hermes" className="h-7 w-auto" />
+            <img src="/favicon.png" alt="VoiceLeads" className="h-7 w-7" />
             <span className="font-bold text-white text-base tracking-tight">VoiceLeads</span>
           </div>
 
