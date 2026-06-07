@@ -203,9 +203,9 @@ export default function LandingPage() {
                           ['Tel.', '348 1234567'],
                           ['Scadenza', 'giovedì'],
                         ].map(([k, v]) => (
-                          <div key={k} className="bg-white/5 rounded-lg px-2 py-1.5">
+                          <div key={k} className="bg-white/5 rounded-lg px-2 py-1.5 min-w-0">
                             <span className="text-white/30">{k}: </span>
-                            <span className="text-green-400">{v}</span>
+                            <span className="text-green-400 break-all">{v}</span>
                           </div>
                         ))}
                       </div>
