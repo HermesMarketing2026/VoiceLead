@@ -152,10 +152,10 @@ function PagamentoForm() {
 
           {[
             { label: 'Intestatario', valore: 'Hermes Marketing S.r.l.s' },
-            { label: 'IBAN', valore: 'IT00 X000 0000 0000 0000 0000 000' },
-            { label: 'BIC / SWIFT', valore: 'XXXXXXXXX' },
-            { label: 'Banca', valore: 'Banca Esempio' },
-            { label: 'Causale', valore: causale },
+            { label: 'IBAN', valore: 'IT18W0306925611100000004414' },
+            { label: 'BIC / SWIFT', valore: 'BCITITMMXXX' },
+            { label: 'Banca', valore: 'Banca Intesa Sanpaolo filiale Montepulciano' },
+            { label: 'Causale', valore: 'Pagamento abbonamento VoiceLeads' },
           ].map(({ label, valore }) => (
             <div key={label} className="flex items-center justify-between gap-3">
               <div className="min-w-0">
