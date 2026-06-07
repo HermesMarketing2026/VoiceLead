@@ -181,52 +181,45 @@ export default function Home() {
   // ── Schermata selezione commerciale (responsabile) ──
   if (vista === 'seleziona-commerciale') {
     return (
-      <div className="min-h-screen bg-gray-950 flex items-center justify-center px-4 py-8">
-        <div className="fixed inset-0 pointer-events-none overflow-hidden">
-          <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-96 h-96 rounded-full opacity-10 blur-3xl" style={{ background: 'radial-gradient(circle, #ff7930, transparent)' }} />
-        </div>
-        <div className="relative w-full max-w-sm space-y-4">
-          <div className="rounded-3xl overflow-hidden shadow-2xl" style={{ border: '1px solid rgba(255,255,255,0.08)', background: 'rgba(255,255,255,0.02)' }}>
-            <div className="px-6 pt-8 pb-6 text-center relative overflow-hidden" style={{ background: 'linear-gradient(135deg, rgba(255,121,48,0.12), rgba(255,69,0,0.06))' }}>
-              <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                <div className="w-32 h-32 rounded-full border border-white/5 animate-ping" style={{ animationDuration: '3s' }} />
-                <div className="absolute w-56 h-56 rounded-full border border-white/5 animate-ping" style={{ animationDuration: '3s', animationDelay: '0.8s' }} />
-              </div>
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4 py-8">
+        <div className="w-full max-w-sm space-y-4">
+          <div className="bg-white rounded-3xl overflow-hidden shadow-sm border border-gray-200">
+            <div className="px-6 pt-7 pb-5 text-center border-b border-gray-100" style={{ background: 'linear-gradient(135deg, #fff7f0, #fff3eb)' }}>
               {logoUrl && (
-                <div className="mb-3 relative z-10">
-                  <img src={logoUrl} alt={nomeAzienda} className="h-10 w-auto mx-auto object-contain brightness-0 invert opacity-70" />
+                <img src={logoUrl} alt={nomeAzienda} className="h-10 w-auto mx-auto object-contain mb-3" />
+              )}
+              {!logoUrl && (
+                <div className="w-14 h-14 rounded-2xl mx-auto mb-3 flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #ff7930, #ff4500)' }}>
+                  <span className="text-2xl">🎙️</span>
                 </div>
               )}
-              <div className="relative z-10">
-                <p className="text-white/40 text-xs font-semibold uppercase tracking-widest mb-1">{nomeAzienda}</p>
-                <h1 className="text-white text-xl font-extrabold">Di chi vuoi vedere i lead?</h1>
-                <p className="text-white/30 text-xs mt-1">Pannello responsabile</p>
-              </div>
+              <p className="text-xs font-bold text-hermes-500 uppercase tracking-widest mb-1">{nomeAzienda}</p>
+              <h1 className="text-gray-900 text-xl font-extrabold">Di chi vuoi vedere i lead?</h1>
+              <p className="text-gray-400 text-xs mt-1">Pannello responsabile</p>
             </div>
 
-            <div className="px-5 py-5 space-y-2.5">
+            <div className="px-5 py-5 space-y-2">
               {commerciali.map(c => (
                 <button
                   key={c.id}
                   onClick={() => selezionaCommerciale(c)}
-                  className="w-full flex items-center gap-4 rounded-2xl px-4 py-3.5 hover:bg-white/5 active:scale-95 transition-all text-left group"
-                  style={{ border: '1px solid rgba(255,255,255,0.08)' }}
+                  className="w-full flex items-center gap-4 rounded-2xl px-4 py-3.5 hover:bg-gray-50 active:scale-95 transition-all text-left group border border-gray-100"
                 >
-                  <div className="w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm shrink-0 group-hover:scale-110 transition-transform"
-                    style={{ background: 'linear-gradient(135deg, #ff7930, #ff4500)', color: 'white' }}>
+                  <div className="w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm shrink-0 text-white"
+                    style={{ background: 'linear-gradient(135deg, #ff7930, #ff4500)' }}>
                     {c.nome[0]}{c.cognome[0]}
                   </div>
                   <div>
-                    <p className="font-semibold text-white">{c.nome} {c.cognome}</p>
-                    <p className="text-xs text-white/30">Commerciale</p>
+                    <p className="font-semibold text-gray-900">{c.nome} {c.cognome}</p>
+                    <p className="text-xs text-gray-400">Commerciale</p>
                   </div>
-                  <span className="ml-auto text-white/20 text-lg group-hover:text-white/50 transition-colors">›</span>
+                  <span className="ml-auto text-gray-300 text-lg group-hover:text-hermes-400 transition-colors">›</span>
                 </button>
               ))}
             </div>
           </div>
 
-          <button onClick={logout} className="w-full text-center text-xs text-white/25 hover:text-white/50 py-2 transition-colors">
+          <button onClick={logout} className="w-full text-center text-xs text-gray-400 hover:text-gray-600 py-2 transition-colors">
             Esci
           </button>
         </div>
@@ -241,29 +234,29 @@ export default function Home() {
 
   return (
     <AppShell>
-      <div className="space-y-5">
+      <div className="space-y-4">
         {/* Header workspace */}
-        <div className="rounded-2xl px-5 py-4 flex items-center justify-between" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}>
+        <div className="bg-white rounded-2xl px-5 py-4 flex items-center justify-between border border-gray-200 shadow-sm">
           <div className="flex items-center gap-3">
             {logoUrl
-              ? <img src={logoUrl} alt={nomeAzienda} className="h-8 w-auto object-contain brightness-0 invert opacity-80" />
-              : <div className="w-8 h-8 rounded-lg flex items-center justify-center text-base" style={{ background: 'rgba(255,121,48,0.15)', border: '1px solid rgba(255,121,48,0.25)' }}>🏢</div>
+              ? <img src={logoUrl} alt={nomeAzienda} className="h-8 w-auto object-contain" />
+              : <div className="w-9 h-9 rounded-xl flex items-center justify-center text-base shrink-0" style={{ background: 'linear-gradient(135deg, #ff7930, #ff4500)' }}>🏢</div>
             }
             <div>
-              <p className="font-bold text-white text-sm leading-tight">{nomeAzienda}</p>
+              <p className="font-bold text-gray-900 text-sm leading-tight">{nomeAzienda}</p>
               {nomeUtente
-                ? <p className="text-xs font-medium" style={{ color: '#ff9950' }}>{nomeUtente}</p>
-                : <p className="text-xs text-white/30">Responsabile</p>
+                ? <p className="text-xs font-semibold text-hermes-500">{nomeUtente}</p>
+                : <p className="text-xs text-gray-400">Responsabile</p>
               }
             </div>
           </div>
           <div className="flex items-center gap-2">
             {ruoloUtente === 'admin' && commerciali.length > 0 && (
-              <button onClick={cambiaCommerciale} className="text-xs text-white/40 hover:text-white/70 px-2 py-1 rounded-lg hover:bg-white/5 transition-colors">
+              <button onClick={cambiaCommerciale} className="text-xs text-gray-400 hover:text-gray-600 px-2 py-1 rounded-lg hover:bg-gray-100 transition-colors">
                 Cambia ↩
               </button>
             )}
-            <button onClick={logout} className="text-xs text-white/30 hover:text-white/60 px-2 py-1 rounded-lg hover:bg-white/5 transition-colors">
+            <button onClick={logout} className="text-xs text-gray-300 hover:text-gray-500 px-2 py-1 rounded-lg hover:bg-gray-100 transition-colors">
               Esci
             </button>
           </div>
@@ -271,17 +264,13 @@ export default function Home() {
 
         {/* Banner trial */}
         {giorniTrialLeft !== null && (
-          <div className={`rounded-2xl px-4 py-3 flex items-center gap-3 ${giorniTrialLeft <= 3 ? '' : ''}`}
-            style={{
-              background: giorniTrialLeft <= 3 ? 'rgba(239,68,68,0.08)' : 'rgba(251,191,36,0.08)',
-              border: `1px solid ${giorniTrialLeft <= 3 ? 'rgba(239,68,68,0.25)' : 'rgba(251,191,36,0.25)'}`,
-            }}>
+          <div className={`rounded-2xl px-4 py-3 flex items-center gap-3 border ${giorniTrialLeft <= 3 ? 'bg-red-50 border-red-200' : 'bg-amber-50 border-amber-200'}`}>
             <span className="text-xl shrink-0">{giorniTrialLeft <= 3 ? '⚠️' : '⏳'}</span>
             <div className="flex-1">
-              <p className={`text-xs font-bold ${giorniTrialLeft <= 3 ? 'text-red-400' : 'text-amber-400'}`}>
+              <p className={`text-xs font-bold ${giorniTrialLeft <= 3 ? 'text-red-600' : 'text-amber-700'}`}>
                 Prova gratuita — {giorniTrialLeft === 0 ? 'scade oggi!' : `${giorniTrialLeft} ${giorniTrialLeft === 1 ? 'giorno rimanente' : 'giorni rimanenti'}`}
               </p>
-              <p className="text-xs text-white/35 mt-0.5">Stai usando il Piano Pro completo</p>
+              <p className={`text-xs mt-0.5 ${giorniTrialLeft <= 3 ? 'text-red-500' : 'text-amber-600'}`}>Stai usando il Piano Pro completo</p>
             </div>
             <a href="/checkout?piano=pro" className="text-xs font-bold text-white px-3 py-1.5 rounded-lg shrink-0 transition-opacity hover:opacity-80"
               style={{ background: 'linear-gradient(135deg, #ff7930, #ff4500)' }}>
@@ -292,55 +281,52 @@ export default function Home() {
 
         {/* Banner lead da gestire */}
         {leadDaGestire > 0 && (
-          <div className="rounded-2xl px-4 py-3 flex items-center gap-3" style={{ background: 'rgba(251,191,36,0.08)', border: '1px solid rgba(251,191,36,0.2)' }}>
+          <div className="bg-amber-50 border border-amber-200 rounded-2xl px-4 py-3 flex items-center gap-3">
             <span className="text-xl">📋</span>
-            <p className="text-sm font-semibold text-amber-400">
-              <span className="text-lg font-extrabold text-amber-300">{leadDaGestire}</span> lead da seguire oggi
+            <p className="text-sm font-semibold text-amber-700">
+              <span className="text-lg font-extrabold text-amber-600">{leadDaGestire}</span> lead da seguire oggi
             </p>
           </div>
         )}
 
         {/* Bottoni principali */}
-        <div className="grid grid-cols-1 gap-4">
+        <div className="grid grid-cols-1 gap-3">
           <Link
             href={`/registra?workspace_id=${workspaceId}${utenteId ? `&utente_id=${utenteId}` : ''}`}
-            className="group flex flex-col items-center justify-center gap-3 rounded-3xl px-6 py-10 text-white active:scale-95 transition-all relative overflow-hidden"
-            style={{ background: 'linear-gradient(135deg, #ff7930, #ff4500)', boxShadow: '0 0 40px rgba(255,121,48,0.25)' }}
+            className="group flex flex-col items-center justify-center gap-3 rounded-3xl px-6 py-10 text-white active:scale-95 transition-all relative overflow-hidden shadow-md"
+            style={{ background: 'linear-gradient(135deg, #ff7930, #ff4500)' }}
           >
-            <div className="absolute inset-0 opacity-0 group-hover:opacity-10 transition-opacity" style={{ background: 'radial-gradient(circle at center, white, transparent)' }} />
-            <span className="text-5xl relative z-10">🎙️</span>
-            <div className="text-center relative z-10">
+            <span className="text-5xl">🎙️</span>
+            <div className="text-center">
               <p className="text-xl font-extrabold">Registra</p>
-              <p className="text-sm opacity-70 mt-0.5">Cattura nuovi lead con la voce</p>
+              <p className="text-sm opacity-75 mt-0.5">Cattura nuovi lead con la voce</p>
             </div>
           </Link>
 
           {hasGestisci ? (
             <Link
               href={`/gestisci?workspace_id=${workspaceId}${utenteId ? `&utente_id=${utenteId}` : ''}`}
-              className="flex flex-col items-center justify-center gap-3 rounded-3xl px-6 py-10 active:scale-95 transition-all"
-              style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)' }}
+              className="flex flex-col items-center justify-center gap-3 rounded-3xl px-6 py-10 active:scale-95 transition-all bg-white border border-gray-200 shadow-sm"
             >
               <span className="text-5xl">📋</span>
               <div className="text-center">
-                <p className="text-xl font-bold text-white">Gestisci</p>
-                <p className="text-sm text-white/40 mt-0.5">Segui le trattative in corso</p>
+                <p className="text-xl font-bold text-gray-900">Gestisci</p>
+                <p className="text-sm text-gray-400 mt-0.5">Segui le trattative in corso</p>
               </div>
             </Link>
           ) : (
-            <div className="flex flex-col items-center justify-center gap-3 rounded-3xl px-6 py-10 cursor-not-allowed"
-              style={{ background: 'rgba(255,255,255,0.02)', border: '1px dashed rgba(255,255,255,0.08)' }}>
+            <div className="flex flex-col items-center justify-center gap-3 rounded-3xl px-6 py-10 cursor-not-allowed bg-white border border-dashed border-gray-200">
               <span className="text-5xl opacity-20">📋</span>
               <div className="text-center">
-                <p className="text-xl font-bold text-white/20">Gestisci</p>
-                <p className="text-xs text-white/15 mt-0.5">Non incluso nel tuo piano</p>
+                <p className="text-xl font-bold text-gray-200">Gestisci</p>
+                <p className="text-xs text-gray-300 mt-0.5">Non incluso nel tuo piano</p>
               </div>
             </div>
           )}
         </div>
 
         {!leadDaGestire && (
-          <p className="text-center text-xs text-white/20">Nessuna scadenza oggi · tutto in ordine ✓</p>
+          <p className="text-center text-xs text-gray-300">Nessuna scadenza oggi · tutto in ordine ✓</p>
         )}
       </div>
     </AppShell>
