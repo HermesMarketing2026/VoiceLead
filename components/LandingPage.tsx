@@ -166,10 +166,15 @@ export default function LandingPage() {
                 </span>
               ))}
             </div>
-            <a href="#prezzi" className="inline-block bg-white text-hermes-600 font-bold px-8 py-4 rounded-xl shadow-lg hover:shadow-xl transition-all hover:-translate-y-0.5 text-center">
-              Scopri i piani →
-            </a>
-            <p className="text-hermes-200 text-xs mt-4">Nessun abbonamento richiesto ora. Ti contatteremo entro 24h.</p>
+            <div className="flex flex-col sm:flex-row gap-3">
+              <a href="/trial" className="inline-block bg-white text-hermes-600 font-bold px-8 py-4 rounded-xl shadow-lg hover:shadow-xl transition-all hover:-translate-y-0.5 text-center">
+                Prova gratis 14 giorni →
+              </a>
+              <a href="#prezzi" className="inline-block border-2 border-white/50 text-white font-semibold px-6 py-4 rounded-xl hover:bg-white/10 transition-all text-center">
+                Vedi i piani
+              </a>
+            </div>
+            <p className="text-hermes-200 text-xs mt-4">✓ Nessuna carta di credito · ✓ Piano Pro completo · ✓ 14 giorni gratis</p>
           </div>
           <div className="hidden md:flex justify-center">
             <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-3xl p-8 w-80 shadow-2xl space-y-4">
@@ -534,6 +539,16 @@ export default function LandingPage() {
           <p className="text-center text-xs text-gray-400 mt-8">
             Prezzi per utente commerciale. Il responsabile accede gratuitamente. IVA esclusa.
           </p>
+
+          {/* Trial CTA */}
+          <div className="mt-10 bg-gradient-to-r from-hermes-500 to-orange-400 rounded-3xl p-8 text-center text-white shadow-lg">
+            <p className="text-2xl font-extrabold mb-2">Non sei ancora sicuro?</p>
+            <p className="text-hermes-100 mb-6 max-w-md mx-auto">Prova VoiceLeads gratis per 14 giorni con il Piano Pro completo. Nessuna carta di credito richiesta.</p>
+            <a href="/trial" className="inline-block bg-white text-hermes-600 font-extrabold px-8 py-4 rounded-xl shadow-md hover:shadow-lg transition-all hover:-translate-y-0.5">
+              Inizia la prova gratuita →
+            </a>
+            <p className="text-hermes-200 text-xs mt-3">✓ Piano Pro completo · ✓ 14 giorni · ✓ Nessun vincolo</p>
+          </div>
 
           {/* Tabella comparativa */}
           <div className="mt-16">

@@ -17,7 +17,7 @@ export async function POST(req: NextRequest) {
 
   const { data: ws, error: wsError } = await supabase
     .from('workspaces')
-    .select('id, pin, nome_azienda, slug, logo_url, has_gestisci, sospeso')
+    .select('id, pin, nome_azienda, slug, logo_url, has_gestisci, sospeso, fatturazione')
     .eq('slug', slug)
     .single()
 
@@ -26,7 +26,8 @@ export async function POST(req: NextRequest) {
   }
 
   if (ws.sospeso) {
-    return NextResponse.json({ error: 'abbonamento_scaduto' }, { status: 402 })
+    const tipo = ws.fatturazione === 'prova' ? 'trial_scaduto' : 'abbonamento_scaduto'
+    return NextResponse.json({ error: tipo, slug: ws.slug }, { status: 402 })
   }
 
   // Login commerciale: utente_id fornito → verifica PIN utente

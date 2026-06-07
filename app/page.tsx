@@ -98,7 +98,12 @@ export default function Home() {
       body: JSON.stringify({ pin, slug, utente_id: utenteIdLogin }),
     })
     const data = await res.json()
-    if (res.status === 402) { window.location.href = '/abbonamento-scaduto'; return }
+    if (res.status === 402) {
+      window.location.href = data.error === 'trial_scaduto'
+        ? `/trial/scaduto?slug=${data.slug}`
+        : '/abbonamento-scaduto'
+      return
+    }
     if (!res.ok) throw new Error(data.error)
 
     setWorkspaceId(data.workspaceId)
