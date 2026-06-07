@@ -2,6 +2,12 @@
 import { useEffect, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import Image from 'next/image'
+import { createClient } from '@supabase/supabase-js'
+
+const supabaseBrowser = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+)
 
 type Fase = 'caricamento' | 'form' | 'animazione' | 'errore'
 
@@ -119,9 +125,22 @@ export default function OnboardingPage() {
     setInvio(true)
 
     try {
-      // Upload logo se presente (base64 → salviamo come data URL per semplicità,
-      // in produzione si può uploadare su Supabase Storage)
-      const logoUrl = logoPreview || null
+      // Upload logo su Supabase Storage (bucket: loghi)
+      let logoUrl: string | null = null
+      if (logoFile) {
+        const ext = logoFile.name.split('.').pop() ?? 'png'
+        const path = `logo-${Date.now()}.${ext}`
+        const { data: uploadData, error: uploadError } = await supabaseBrowser.storage
+          .from('loghi')
+          .upload(path, logoFile, { contentType: logoFile.type, upsert: false })
+        if (uploadError) {
+          console.error('[onboarding] logo upload error:', uploadError.message)
+          // Non blocchiamo: il workspace viene creato senza logo
+        } else {
+          const { data: urlData } = supabaseBrowser.storage.from('loghi').getPublicUrl(uploadData.path)
+          logoUrl = urlData.publicUrl
+        }
+      }
 
       const res = await fetch('/api/onboarding', {
         method: 'POST',

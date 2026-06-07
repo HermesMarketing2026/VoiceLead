@@ -1,7 +1,12 @@
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import { supabase } from '@/lib/supabase'
 
-export async function GET() {
+export async function GET(req: NextRequest) {
+  const authHeader = req.headers.get('authorization')
+  if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
+    return NextResponse.json({ error: 'Non autorizzato' }, { status: 401 })
+  }
+
   const { data, error } = await supabase
     .from('workspaces')
     .update({ sospeso: true })

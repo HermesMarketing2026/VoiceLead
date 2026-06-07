@@ -34,7 +34,7 @@ export async function POST(req: NextRequest) {
 
   // Se vengono passati dati di fatturazione, salva l'ordine collegato al token
   if (dati_fatturazione && totale !== undefined) {
-    const { ragione_sociale, partita_iva, codice_sdi, pec, indirizzo, cap, citta, provincia } = dati_fatturazione
+    const { ragione_sociale, partita_iva, email, codice_sdi, pec, indirizzo, cap, citta, provincia } = dati_fatturazione
     const { error: ordineError } = await supabase.from('ordini').insert([{
       piano,
       fatturazione: fatturazione ?? null,
@@ -42,6 +42,7 @@ export async function POST(req: NextRequest) {
       totale,
       ragione_sociale: ragione_sociale ?? null,
       partita_iva: partita_iva ?? null,
+      email: email ?? null,
       codice_sdi: codice_sdi ?? null,
       pec: pec ?? null,
       indirizzo: indirizzo ?? null,

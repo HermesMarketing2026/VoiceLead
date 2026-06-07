@@ -1,19 +1,37 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabase } from '@/lib/supabase'
 
-// Rate limiting: max 10 tentativi per IP+slug ogni 10 minuti
-const tentativi = new Map<string, { count: number; resetAt: number }>()
+const MAX_TENTATIVI = 10
+const FINESTRA_MS = 10 * 60 * 1000 // 10 minuti
 
-function checkRateLimit(ip: string, slug: string): boolean {
-  const key = `${ip}:${slug}`
-  const ora = Date.now()
-  const entry = tentativi.get(key)
-  if (!entry || ora > entry.resetAt) {
-    tentativi.set(key, { count: 1, resetAt: ora + 10 * 60 * 1000 })
+async function checkRateLimit(ip: string, slug: string): Promise<boolean> {
+  const ora = new Date()
+  const resetAt = new Date(ora.getTime() + FINESTRA_MS)
+
+  const { data: esistente } = await supabase
+    .from('tentativi_login')
+    .select('count, reset_at')
+    .eq('ip', ip)
+    .eq('slug', slug)
+    .maybeSingle()
+
+  if (!esistente || new Date(esistente.reset_at) < ora) {
+    // Prima volta o finestra scaduta: reset
+    await supabase.from('tentativi_login').upsert(
+      { ip, slug, count: 1, reset_at: resetAt.toISOString() },
+      { onConflict: 'ip,slug' }
+    )
     return true
   }
-  if (entry.count >= 10) return false
-  entry.count++
+
+  if (esistente.count >= MAX_TENTATIVI) return false
+
+  await supabase
+    .from('tentativi_login')
+    .update({ count: esistente.count + 1 })
+    .eq('ip', ip)
+    .eq('slug', slug)
+
   return true
 }
 
@@ -21,7 +39,7 @@ export async function POST(req: NextRequest) {
   const { pin, slug, utente_id } = await req.json()
 
   const ip = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ?? 'unknown'
-  if (!checkRateLimit(ip, slug ?? 'admin')) {
+  if (!await checkRateLimit(ip, slug ?? 'admin')) {
     return NextResponse.json({ error: 'Troppi tentativi. Riprova tra qualche minuto.' }, { status: 429 })
   }
 

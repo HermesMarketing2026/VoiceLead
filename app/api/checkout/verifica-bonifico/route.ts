@@ -4,7 +4,7 @@ import { supabase } from '@/lib/supabase'
 
 const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
 
-const IBAN_HERMES = 'IT00 X000 0000 0000 0000 0000 000' // ← sostituisci con IBAN reale
+const IBAN_HERMES = 'IT18W0306925611100000004414' // ← sostituisci con IBAN reale
 
 function normalizzaIban(s: string) {
   return s.replace(/\s/g, '').toUpperCase()
@@ -103,7 +103,7 @@ Se un campo non è leggibile, metti null.`,
       ? `OK — importo: €${importoRicevuta}, IBAN: ${ibanRicevuta}, causale: ${estratto.causale}`
       : errori.join(' ')
 
-    const { ragione_sociale, partita_iva, codice_sdi, pec, indirizzo, cap, citta, provincia } = dati_fatturazione
+    const { ragione_sociale, partita_iva, email, codice_sdi, pec, indirizzo, cap, citta, provincia } = dati_fatturazione
 
     if (errori.length > 0) {
       await supabase.from('ordini').insert([{
@@ -113,6 +113,7 @@ Se un campo non è leggibile, metti null.`,
         totale,
         ragione_sociale: ragione_sociale ?? null,
         partita_iva: partita_iva ?? null,
+        email: email ?? null,
         codice_sdi: codice_sdi ?? null,
         pec: pec ?? null,
         indirizzo: indirizzo ?? null,
@@ -146,6 +147,7 @@ Se un campo non è leggibile, metti null.`,
       totale,
       ragione_sociale: ragione_sociale ?? null,
       partita_iva: partita_iva ?? null,
+      email: email ?? null,
       codice_sdi: codice_sdi ?? null,
       pec: pec ?? null,
       indirizzo: indirizzo ?? null,
