@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabase } from '@/lib/supabase'
+import { verificaAdmin } from '@/lib/adminAuth'
 
 function generaPin(): string {
   return String(Math.floor(100000 + Math.random() * 900000))
@@ -29,7 +30,9 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ slug: data.slug, nome_azienda: data.nome_azienda })
   }
 
-  // Lista completa (admin)
+  // Lista completa: solo admin
+  if (!verificaAdmin(req)) return NextResponse.json({ error: 'Non autorizzato' }, { status: 401 })
+
   const { data, error } = await supabase
     .from('workspaces')
     .select('*')
@@ -40,6 +43,8 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
+  if (!verificaAdmin(req)) return NextResponse.json({ error: 'Non autorizzato' }, { status: 401 })
+
   const { nome_azienda, logo_url, nome_referente, cognome_referente, has_gestisci } = await req.json()
 
   if (!nome_azienda)

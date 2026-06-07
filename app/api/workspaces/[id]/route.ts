@@ -1,7 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabase } from '@/lib/supabase'
+import { verificaAdmin } from '@/lib/adminAuth'
 
 export async function PATCH(req: NextRequest, { params }: { params: { id: string } }) {
+  if (!verificaAdmin(req)) return NextResponse.json({ error: 'Non autorizzato' }, { status: 401 })
+
   const body = await req.json()
   const { nome_azienda, logo_url, nome_referente, cognome_referente, has_gestisci, pin } = body
 
@@ -25,7 +28,9 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
   return NextResponse.json(data)
 }
 
-export async function DELETE(_: NextRequest, { params }: { params: { id: string } }) {
+export async function DELETE(req: NextRequest, { params }: { params: { id: string } }) {
+  if (!verificaAdmin(req)) return NextResponse.json({ error: 'Non autorizzato' }, { status: 401 })
+
   const { error } = await supabase
     .from('workspaces')
     .delete()

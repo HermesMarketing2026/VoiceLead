@@ -1,8 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabase } from '@/lib/supabase'
+import { verificaAdmin } from '@/lib/adminAuth'
 
-export async function GET() {
-  // Workspace con info abbonamento
+export async function GET(req: NextRequest) {
+  if (!verificaAdmin(req)) return NextResponse.json({ error: 'Non autorizzato' }, { status: 401 })
+
   const { data: workspaces, error: wsError } = await supabase
     .from('workspaces')
     .select('id, nome_azienda, slug, has_gestisci, fatturazione, scadenza_il, sospeso, creato_il')
@@ -10,7 +12,6 @@ export async function GET() {
 
   if (wsError) return NextResponse.json({ error: wsError.message }, { status: 500 })
 
-  // Ordini verificati con dati fatturazione
   const { data: ordini, error: ordiniError } = await supabase
     .from('ordini')
     .select('*')
@@ -23,6 +24,8 @@ export async function GET() {
 }
 
 export async function DELETE(req: NextRequest) {
+  if (!verificaAdmin(req)) return NextResponse.json({ error: 'Non autorizzato' }, { status: 401 })
+
   const { id } = await req.json()
   if (!id) return NextResponse.json({ error: 'id mancante' }, { status: 400 })
 

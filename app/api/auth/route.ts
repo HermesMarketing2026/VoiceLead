@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabase } from '@/lib/supabase'
+import { generaAdminToken } from '@/lib/adminToken'
 
 const MAX_TENTATIVI = 10
 const FINESTRA_MS = 10 * 60 * 1000 // 10 minuti
@@ -16,7 +17,6 @@ async function checkRateLimit(ip: string, slug: string): Promise<boolean> {
     .maybeSingle()
 
   if (!esistente || new Date(esistente.reset_at) < ora) {
-    // Prima volta o finestra scaduta: reset
     await supabase.from('tentativi_login').upsert(
       { ip, slug, count: 1, reset_at: resetAt.toISOString() },
       { onConflict: 'ip,slug' }
@@ -48,10 +48,11 @@ export async function POST(req: NextRequest) {
     const adminPin = process.env.ADMIN_PIN?.trim()
     if (!adminPin) return NextResponse.json({ error: 'Admin PIN non configurato' }, { status: 500 })
     if (pin.trim() !== adminPin) {
-      console.error(`[auth] PIN mismatch — atteso: "${adminPin}" (${adminPin.length} chars), ricevuto: "${pin}" (${pin.length} chars)`)
+      // Non loggare il PIN corretto
+      console.error(`[auth] tentativo admin fallito da IP ${ip}`)
       return NextResponse.json({ error: 'PIN non corretto' }, { status: 401 })
     }
-    return NextResponse.json({ tipo: 'admin' })
+    return NextResponse.json({ tipo: 'admin', adminToken: generaAdminToken() })
   }
 
   const { data: ws, error: wsError } = await supabase
@@ -93,7 +94,7 @@ export async function POST(req: NextRequest) {
     })
   }
 
-  // Login workspace (PIN del workspace = accesso admin/referente)
+  // Login workspace (PIN del workspace = accesso referente)
   if (pin !== ws.pin) return NextResponse.json({ error: 'PIN non corretto' }, { status: 401 })
 
   return NextResponse.json({

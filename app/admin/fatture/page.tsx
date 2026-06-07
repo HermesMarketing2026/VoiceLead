@@ -1,6 +1,6 @@
 'use client'
 import { useEffect, useState } from 'react'
-import { leggiSessione } from '@/lib/session'
+import { leggiSessione, adminAuthHeader } from '@/lib/session'
 import { useRouter } from 'next/navigation'
 
 interface Ordine {
@@ -50,7 +50,7 @@ export default function FatturePage() {
 
   const eliminaOrdine = async (id: string) => {
     setEliminando(id)
-    await fetch('/api/abbonamenti', { method: 'DELETE', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id }) })
+    await fetch('/api/abbonamenti', { method: 'DELETE', headers: { 'Content-Type': 'application/json', ...adminAuthHeader() }, body: JSON.stringify({ id }) })
     setOrdini(prev => prev.filter(o => o.id !== id))
     setConfermaElimina(null)
     setEliminando(null)
@@ -59,7 +59,7 @@ export default function FatturePage() {
   useEffect(() => {
     const sessione = leggiSessione()
     if (sessione?.tipo !== 'admin') { router.replace('/admin'); return }
-    fetch('/api/abbonamenti')
+    fetch('/api/abbonamenti', { headers: adminAuthHeader() })
       .then(r => r.json())
       .then(d => { setOrdini(d.ordini ?? []); setWorkspaces(d.workspaces ?? []) })
       .finally(() => setCaricamento(false))

@@ -1,13 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabase } from '@/lib/supabase'
+import { verificaAdmin } from '@/lib/adminAuth'
 
 export async function GET(req: NextRequest) {
   const workspaceId = req.nextUrl.searchParams.get('workspace_id')
   if (!workspaceId) return NextResponse.json({ error: 'workspace_id mancante' }, { status: 400 })
 
+  // PIN non esposto: leggibile da chiunque abbia il workspace_id (necessario per la selezione commerciale)
   const { data, error } = await supabase
     .from('utenti')
-    .select('id, nome, cognome, pin, ruolo, creato_il')
+    .select('id, nome, cognome, ruolo, creato_il')
     .eq('workspace_id', workspaceId)
     .order('creato_il', { ascending: true })
 
@@ -16,6 +18,8 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
+  if (!verificaAdmin(req)) return NextResponse.json({ error: 'Non autorizzato' }, { status: 401 })
+
   const body = await req.json()
   const { workspace_id, nome, cognome, pin, ruolo = 'commerciale' } = body
 

@@ -27,6 +27,9 @@ export async function POST(req: NextRequest) {
     const dati_fatturazione = JSON.parse(form.get('dati_fatturazione') as string)
 
     if (!file) return NextResponse.json({ error: 'File mancante' }, { status: 400 })
+    if (file.size > 10 * 1024 * 1024) return NextResponse.json({ error: 'File troppo grande. Massimo 10 MB.' }, { status: 400 })
+    const tipiAccettati = ['image/jpeg', 'image/png', 'image/webp', 'application/pdf']
+    if (!tipiAccettati.includes(file.type)) return NextResponse.json({ error: 'Formato non supportato. Usa PDF, JPG o PNG.' }, { status: 400 })
 
     // Costruisci la causale attesa
     const pianoLabel = piano === 'pro' ? 'PRO' : 'BASE'

@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react'
 import type { Workspace, Utente, ProvisioningToken } from '@/lib/types'
 import PinLogin from '@/components/PinLogin'
-import { salvaSessione, leggiSessione, cancellaSessione } from '@/lib/session'
+import { salvaSessioneAdmin, leggiSessione, cancellaSessione, adminAuthHeader } from '@/lib/session'
 import AppShell from '@/components/AppShell'
 
 type Modalita = 'lista' | 'modifica'
@@ -72,7 +72,7 @@ export default function Admin() {
   }, [autenticato])
 
   const caricaTokens = async () => {
-    const res = await fetch('/api/provisioning-tokens')
+    const res = await fetch('/api/provisioning-tokens', { headers: adminAuthHeader() })
     const data = await res.json()
     setTokens(Array.isArray(data) ? data : [])
   }
@@ -84,7 +84,7 @@ export default function Admin() {
     try {
       const res = await fetch('/api/provisioning-tokens', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...adminAuthHeader() },
         body: JSON.stringify(formToken),
       })
       const data = await res.json()
@@ -105,12 +105,12 @@ export default function Admin() {
   }
 
   const eliminaToken = async (id: string) => {
-    await fetch(`/api/provisioning-tokens/${id}`, { method: 'DELETE' })
+    await fetch(`/api/provisioning-tokens/${id}`, { method: 'DELETE', headers: adminAuthHeader() })
     caricaTokens()
   }
 
   const caricaWorkspaces = async () => {
-    const res = await fetch('/api/workspaces')
+    const res = await fetch('/api/workspaces', { headers: adminAuthHeader() })
     const data = await res.json()
     setWorkspaces(Array.isArray(data) ? data : [])
   }
@@ -123,7 +123,7 @@ export default function Admin() {
     })
     const data = await res.json()
     if (!res.ok) throw new Error(data.error)
-    salvaSessione('admin')
+    salvaSessioneAdmin(data.adminToken)
     setAutenticato(true)
   }
 
@@ -136,16 +136,15 @@ export default function Admin() {
     try {
       const res = await fetch('/api/workspaces', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...adminAuthHeader() },
         body: JSON.stringify(form),
       })
       const data = await res.json()
       if (!res.ok) throw new Error(data.error)
       setNuovoWs(data)
-      // Genera automaticamente il link di onboarding per configurare il workspace
       const resToken = await fetch('/api/provisioning-tokens', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...adminAuthHeader() },
         body: JSON.stringify({ piano: formCrea.piano === 'registra_gestisci' ? 'registra_gestisci' : 'registra', max_commerciali: formCrea.max_commerciali }),
       })
       const tokenData = await resToken.json()
@@ -185,7 +184,7 @@ export default function Admin() {
     try {
       const res = await fetch('/api/utenti', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...adminAuthHeader() },
         body: JSON.stringify({ workspace_id: wsInModifica.id, ...formUtente, ruolo: 'commerciale' }),
       })
       const data = await res.json()
@@ -202,7 +201,7 @@ export default function Admin() {
   const eliminaUtente = async (id: string) => {
     setEliminazioneUtente(id)
     try {
-      const res = await fetch(`/api/utenti/${id}`, { method: 'DELETE' })
+      const res = await fetch(`/api/utenti/${id}`, { method: 'DELETE', headers: adminAuthHeader() })
       if (!res.ok) throw new Error('Errore eliminazione')
       setConfermaEliminaUtente(null)
       if (wsInModifica) caricaUtenti(wsInModifica.id)
@@ -219,7 +218,7 @@ export default function Admin() {
     try {
       const res = await fetch(`/api/workspaces/${wsInModifica.id}`, {
         method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...adminAuthHeader() },
         body: JSON.stringify(formModifica),
       })
       const data = await res.json()
@@ -236,7 +235,7 @@ export default function Admin() {
   const elimina = async (id: string) => {
     setEliminazione(id)
     try {
-      const res = await fetch(`/api/workspaces/${id}`, { method: 'DELETE' })
+      const res = await fetch(`/api/workspaces/${id}`, { method: 'DELETE', headers: adminAuthHeader() })
       if (!res.ok) throw new Error('Errore eliminazione')
       setConfermaElimina(null)
       caricaWorkspaces()

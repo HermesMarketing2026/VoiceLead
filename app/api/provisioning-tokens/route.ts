@@ -1,7 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabase } from '@/lib/supabase'
+import { verificaAdmin } from '@/lib/adminAuth'
 
-export async function GET() {
+export async function GET(req: NextRequest) {
+  if (!verificaAdmin(req)) return NextResponse.json({ error: 'Non autorizzato' }, { status: 401 })
+
   const { data, error } = await supabase
     .from('provisioning_tokens')
     .select('*')
