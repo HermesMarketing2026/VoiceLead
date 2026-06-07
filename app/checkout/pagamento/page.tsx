@@ -17,6 +17,25 @@ function PagamentoForm() {
   const causale = `VoiceLead ${piano.toUpperCase()} ${commerciali}ut ${fatturazione.slice(0, 3).toUpperCase()}`
 
   const [copiato, setCopiato] = useState<string | null>(null)
+  const [bypass, setBypass] = useState(false)
+  const [bypassLoading, setBypassLoading] = useState(false)
+
+  const saltoVerifica = async () => {
+    setBypassLoading(true)
+    try {
+      const pianoApi = piano === 'pro' ? 'registra_gestisci' : 'registra'
+      const res = await fetch('/api/provisioning-tokens', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ piano: pianoApi, max_commerciali: commerciali }),
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error)
+      router.push(`/onboarding/${data.token}`)
+    } catch {
+      setBypassLoading(false)
+    }
+  }
   const copia = (testo: string, campo: string) => {
     navigator.clipboard.writeText(testo)
     setCopiato(campo)
@@ -230,6 +249,26 @@ function PagamentoForm() {
           >
             {stato === 'verifica' ? '🔍 Verifica in corso…' : stato === 'ok' ? '✅ Verificato!' : '🔍 Verifica e attiva il workspace'}
           </button>
+        </div>
+
+        {/* Bypass per test */}
+        <div className="border-2 border-dashed border-gray-300 rounded-2xl p-4 bg-gray-50">
+          <p className="text-xs text-gray-400 text-center mb-3 font-medium uppercase tracking-wide">— Solo per test del flusso —</p>
+          {!bypass ? (
+            <button onClick={() => setBypass(true)} className="w-full text-xs text-gray-400 hover:text-gray-600 underline py-1">
+              Ho effettuato il pagamento (salta verifica)
+            </button>
+          ) : (
+            <div className="space-y-2">
+              <p className="text-xs text-gray-500 text-center">Confermi di voler saltare la verifica AI?</p>
+              <div className="flex gap-2">
+                <button onClick={() => setBypass(false)} className="flex-1 text-xs border border-gray-300 rounded-lg py-2 text-gray-500 hover:bg-gray-100">Annulla</button>
+                <button onClick={saltoVerifica} disabled={bypassLoading} className="flex-1 text-xs bg-green-600 text-white rounded-lg py-2 font-semibold hover:bg-green-700 disabled:opacity-50">
+                  {bypassLoading ? '⏳…' : '✅ Conferma'}
+                </button>
+              </div>
+            </div>
+          )}
         </div>
 
         <p className="text-center text-xs text-gray-400 pb-6">
