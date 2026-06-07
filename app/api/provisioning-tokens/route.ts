@@ -12,7 +12,7 @@ export async function GET() {
 }
 
 export async function POST(req: NextRequest) {
-  const { piano, max_commerciali, fatturazione } = await req.json()
+  const { piano, max_commerciali, fatturazione, totale, dati_fatturazione } = await req.json()
 
   if (!piano || !max_commerciali)
     return NextResponse.json({ error: 'Campi mancanti' }, { status: 400 })
@@ -24,5 +24,20 @@ export async function POST(req: NextRequest) {
     .single()
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+
+  // Se vengono passati dati di fatturazione, salva l'ordine collegato al token
+  if (dati_fatturazione && totale !== undefined) {
+    await supabase.from('ordini').insert([{
+      piano,
+      fatturazione: fatturazione ?? null,
+      max_commerciali,
+      totale,
+      ...dati_fatturazione,
+      stato: 'bypass',
+      note_verifica: 'Bypass verifica bonifico — ordine creato manualmente',
+      provisioning_token_id: data.id,
+    }])
+  }
+
   return NextResponse.json(data, { status: 201 })
 }

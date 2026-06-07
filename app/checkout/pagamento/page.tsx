@@ -26,10 +26,20 @@ function PagamentoForm() {
     setBypassLoading(true)
     try {
       const pianoApi = piano === 'pro' ? 'registra_gestisci' : 'registra'
+      const datiFatturazione = (() => {
+        try { return JSON.parse(sessionStorage.getItem('voicelead_fatturazione') ?? '{}') }
+        catch { return {} }
+      })()
       const res = await fetch('/api/provisioning-tokens', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ piano: pianoApi, max_commerciali: commerciali }),
+        body: JSON.stringify({
+          piano: pianoApi,
+          max_commerciali: commerciali,
+          fatturazione,
+          totale,
+          dati_fatturazione: datiFatturazione,
+        }),
       })
       const data = await res.json()
       if (!res.ok) throw new Error(data.error)
