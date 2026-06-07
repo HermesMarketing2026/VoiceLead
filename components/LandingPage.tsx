@@ -480,12 +480,14 @@ export default function LandingPage() {
                   <li key={f} className="flex items-center gap-2"><span className="text-green-500 text-base">✓</span>{f}</li>
                 ))}
               </ul>
-              <a href={`/checkout?piano=base${annuale ? '&fatturazione=annuale' : ''}`}
-                className="block w-full text-center rounded-2xl border-2 border-hermes-400 text-hermes-600 font-bold py-3.5 hover:bg-hermes-50 transition-colors">
-                Inizia con Base →
+              <a href="/trial"
+                className="block w-full text-center rounded-2xl font-extrabold py-4 text-white transition-all hover:opacity-90"
+                style={{ background: 'linear-gradient(135deg, #ff7930, #ff4500)' }}>
+                Prova gratis 14 giorni →
               </a>
-              <a href="/trial" className="block w-full text-center text-xs text-gray-400 hover:text-gray-600 mt-3 underline">
-                o prova gratis 14 giorni
+              <a href={`/checkout?piano=base${annuale ? '&fatturazione=annuale' : ''}`}
+                className="block w-full text-center text-xs text-gray-400 hover:text-gray-700 mt-3 underline">
+                o abbonati subito a Base
               </a>
             </div>
 
@@ -515,13 +517,14 @@ export default function LandingPage() {
                   <li key={f} className="flex items-center gap-2"><span className="text-hermes-400 text-base">✓</span>{f}</li>
                 ))}
               </ul>
-              <a href={`/checkout?piano=pro${annuale ? '&fatturazione=annuale' : ''}`}
+              <a href="/trial"
                 className="block w-full text-center rounded-2xl font-extrabold py-4 text-white transition-all hover:opacity-90"
                 style={{ background: 'linear-gradient(135deg, #ff7930, #ff4500)', boxShadow: '0 0 30px rgba(255,121,48,0.3)' }}>
-                Inizia con Pro →
+                Prova gratis 14 giorni →
               </a>
-              <a href="/trial" className="block w-full text-center text-xs text-white/30 hover:text-white/60 mt-3 underline">
-                o prova gratis 14 giorni
+              <a href={`/checkout?piano=pro${annuale ? '&fatturazione=annuale' : ''}`}
+                className="block w-full text-center text-xs text-white/30 hover:text-white/60 mt-3 underline">
+                o abbonati subito a Pro
               </a>
             </div>
 
@@ -597,16 +600,17 @@ export default function LandingPage() {
                   <tr>
                     <td className="px-6 py-5" />
                     <td className="px-6 py-5 text-center">
-                      <a href={`/checkout?piano=base${annuale ? '&fatturazione=annuale' : ''}`}
-                        className="inline-block rounded-xl border-2 border-hermes-400 text-hermes-600 font-bold px-5 py-2.5 hover:bg-hermes-50 transition-colors text-sm">
-                        Inizia con Base
+                      <a href="/trial"
+                        className="inline-block rounded-xl text-white font-bold px-5 py-2.5 text-sm transition-all hover:opacity-90"
+                        style={{ background: 'linear-gradient(135deg, #ff7930, #ff4500)' }}>
+                        Prova gratis 14 giorni →
                       </a>
                     </td>
                     <td className="px-6 py-5 text-center bg-hermes-50/30">
-                      <a href={`/checkout?piano=pro${annuale ? '&fatturazione=annuale' : ''}`}
-                        className="inline-block rounded-xl text-white font-bold px-5 py-2.5 transition-colors text-sm"
-                        style={{ background: 'linear-gradient(135deg, #ff7930, #ff4500)' }}>
-                        Inizia con Pro
+                      <a href="/trial"
+                        className="inline-block rounded-xl text-white font-extrabold px-5 py-2.5 transition-colors text-sm"
+                        style={{ background: 'linear-gradient(135deg, #ff7930, #ff4500)', boxShadow: '0 0 20px rgba(255,121,48,0.3)' }}>
+                        Prova gratis 14 giorni →
                       </a>
                     </td>
                     <td className="px-6 py-5 text-center bg-gray-950 rounded-br-2xl">
@@ -640,19 +644,19 @@ export default function LandingPage() {
         <div className="max-w-5xl mx-auto">
           <div className="flex flex-col md:flex-row items-center justify-between gap-6 mb-8">
             <div className="flex items-center gap-3">
-              <img src="/logo-hermes.png" alt="Hermes" className="h-7 w-auto opacity-40" />
-              <span className="text-sm text-white/30">© {new Date().getFullYear()} Hermes S.r.l. — VoiceLeads</span>
+              <img src="/favicon.png" alt="VoiceLeads" className="h-7 w-7 opacity-60" />
+              <span className="text-sm text-white/70">© {new Date().getFullYear()} Hermes Marketing S.r.l.s — VoiceLeads</span>
             </div>
-            <div className="flex flex-wrap items-center justify-center gap-6 text-xs text-white/30">
-              <a href="/privacy" className="hover:text-white/60 transition-colors">Privacy Policy</a>
-              <a href="/cookie" className="hover:text-white/60 transition-colors">Cookie Policy</a>
-              <a href="/dpa" className="hover:text-white/60 transition-colors">DPA (Art. 28 GDPR)</a>
+            <div className="flex flex-wrap items-center justify-center gap-6 text-xs text-white/60">
+              <a href="/privacy" className="hover:text-white transition-colors">Privacy Policy</a>
+              <a href="/cookie" className="hover:text-white transition-colors">Cookie Policy</a>
+              <a href="/dpa" className="hover:text-white transition-colors">DPA (Art. 28 GDPR)</a>
               <a href="/trial" className="text-hermes-400 hover:text-hermes-300 transition-colors font-semibold">Prova gratis →</a>
             </div>
           </div>
           <div className="border-t border-white/5 pt-6 flex flex-col md:flex-row items-center justify-between gap-3">
-            <p className="text-xs text-white/20">VoiceLeads è un prodotto di Hermes S.r.l. · Pagamenti tramite bonifico bancario · IVA italiana applicabile</p>
-            <p className="text-xs text-white/20">Made with AI · Hermes Marketing</p>
+            <p className="text-xs text-white/50">VoiceLeads è un prodotto di Hermes Marketing S.r.l.s · Pagamenti tramite bonifico bancario · IVA italiana applicabile</p>
+            <p className="text-xs text-white/40">Made with AI · Hermes Marketing</p>
           </div>
         </div>
       </footer>

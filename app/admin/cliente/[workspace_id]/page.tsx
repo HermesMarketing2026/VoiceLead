@@ -112,7 +112,7 @@ export default function SchedaClientePage() {
         {/* Intestazione */}
         <div className="flex items-start justify-between border-b-2 border-gray-900 pb-6">
           <div>
-            <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">Hermes S.r.l. — VoiceLeads</p>
+            <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">Hermes Marketing S.r.l.s — VoiceLeads</p>
             <h1 className="text-3xl font-extrabold text-gray-900">{ws.nome_azienda}</h1>
             {ws.logo_url && (
               <img src={ws.logo_url} alt="Logo" className="h-10 object-contain mt-2 print:h-8" />
@@ -188,7 +188,7 @@ export default function SchedaClientePage() {
         )}
 
         <div className="border-t border-gray-200 pt-4 text-xs text-gray-400 text-center">
-          Documento riservato — Hermes S.r.l. · VoiceLeads · {oggi}
+          Documento riservato — Hermes Marketing S.r.l.s · VoiceLeads · {oggi}
         </div>
       </div>
 

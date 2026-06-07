@@ -135,7 +135,7 @@ function PagamentoForm() {
           </div>
 
           {[
-            { label: 'Intestatario', valore: 'Hermes S.r.l.' },
+            { label: 'Intestatario', valore: 'Hermes Marketing S.r.l.s' },
             { label: 'IBAN', valore: 'IT00 X000 0000 0000 0000 0000 000' },
             { label: 'BIC / SWIFT', valore: 'XXXXXXXXX' },
             { label: 'Banca', valore: 'Banca Esempio' },

@@ -148,7 +148,7 @@ function CheckoutForm() {
               <span>€{totale}</span>
             </div>
           </div>
-          <p className="text-xs text-gray-400 mt-3">IVA esclusa. Fattura emessa da Hermes S.r.l.</p>
+          <p className="text-xs text-gray-400 mt-3">IVA esclusa. Fattura emessa da Hermes Marketing S.r.l.s</p>
         </div>
 
         {/* CTA */}

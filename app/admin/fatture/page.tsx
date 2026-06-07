@@ -97,7 +97,7 @@ export default function FatturePage() {
         {/* Intestazione */}
         <div className="flex items-start justify-between border-b-2 border-gray-900 pb-6">
           <div>
-            <h1 className="text-3xl font-extrabold text-gray-900">Hermes S.r.l.</h1>
+            <h1 className="text-3xl font-extrabold text-gray-900">Hermes Marketing S.r.l.s</h1>
             <p className="text-sm text-gray-500 mt-1">VoiceLeads — Report abbonamenti</p>
           </div>
           <div className="text-right">
@@ -222,7 +222,7 @@ export default function FatturePage() {
         </div>
 
         <div className="border-t border-gray-200 pt-6 text-xs text-gray-400 text-center print:block">
-          Documento generato automaticamente da VoiceLeads · Hermes S.r.l. · {oggi}
+          Documento generato automaticamente da VoiceLeads · Hermes Marketing S.r.l.s · {oggi}
         </div>
       </div>
 
