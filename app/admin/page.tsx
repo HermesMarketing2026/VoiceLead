@@ -592,6 +592,23 @@ export default function Admin() {
         )}
       </div>
 
+      {/* Abbonamenti */}
+      <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 space-y-3">
+        <h2 className="text-xs font-bold text-hermes-500 uppercase tracking-wider">💳 Abbonamenti & Fatturazione</h2>
+        <p className="text-xs text-gray-400">Visualizza tutti gli abbonamenti attivi, le scadenze e i dati per la fatturazione.</p>
+        <a
+          href="/admin/fatture"
+          className="flex items-center gap-3 rounded-xl border border-gray-200 p-4 hover:bg-gray-50 transition-colors"
+        >
+          <span className="text-2xl">📊</span>
+          <div>
+            <p className="text-sm font-semibold text-gray-800">Report abbonamenti</p>
+            <p className="text-xs text-gray-400">Tutti gli ordini con dati P.IVA, scadenze e importi — esportabile in PDF</p>
+          </div>
+          <span className="ml-auto text-gray-400">→</span>
+        </a>
+      </div>
+
       {/* Sezione GDPR */}
       <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 space-y-4">
         <h2 className="text-xs font-bold text-blue-500 uppercase tracking-wider">🔒 GDPR — Gestione dati</h2>

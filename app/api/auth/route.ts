@@ -17,12 +17,16 @@ export async function POST(req: NextRequest) {
 
   const { data: ws, error: wsError } = await supabase
     .from('workspaces')
-    .select('id, pin, nome_azienda, slug, logo_url, has_gestisci')
+    .select('id, pin, nome_azienda, slug, logo_url, has_gestisci, sospeso')
     .eq('slug', slug)
     .single()
 
   if (wsError || !ws) {
     return NextResponse.json({ error: `Workspace non trovato (slug: "${slug}")` }, { status: 404 })
+  }
+
+  if (ws.sospeso) {
+    return NextResponse.json({ error: 'abbonamento_scaduto' }, { status: 402 })
   }
 
   // Login commerciale: utente_id fornito → verifica PIN utente

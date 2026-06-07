@@ -1,6 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabase } from '@/lib/supabase'
 
+function calcolaScadenza(fatturazione: string | null): Date {
+  const ora = new Date()
+  if (fatturazione === 'prova') ora.setDate(ora.getDate() + 14)
+  else if (fatturazione === 'mensile') ora.setMonth(ora.getMonth() + 1)
+  else ora.setFullYear(ora.getFullYear() + 1) // annuale o manuale → 1 anno
+  return ora
+}
+
 function generaSlug(nomeAzienda: string): string {
   return nomeAzienda
     .toLowerCase()
@@ -84,6 +92,9 @@ export async function POST(req: NextRequest) {
       fatturato: fatturato || null,
       num_dipendenti: num_dipendenti || null,
       settore: settore || null,
+      fatturazione: tokenData.fatturazione ?? null,
+      scadenza_il: calcolaScadenza(tokenData.fatturazione).toISOString(),
+      sospeso: false,
     }])
     .select()
     .single()

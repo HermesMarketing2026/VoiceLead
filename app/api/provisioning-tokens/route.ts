@@ -12,14 +12,14 @@ export async function GET() {
 }
 
 export async function POST(req: NextRequest) {
-  const { piano, max_commerciali } = await req.json()
+  const { piano, max_commerciali, fatturazione } = await req.json()
 
   if (!piano || !max_commerciali)
     return NextResponse.json({ error: 'Campi mancanti' }, { status: 400 })
 
   const { data, error } = await supabase
     .from('provisioning_tokens')
-    .insert([{ piano, max_commerciali }])
+    .insert([{ piano, max_commerciali, fatturazione: fatturazione ?? null }])
     .select()
     .single()
 

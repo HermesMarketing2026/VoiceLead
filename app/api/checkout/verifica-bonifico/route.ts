@@ -123,6 +123,7 @@ Se un campo non è leggibile, metti null.`,
       .insert([{
         piano: piano === 'pro' ? 'registra_gestisci' : 'registra',
         max_commerciali: commerciali,
+        fatturazione,
       }])
       .select()
       .single()
