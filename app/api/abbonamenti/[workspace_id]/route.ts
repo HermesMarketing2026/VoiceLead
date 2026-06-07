@@ -27,7 +27,7 @@ export async function GET(_req: NextRequest, { params }: { params: { workspace_i
     const { data } = await supabase
       .from('ordini')
       .select('*')
-      .eq('stato', 'verificato')
+      .in('stato', ['verificato', 'bypass'])
       .in('provisioning_token_id', tokenIds)
       .order('creato_il', { ascending: false })
       .limit(1)
