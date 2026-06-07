@@ -1,11 +1,16 @@
 export default function AppShell({ children }: { children: React.ReactNode }) {
   return (
-    <div className="bg-gray-50 min-h-screen">
-      <header className="bg-white border-b border-gray-200 px-4 py-4 flex flex-col items-center sticky top-0 z-10 shadow-sm">
-        <img src="/favicon.png" alt="VoiceLeads" className="h-10 w-auto mb-1" />
-        <div className="flex flex-col items-center leading-tight">
-          <span className="font-bold text-base tracking-tight text-gray-900">VoiceLeads</span>
-          <span className="text-xs text-gray-400 tracking-wide">by Hermes Marketing</span>
+    <div className="bg-gray-950 min-h-screen">
+      <header className="sticky top-0 z-10 px-4 py-3 flex items-center justify-center"
+        style={{ background: 'linear-gradient(180deg, #09090b 0%, rgba(9,9,11,0.95) 100%)', borderBottom: '1px solid rgba(255,255,255,0.06)', backdropFilter: 'blur(12px)' }}>
+        <div className="flex items-center gap-2.5">
+          <img src="/favicon.png" alt="VoiceLeads" className="h-7 w-7" />
+          <div className="flex flex-col leading-none">
+            <span className="font-extrabold text-sm tracking-tight text-white">VoiceLeads</span>
+            <span className="text-[10px] font-medium tracking-wide" style={{ background: 'linear-gradient(135deg, #ff7930, #ffb347)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+              by Hermes Marketing
+            </span>
+          </div>
         </div>
       </header>
       <div className="max-w-2xl mx-auto px-4 py-6">{children}</div>

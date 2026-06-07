@@ -7,7 +7,7 @@ export async function GET(req: NextRequest) {
 
   const { data: ws, error } = await supabase
     .from('workspaces')
-    .select('id, nome_azienda, nome_referente, cognome_referente, logo_url')
+    .select('id, nome_azienda, nome_referente, cognome_referente, logo_url, fatturazione, scadenza_il')
     .eq('slug', slug)
     .single()
 
@@ -25,6 +25,8 @@ export async function GET(req: NextRequest) {
     nome_referente: ws.nome_referente,
     cognome_referente: ws.cognome_referente,
     logo_url: ws.logo_url,
+    fatturazione: ws.fatturazione ?? null,
+    scadenza_il: ws.scadenza_il ?? null,
     utenti: utenti ?? [],
   })
 }

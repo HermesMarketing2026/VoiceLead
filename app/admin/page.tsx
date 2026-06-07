@@ -333,8 +333,29 @@ export default function Admin() {
             <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mt-2">Abbonamento</p>
             <div className="bg-gray-50 rounded-xl px-4 py-3 space-y-1.5 text-sm">
               <div className="flex justify-between"><span className="text-gray-500">Piano</span><span className="font-semibold">{wsInModifica.has_gestisci ? 'Pro — Registra + Gestisci' : 'Base — Registra'}</span></div>
-              {wsInModifica.fatturazione && <div className="flex justify-between"><span className="text-gray-500">Fatturazione</span><span className="font-semibold capitalize">{wsInModifica.fatturazione}</span></div>}
-              {wsInModifica.scadenza_il && <div className="flex justify-between"><span className="text-gray-500">Scadenza</span><span className={`font-semibold ${wsInModifica.sospeso ? 'text-red-600' : 'text-gray-900'}`}>{new Date(wsInModifica.scadenza_il).toLocaleDateString('it-IT')}</span></div>}
+              {wsInModifica.fatturazione && <div className="flex justify-between"><span className="text-gray-500">Fatturazione</span><span className="font-semibold capitalize">{wsInModifica.fatturazione === 'prova' ? '🧪 Prova gratuita 14 giorni' : wsInModifica.fatturazione}</span></div>}
+              {wsInModifica.scadenza_il && (() => {
+                const g = Math.max(0, Math.ceil((new Date(wsInModifica.scadenza_il).getTime() - Date.now()) / 86400000))
+                const urgente = g <= 3
+                return (
+                  <>
+                    <div className="flex justify-between">
+                      <span className="text-gray-500">Scadenza</span>
+                      <span className={`font-semibold ${wsInModifica.sospeso ? 'text-red-600' : urgente ? 'text-amber-600' : 'text-gray-900'}`}>
+                        {new Date(wsInModifica.scadenza_il).toLocaleDateString('it-IT')}
+                      </span>
+                    </div>
+                    {!wsInModifica.sospeso && wsInModifica.fatturazione === 'prova' && (
+                      <div className={`rounded-lg px-3 py-2 flex items-center gap-2 ${urgente ? 'bg-red-50 border border-red-200' : 'bg-amber-50 border border-amber-200'}`}>
+                        <span>{urgente ? '⚠️' : '⏳'}</span>
+                        <span className={`text-xs font-bold ${urgente ? 'text-red-600' : 'text-amber-700'}`}>
+                          {g === 0 ? 'Scade oggi' : `${g} ${g === 1 ? 'giorno rimanente' : 'giorni rimanenti'} di prova`}
+                        </span>
+                      </div>
+                    )}
+                  </>
+                )
+              })()}
               <div className="flex justify-between"><span className="text-gray-500">Stato</span><span className={`font-bold ${wsInModifica.sospeso ? 'text-red-600' : 'text-green-600'}`}>{wsInModifica.sospeso ? 'Sospeso' : 'Attivo'}</span></div>
             </div>
           </div>
@@ -614,9 +635,25 @@ export default function Admin() {
                     <div>
                       <p className="font-semibold text-gray-900">{ws.nome_azienda}</p>
                       <p className="text-xs text-gray-400 font-mono">{ws.slug}.voiceleads.it</p>
-                      <span className={`inline-block mt-1 text-xs font-semibold px-2 py-0.5 rounded-full ${ws.has_gestisci ? 'bg-hermes-100 text-hermes-700' : 'bg-gray-100 text-gray-500'}`}>
-                        {ws.has_gestisci ? '📋 Registra + Gestisci' : '🎙️ Solo Registra'}
-                      </span>
+                      <div className="flex flex-wrap gap-1 mt-1">
+                        <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${ws.has_gestisci ? 'bg-hermes-100 text-hermes-700' : 'bg-gray-100 text-gray-500'}`}>
+                          {ws.has_gestisci ? '📋 Registra + Gestisci' : '🎙️ Solo Registra'}
+                        </span>
+                        {ws.fatturazione === 'prova' && !ws.sospeso && (
+                          <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-700">
+                            ⏳ In prova gratuita
+                            {ws.scadenza_il && (() => {
+                              const g = Math.max(0, Math.ceil((new Date(ws.scadenza_il).getTime() - Date.now()) / 86400000))
+                              return ` — ${g}gg`
+                            })()}
+                          </span>
+                        )}
+                        {ws.sospeso && (
+                          <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-red-100 text-red-600">
+                            ⛔ Sospeso
+                          </span>
+                        )}
+                      </div>
                     </div>
                   </div>
                   <span className="text-xs text-gray-400">{new Date(ws.creato_il).toLocaleDateString('it-IT')}</span>
