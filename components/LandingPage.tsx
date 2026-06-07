@@ -649,6 +649,7 @@ export default function LandingPage() {
             </div>
             <div className="flex flex-wrap items-center justify-center gap-6 text-xs text-white/60">
               <a href="/privacy" className="hover:text-white transition-colors">Privacy Policy</a>
+              <a href="/termini" className="hover:text-white transition-colors">Termini di Servizio</a>
               <a href="/cookie" className="hover:text-white transition-colors">Cookie Policy</a>
               <a href="/dpa" className="hover:text-white transition-colors">DPA (Art. 28 GDPR)</a>
               <a href="/trial" className="text-hermes-400 hover:text-hermes-300 transition-colors font-semibold">Prova gratis →</a>
