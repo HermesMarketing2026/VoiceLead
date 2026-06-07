@@ -1,8 +1,29 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabase } from '@/lib/supabase'
 
+// Rate limiting: max 10 tentativi per IP+slug ogni 10 minuti
+const tentativi = new Map<string, { count: number; resetAt: number }>()
+
+function checkRateLimit(ip: string, slug: string): boolean {
+  const key = `${ip}:${slug}`
+  const ora = Date.now()
+  const entry = tentativi.get(key)
+  if (!entry || ora > entry.resetAt) {
+    tentativi.set(key, { count: 1, resetAt: ora + 10 * 60 * 1000 })
+    return true
+  }
+  if (entry.count >= 10) return false
+  entry.count++
+  return true
+}
+
 export async function POST(req: NextRequest) {
   const { pin, slug, utente_id } = await req.json()
+
+  const ip = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ?? 'unknown'
+  if (!checkRateLimit(ip, slug ?? 'admin')) {
+    return NextResponse.json({ error: 'Troppi tentativi. Riprova tra qualche minuto.' }, { status: 429 })
+  }
 
   // Login admin globale (no slug)
   if (!slug) {

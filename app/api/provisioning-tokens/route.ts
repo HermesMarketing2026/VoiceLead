@@ -12,10 +12,17 @@ export async function GET() {
 }
 
 export async function POST(req: NextRequest) {
-  const { piano, max_commerciali, fatturazione, totale, dati_fatturazione } = await req.json()
+  const { piano, max_commerciali, fatturazione, totale, dati_fatturazione, bypass_pin } = await req.json()
 
   if (!piano || !max_commerciali)
     return NextResponse.json({ error: 'Campi mancanti' }, { status: 400 })
+
+  // Se viene passato bypass_pin, verificarlo server-side
+  if (bypass_pin !== undefined) {
+    const adminPin = process.env.ADMIN_PIN?.trim()
+    if (!adminPin || bypass_pin !== adminPin)
+      return NextResponse.json({ error: 'PIN non autorizzato' }, { status: 403 })
+  }
 
   const { data, error } = await supabase
     .from('provisioning_tokens')

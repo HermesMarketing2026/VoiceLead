@@ -39,10 +39,16 @@ function PagamentoForm() {
           fatturazione,
           totale,
           dati_fatturazione: datiFatturazione,
+          bypass_pin: bypassPin,
         }),
       })
       const data = await res.json()
-      if (!res.ok) throw new Error(data.error)
+      if (!res.ok) {
+        setBypassErrore(true)
+        setBypassPin('')
+        setBypassLoading(false)
+        return
+      }
       router.push(`/onboarding/${data.token}`)
     } catch {
       setBypassLoading(false)
@@ -286,10 +292,7 @@ function PagamentoForm() {
               <div className="flex gap-2">
                 <button onClick={() => { setBypass(false); setBypassPin(''); setBypassErrore(false) }} className="flex-1 text-xs border border-gray-300 rounded-lg py-2 text-gray-500 hover:bg-gray-100">Annulla</button>
                 <button
-                  onClick={() => {
-                    if (bypassPin === '130325') saltoVerifica()
-                    else { setBypassErrore(true); setBypassPin('') }
-                  }}
+                  onClick={saltoVerifica}
                   disabled={bypassLoading || bypassPin.length < 6}
                   className="flex-1 text-xs bg-green-600 text-white rounded-lg py-2 font-semibold hover:bg-green-700 disabled:opacity-50"
                 >
