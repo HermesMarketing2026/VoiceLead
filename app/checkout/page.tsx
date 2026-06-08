@@ -144,11 +144,15 @@ function CheckoutForm() {
               <span>€{prezzoUnitario} × {commerciali}</span>
             </div>
             <div className="flex justify-between font-bold text-gray-900 text-base border-t border-hermes-200 pt-2 mt-2">
-              <span>Totale / {periodoLabel}</span>
-              <span>€{totale}</span>
+              <span>Oggi paghi</span>
+              <span className="flex items-center gap-2">
+                <span className="line-through text-gray-400 font-normal text-sm">€{totale}</span>
+                <span className="text-green-600">€0</span>
+              </span>
             </div>
           </div>
-          <p className="text-xs text-gray-400 mt-3">IVA esclusa. Fattura emessa da Hermes Marketing S.r.l.s</p>
+          <p className="text-xs text-green-700 font-semibold mt-3">✓ 14 giorni gratuiti — poi €{totale}/{periodoLabel} + IVA</p>
+          <p className="text-xs text-gray-400 mt-1">Fattura emessa da Hermes Marketing S.r.l.s</p>
         </div>
 
         {/* CTA */}
@@ -160,7 +164,7 @@ function CheckoutForm() {
         </button>
 
         <p className="text-center text-xs text-gray-400">
-          Nessun addebito automatico senza conferma. Pagamento tramite bonifico bancario.
+          Nessun addebito nei primi 14 giorni. Puoi disdire in qualsiasi momento.
         </p>
       </div>
     </div>

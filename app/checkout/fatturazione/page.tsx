@@ -237,7 +237,7 @@ function FatturazioneForm() {
 
         {/* Scelta metodo pagamento */}
         <div className="space-y-3">
-          <p className="text-sm font-semibold text-gray-700 text-center">Scegli come pagare</p>
+          <p className="text-sm font-semibold text-gray-700 text-center">Come vuoi procedere?</p>
 
           <button
             onClick={salvaEVaiAStripe}
@@ -247,7 +247,7 @@ function FatturazioneForm() {
             {loadingStripe ? (
               <><div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" /> Reindirizzamento…</>
             ) : (
-              <>💳 Paga con carta di credito</>
+              <>🚀 Attiva la prova gratuita — €0 per 14 giorni</>
             )}
           </button>
 
@@ -256,7 +256,7 @@ function FatturazioneForm() {
             disabled={loadingStripe}
             className="w-full rounded-xl border-2 border-gray-300 bg-white text-gray-700 font-bold py-4 text-base hover:border-gray-400 transition-colors disabled:opacity-50"
           >
-            🏦 Paga tramite bonifico bancario
+            🏦 Abbonati subito tramite bonifico
           </button>
         </div>
 
