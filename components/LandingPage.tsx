@@ -54,7 +54,7 @@ export default function LandingPage() {
           </div>
 
           <a
-            href="/trial"
+            href="/checkout?piano=pro"
             className="hidden md:block text-sm font-bold px-5 py-2 rounded-full text-white transition-all hover:opacity-90 active:scale-95"
             style={{ background: 'linear-gradient(135deg, #ff7930, #ff4500)' }}
           >
@@ -89,7 +89,7 @@ export default function LandingPage() {
               >
                 Accedi al workspace
               </button>
-              <a href="/trial" onClick={() => setMenuAperto(false)}
+              <a href="/checkout?piano=pro" onClick={() => setMenuAperto(false)}
                 className="mt-2 px-4 py-3 rounded-xl text-sm font-bold text-white text-center"
                 style={{ background: 'linear-gradient(135deg, #ff7930, #ff4500)' }}>
                 Prova gratis 14 giorni →
@@ -152,7 +152,7 @@ export default function LandingPage() {
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center mb-6">
-              <a href="/trial"
+              <a href="/checkout?piano=pro"
                 className="group inline-flex items-center justify-center gap-2 px-8 py-4 rounded-2xl text-base font-extrabold text-white shadow-2xl transition-all hover:scale-105 active:scale-95"
                 style={{ background: 'linear-gradient(135deg, #ff7930, #ff4500)', boxShadow: '0 0 40px rgba(255,121,48,0.4)' }}>
                 Inizia gratis — 14 giorni
@@ -422,7 +422,7 @@ export default function LandingPage() {
           <p className="text-white/50 text-lg mb-10">
             Piano Pro completo. Workspace attivo in 2 minuti. Nessuna carta di credito richiesta.
           </p>
-          <a href="/trial"
+          <a href="/checkout?piano=pro"
             className="inline-flex items-center gap-2 px-10 py-5 rounded-2xl text-lg font-extrabold text-white transition-all hover:scale-105 active:scale-95"
             style={{ background: 'linear-gradient(135deg, #ff7930, #ff4500)', boxShadow: '0 0 60px rgba(255,121,48,0.35)' }}>
             Inizia la prova gratuita →
@@ -480,14 +480,10 @@ export default function LandingPage() {
                   <li key={f} className="flex items-center gap-2"><span className="text-green-500 text-base">✓</span>{f}</li>
                 ))}
               </ul>
-              <a href="/trial"
+              <a href="/checkout?piano=pro"
                 className="block w-full text-center rounded-2xl font-extrabold py-4 text-white transition-all hover:opacity-90"
                 style={{ background: 'linear-gradient(135deg, #ff7930, #ff4500)' }}>
                 Prova gratis 14 giorni →
-              </a>
-              <a href={`/checkout?piano=base${annuale ? '&fatturazione=annuale' : ''}`}
-                className="block w-full text-center text-xs text-gray-400 hover:text-gray-700 mt-3 underline">
-                o abbonati subito a Base
               </a>
             </div>
 
@@ -517,14 +513,10 @@ export default function LandingPage() {
                   <li key={f} className="flex items-center gap-2"><span className="text-hermes-400 text-base">✓</span>{f}</li>
                 ))}
               </ul>
-              <a href="/trial"
+              <a href="/checkout?piano=pro"
                 className="block w-full text-center rounded-2xl font-extrabold py-4 text-white transition-all hover:opacity-90"
                 style={{ background: 'linear-gradient(135deg, #ff7930, #ff4500)', boxShadow: '0 0 30px rgba(255,121,48,0.3)' }}>
                 Prova gratis 14 giorni →
-              </a>
-              <a href={`/checkout?piano=pro${annuale ? '&fatturazione=annuale' : ''}`}
-                className="block w-full text-center text-xs text-white/30 hover:text-white/60 mt-3 underline">
-                o abbonati subito a Pro
               </a>
             </div>
 
@@ -600,14 +592,14 @@ export default function LandingPage() {
                   <tr>
                     <td className="px-6 py-5" />
                     <td className="px-6 py-5 text-center">
-                      <a href="/trial"
+                      <a href="/checkout?piano=pro"
                         className="inline-block rounded-xl text-white font-bold px-5 py-2.5 text-sm transition-all hover:opacity-90"
                         style={{ background: 'linear-gradient(135deg, #ff7930, #ff4500)' }}>
                         Prova gratis 14 giorni →
                       </a>
                     </td>
                     <td className="px-6 py-5 text-center bg-hermes-50/30">
-                      <a href="/trial"
+                      <a href="/checkout?piano=pro"
                         className="inline-block rounded-xl text-white font-extrabold px-5 py-2.5 transition-colors text-sm"
                         style={{ background: 'linear-gradient(135deg, #ff7930, #ff4500)', boxShadow: '0 0 20px rgba(255,121,48,0.3)' }}>
                         Prova gratis 14 giorni →
@@ -652,7 +644,7 @@ export default function LandingPage() {
               <a href="/termini" className="hover:text-white transition-colors">Termini di Servizio</a>
               <a href="/cookie" className="hover:text-white transition-colors">Cookie Policy</a>
               <a href="/dpa" className="hover:text-white transition-colors">DPA (Art. 28 GDPR)</a>
-              <a href="/trial" className="text-hermes-400 hover:text-hermes-300 transition-colors font-semibold">Prova gratis →</a>
+              <a href="/checkout?piano=pro" className="text-hermes-400 hover:text-hermes-300 transition-colors font-semibold">Prova gratis →</a>
             </div>
           </div>
           <div className="border-t border-white/5 pt-6 flex flex-col md:flex-row items-center justify-between gap-3">
