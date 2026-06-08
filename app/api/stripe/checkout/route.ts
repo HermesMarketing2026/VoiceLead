@@ -55,6 +55,7 @@ export async function POST(req: NextRequest) {
     },
     success_url: `${baseUrl}/checkout/successo?session_id={CHECKOUT_SESSION_ID}`,
     cancel_url: `${baseUrl}/checkout/fatturazione?piano=${piano}&fatturazione=${fatturazione}&commerciali=${commerciali}&totale=${totale}`,
+    subscription_data: { trial_period_days: 14 },
     locale: 'it',
     tax_id_collection: { enabled: true },
     automatic_tax: { enabled: false },
