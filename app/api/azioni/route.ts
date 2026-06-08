@@ -37,12 +37,17 @@ export async function GET(req: NextRequest) {
 }
 
 export async function PATCH(req: NextRequest) {
-  const { id, completata } = await req.json()
+  const { id, completata, scadenza, scadenza_automatica } = await req.json()
   if (!id) return NextResponse.json({ error: 'id obbligatorio' }, { status: 400 })
 
-  const update: Record<string, unknown> = { completata }
-  if (completata) update.data_completamento = new Date().toISOString()
-  else update.data_completamento = null
+  const update: Record<string, unknown> = {}
+
+  if (completata !== undefined) {
+    update.completata = completata
+    update.data_completamento = completata ? new Date().toISOString() : null
+  }
+  if (scadenza !== undefined) update.scadenza = scadenza
+  if (scadenza_automatica !== undefined) update.scadenza_automatica = scadenza_automatica
 
   const { data, error } = await supabase.from('azioni').update(update).eq('id', id).select().single()
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })

@@ -151,6 +151,9 @@ function SchedaGestisciInner({ id }: { id: string }) {
   const [invioManuale, setInvioManuale] = useState(false)
   const [confermaElimina, setConfermaElimina] = useState(false)
   const [eliminando, setEliminando] = useState(false)
+  const [modificaData, setModificaData] = useState(false)
+  const [nuovaData, setNuovaData] = useState('')
+  const [salvandoData, setSalvandoData] = useState(false)
 
   const caricaLead = async () => {
     const res = await fetch(`/api/leads/${id}`)
@@ -202,6 +205,20 @@ function SchedaGestisciInner({ id }: { id: string }) {
     } finally {
       setInvioManuale(false)
     }
+  }
+
+  const salvaData = async (azId: string) => {
+    if (!nuovaData) return
+    setSalvandoData(true)
+    await fetch('/api/azioni', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id: azId, scadenza: new Date(nuovaData).toISOString(), scadenza_automatica: false }),
+    })
+    setSalvandoData(false)
+    setModificaData(false)
+    setNuovaData('')
+    caricaAzioni()
   }
 
   const completaAzione = async (azId: string, completata: boolean) => {
@@ -279,7 +296,7 @@ function SchedaGestisciInner({ id }: { id: string }) {
             <div className="flex items-start justify-between gap-3">
               <div className="flex-1">
                 <p className="text-sm font-semibold text-gray-800">{prossimaAzione.testo}</p>
-                <div className="flex items-center gap-2 mt-1.5">
+                <div className="flex items-center gap-2 mt-1.5 flex-wrap">
                   <span className="text-xs text-gray-500">
                     {new Date(prossimaAzione.scadenza).toLocaleDateString('it-IT', { day: '2-digit', month: 'short', year: 'numeric' })}
                   </span>
@@ -288,7 +305,36 @@ function SchedaGestisciInner({ id }: { id: string }) {
                       scadenza automatica
                     </span>
                   )}
+                  <button
+                    onClick={() => { setModificaData(v => !v); setNuovaData('') }}
+                    className="text-xs text-hermes-500 hover:underline"
+                  >
+                    modifica data
+                  </button>
                 </div>
+                {modificaData && (
+                  <div className="flex items-center gap-2 mt-2">
+                    <input
+                      type="date"
+                      value={nuovaData}
+                      onChange={e => setNuovaData(e.target.value)}
+                      className="text-xs border border-gray-200 rounded-lg px-2 py-1 focus:outline-none focus:ring-2 focus:ring-hermes-400"
+                    />
+                    <button
+                      onClick={() => salvaData(prossimaAzione.id)}
+                      disabled={salvandoData || !nuovaData}
+                      className="text-xs font-semibold px-3 py-1 rounded-lg bg-hermes-500 text-white hover:bg-hermes-600 disabled:opacity-40 transition-colors"
+                    >
+                      {salvandoData ? '…' : 'Salva'}
+                    </button>
+                    <button
+                      onClick={() => setModificaData(false)}
+                      className="text-xs text-gray-400 hover:text-gray-600"
+                    >
+                      Annulla
+                    </button>
+                  </div>
+                )}
               </div>
               <button
                 onClick={() => completaAzione(prossimaAzione.id, true)}

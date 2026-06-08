@@ -38,8 +38,6 @@ function GestisciDashboard() {
   const [leads, setLeads] = useState<LeadConAzione[]>([])
   const [chiusi, setChiusi] = useState<Lead[]>([])
   const [caricamento, setCaricamento] = useState(true)
-  const [sincronizzazione, setSincronizzazione] = useState(false)
-  const [esitoSync, setEsitoSync] = useState<string | null>(null)
   const [riaprendo, setRiaprendo] = useState<string | null>(null)
 
   useEffect(() => {
@@ -92,24 +90,35 @@ function GestisciDashboard() {
     }
   }
 
-  const sincronizzaSheets = async () => {
-    setSincronizzazione(true)
-    setEsitoSync(null)
-    try {
-      const res = await fetch('/api/gestisci/sync-sheets', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ workspace_id: workspaceId }),
-      })
-      const data = await res.json()
-      if (!res.ok) throw new Error(data.error)
-      setEsitoSync(`✅ ${data.aggiornati} lead aggiornati su Google Sheets`)
-    } catch (e: any) {
-      setEsitoSync(`❌ ${e?.message ?? 'Errore sincronizzazione'}`)
-    } finally {
-      setSincronizzazione(false)
-      setTimeout(() => setEsitoSync(null), 4000)
-    }
+  const scaricaCsv = () => {
+    const tuttiLead = [
+      ...leads.map(l => ({ ...l, chiuso: false })),
+      ...chiusi.map(l => ({ ...l, prossimaAzione: undefined, chiuso: true })),
+    ]
+    const righe = [
+      ['Nome', 'Cognome', 'Azienda', 'Telefono', 'Email', 'Stato', 'Esito', 'Prossima azione', 'Data prossima azione'],
+      ...tuttiLead.map(l => [
+        l.nome ?? '',
+        l.cognome ?? '',
+        l.azienda ?? '',
+        l.telefono ?? '',
+        l.email ?? '',
+        l.stato_gestione ?? '',
+        l.esito ?? '',
+        (l as LeadConAzione).prossimaAzione?.testo ?? '',
+        (l as LeadConAzione).prossimaAzione
+          ? new Date((l as LeadConAzione).prossimaAzione!.scadenza).toLocaleDateString('it-IT')
+          : '',
+      ]),
+    ]
+    const csv = righe.map(r => r.map(c => `"${String(c).replace(/"/g, '""')}"`).join(',')).join('\n')
+    const blob = new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8;' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `gestisci_${new Date().toISOString().slice(0, 10)}.csv`
+    a.click()
+    URL.revokeObjectURL(url)
   }
 
   const oggi = new Date(); oggi.setHours(23, 59, 59, 999)
@@ -167,17 +176,13 @@ function GestisciDashboard() {
             <span className="text-sm font-semibold text-gray-700">📋 Gestisci trattative</span>
           </div>
           <button
-            onClick={sincronizzaSheets}
-            disabled={sincronizzazione || (leads.length === 0 && chiusi.length === 0)}
+            onClick={scaricaCsv}
+            disabled={leads.length === 0 && chiusi.length === 0}
             className="flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-lg border border-gray-300 text-gray-600 hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
           >
-            {sincronizzazione ? '⏳ Sync…' : '📤 Aggiorna Sheets'}
+            ⬇️ Scarica CSV
           </button>
         </div>
-
-        {esitoSync && (
-          <div className="rounded-xl bg-gray-50 border border-gray-200 px-4 py-3 text-sm text-gray-700">{esitoSync}</div>
-        )}
 
         {caricamento ? (
           <p className="text-center text-gray-400 py-12">Caricamento…</p>

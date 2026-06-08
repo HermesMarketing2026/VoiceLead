@@ -20,15 +20,5 @@ export async function POST(req: NextRequest) {
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
 
-  // Crea azione iniziale
-  const scadenza = new Date()
-  scadenza.setDate(scadenza.getDate() + 3)
-  await supabase.from('azioni').insert({
-    lead_id,
-    testo: 'Contattare il nuovo lead',
-    scadenza: scadenza.toISOString(),
-    scadenza_automatica: true,
-  })
-
   return NextResponse.json(data)
 }
