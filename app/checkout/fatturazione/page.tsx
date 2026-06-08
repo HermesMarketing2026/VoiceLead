@@ -3,6 +3,7 @@ import { useState, Suspense } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
 
+
 const PROVINCE = [
   'AG','AL','AN','AO','AR','AP','AT','AV','BA','BT','BL','BN','BG','BI','BO','BZ','BS','BR',
   'CA','CL','CB','CI','CE','CT','CZ','CH','CO','CS','CR','KR','CN','EN','FM','FE','FI','FG',
@@ -33,6 +34,7 @@ function FatturazioneForm() {
     provincia: '',
   })
   const [errore, setErrore] = useState<string | null>(null)
+  const [loadingStripe, setLoadingStripe] = useState(false)
 
   const aggiorna = (campo: string, valore: string) =>
     setForm(f => ({ ...f, [campo]: valore }))
@@ -52,14 +54,43 @@ function FatturazioneForm() {
     return null
   }
 
-  const vai = () => {
+  const salvaEVaiAlBonifico = () => {
     const err = valida()
     if (err) { setErrore(err); return }
     setErrore(null)
-    // Salvo i dati in sessionStorage per leggerli nella pagina pagamento
     sessionStorage.setItem('voicelead_fatturazione', JSON.stringify(form))
     const qs = new URLSearchParams({ piano, fatturazione, commerciali, totale })
     router.push(`/checkout/pagamento?${qs}`)
+  }
+
+  const salvaEVaiAStripe = async () => {
+    const err = valida()
+    if (err) { setErrore(err); return }
+    setErrore(null)
+    setLoadingStripe(true)
+    try {
+      const res = await fetch('/api/stripe/checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          piano,
+          fatturazione,
+          commerciali: Number(commerciali),
+          totale: Number(totale),
+          ...form,
+        }),
+      })
+      const data = await res.json()
+      if (!res.ok || !data.url) {
+        setErrore(data.error ?? 'Errore nel avviare il pagamento. Riprova.')
+        setLoadingStripe(false)
+        return
+      }
+      window.location.href = data.url
+    } catch {
+      setErrore('Errore di connessione. Riprova.')
+      setLoadingStripe(false)
+    }
   }
 
   return (
@@ -204,12 +235,30 @@ function FatturazioneForm() {
           <div className="rounded-xl bg-red-50 border border-red-200 px-4 py-3 text-sm text-red-700">{errore}</div>
         )}
 
-        <button
-          onClick={vai}
-          className="w-full rounded-xl bg-hermes-500 text-white font-bold py-4 text-base hover:bg-hermes-600 transition-colors shadow-md"
-        >
-          Vai al pagamento →
-        </button>
+        {/* Scelta metodo pagamento */}
+        <div className="space-y-3">
+          <p className="text-sm font-semibold text-gray-700 text-center">Scegli come pagare</p>
+
+          <button
+            onClick={salvaEVaiAStripe}
+            disabled={loadingStripe}
+            className="w-full rounded-xl bg-hermes-500 text-white font-bold py-4 text-base hover:bg-hermes-600 transition-colors shadow-md disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+          >
+            {loadingStripe ? (
+              <><div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" /> Reindirizzamento…</>
+            ) : (
+              <>💳 Paga con carta di credito</>
+            )}
+          </button>
+
+          <button
+            onClick={salvaEVaiAlBonifico}
+            disabled={loadingStripe}
+            className="w-full rounded-xl border-2 border-gray-300 bg-white text-gray-700 font-bold py-4 text-base hover:border-gray-400 transition-colors disabled:opacity-50"
+          >
+            🏦 Paga tramite bonifico bancario
+          </button>
+        </div>
 
         <p className="text-center text-xs text-gray-400 pb-6">
           I tuoi dati sono trattati secondo la nostra{' '}

@@ -1,20 +1,71 @@
 'use client'
-import { Suspense } from 'react'
+import { Suspense, useEffect, useState } from 'react'
 import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 
+type SessionData = {
+  ready: boolean
+  token?: string
+  piano?: string
+  fatturazione?: string
+  commerciali?: number
+  totale?: number
+}
+
 function SuccessoContent() {
   const params = useSearchParams()
+  const sessionId = params.get('session_id')
 
-  const piano = params.get('piano') ?? 'pro'
-  const fatturazione = params.get('fatturazione') ?? 'mensile'
-  const commerciali = Number(params.get('commerciali') ?? 1)
-  const totale = Number(params.get('totale') ?? 0)
-  // token generato dall'admin e passato come param (da Stripe in produzione)
-  const token = params.get('token')
+  // Modalità bonifico: tutti i dati arrivano come query params
+  const pianoParam = params.get('piano') ?? 'pro'
+  const fatturazioneParam = params.get('fatturazione') ?? 'mensile'
+  const commercialiParam = Number(params.get('commerciali') ?? 1)
+  const totaleParam = Number(params.get('totale') ?? 0)
+  const tokenParam = params.get('token')
+
+  const [session, setSession] = useState<SessionData | null>(
+    sessionId ? null : {
+      ready: !!tokenParam,
+      token: tokenParam ?? undefined,
+      piano: pianoParam,
+      fatturazione: fatturazioneParam,
+      commerciali: commercialiParam,
+      totale: totaleParam,
+    }
+  )
+  const [tentativi, setTentativi] = useState(0)
+
+  useEffect(() => {
+    if (!sessionId || session?.ready) return
+    if (tentativi >= 15) return // max 30s
+
+    const t = setTimeout(async () => {
+      try {
+        const res = await fetch(`/api/stripe/session-status?id=${sessionId}`)
+        const data: SessionData = await res.json()
+        if (data.ready) {
+          setSession(data)
+        } else {
+          setTentativi(n => n + 1)
+        }
+      } catch {
+        setTentativi(n => n + 1)
+      }
+    }, 2000)
+
+    return () => clearTimeout(t)
+  }, [sessionId, session, tentativi])
+
+  const piano = session?.piano ?? pianoParam
+  const fatturazione = session?.fatturazione ?? fatturazioneParam
+  const commerciali = session?.commerciali ?? commercialiParam
+  const totale = session?.totale ?? totaleParam
+  const token = session?.token ?? tokenParam
 
   const pianoLabel = piano === 'base' ? 'Piano Base — Registra' : 'Piano Pro — Registra + Gestisci'
   const periodoLabel = fatturazione === 'mensile' ? 'mese' : 'anno'
+
+  const attivazionePending = sessionId && !session?.ready && tentativi < 15
 
   return (
     <div className="min-h-screen bg-gray-50 px-4 py-10">
@@ -30,27 +81,29 @@ function SuccessoContent() {
         </div>
 
         {/* Riepilogo ordine */}
-        <div className="bg-white rounded-2xl border border-gray-200 p-5 shadow-sm">
-          <p className="text-xs font-bold text-hermes-500 uppercase tracking-wide mb-3">Il tuo ordine</p>
-          <div className="space-y-2 text-sm text-gray-700">
-            <div className="flex justify-between">
-              <span>Piano</span>
-              <span className="font-semibold">{pianoLabel}</span>
-            </div>
-            <div className="flex justify-between">
-              <span>Commerciali</span>
-              <span className="font-semibold">{commerciali} {commerciali === 1 ? 'utente' : 'utenti'}</span>
-            </div>
-            <div className="flex justify-between">
-              <span>Fatturazione</span>
-              <span className="font-semibold capitalize">{fatturazione}</span>
-            </div>
-            <div className="flex justify-between font-bold text-gray-900 border-t border-gray-100 pt-2 mt-1">
-              <span>Totale / {periodoLabel}</span>
-              <span>€{totale} + IVA</span>
+        {(session || !sessionId) && (
+          <div className="bg-white rounded-2xl border border-gray-200 p-5 shadow-sm">
+            <p className="text-xs font-bold text-hermes-500 uppercase tracking-wide mb-3">Il tuo ordine</p>
+            <div className="space-y-2 text-sm text-gray-700">
+              <div className="flex justify-between">
+                <span>Piano</span>
+                <span className="font-semibold">{pianoLabel}</span>
+              </div>
+              <div className="flex justify-between">
+                <span>Commerciali</span>
+                <span className="font-semibold">{commerciali} {commerciali === 1 ? 'utente' : 'utenti'}</span>
+              </div>
+              <div className="flex justify-between">
+                <span>Fatturazione</span>
+                <span className="font-semibold capitalize">{fatturazione}</span>
+              </div>
+              <div className="flex justify-between font-bold text-gray-900 border-t border-gray-100 pt-2 mt-1">
+                <span>Totale / {periodoLabel}</span>
+                <span>€{totale} + IVA</span>
+              </div>
             </div>
           </div>
-        </div>
+        )}
 
         {/* CTA configurazione */}
         {token ? (
@@ -60,6 +113,23 @@ function SuccessoContent() {
           >
             Inizia la configurazione →
           </a>
+        ) : attivazionePending ? (
+          <div className="bg-blue-50 border border-blue-200 rounded-2xl p-5 flex items-center gap-4">
+            <div className="w-8 h-8 border-3 border-blue-500 border-t-transparent rounded-full animate-spin shrink-0" style={{ borderWidth: 3 }} />
+            <div>
+              <p className="font-bold text-blue-800 text-sm">Attivazione workspace in corso…</p>
+              <p className="text-xs text-blue-600 mt-0.5">Ci vogliono pochi secondi.</p>
+            </div>
+          </div>
+        ) : !token && tentativi >= 15 ? (
+          <div className="bg-amber-50 border border-amber-200 rounded-2xl p-5 text-center">
+            <p className="text-2xl mb-2">⏳</p>
+            <p className="font-bold text-amber-800 text-sm">Link di configurazione in arrivo</p>
+            <p className="text-xs text-amber-700 mt-1">
+              Riceverai il link di configurazione via email a breve. Se non arriva entro 10 minuti scrivi a{' '}
+              <a href="mailto:info@hermesmarketing.it" className="underline">info@hermesmarketing.it</a>.
+            </p>
+          </div>
         ) : (
           <div className="bg-amber-50 border border-amber-200 rounded-2xl p-5 text-center">
             <p className="text-2xl mb-2">⏳</p>
