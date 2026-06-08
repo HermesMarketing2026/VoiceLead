@@ -54,15 +54,6 @@ function FatturazioneForm() {
     return null
   }
 
-  const salvaEVaiAlBonifico = () => {
-    const err = valida()
-    if (err) { setErrore(err); return }
-    setErrore(null)
-    sessionStorage.setItem('voicelead_fatturazione', JSON.stringify(form))
-    const qs = new URLSearchParams({ piano, fatturazione, commerciali, totale })
-    router.push(`/checkout/pagamento?${qs}`)
-  }
-
   const salvaEVaiAStripe = async () => {
     const err = valida()
     if (err) { setErrore(err); return }
@@ -235,30 +226,17 @@ function FatturazioneForm() {
           <div className="rounded-xl bg-red-50 border border-red-200 px-4 py-3 text-sm text-red-700">{errore}</div>
         )}
 
-        {/* Scelta metodo pagamento */}
-        <div className="space-y-3">
-          <p className="text-sm font-semibold text-gray-700 text-center">Come vuoi procedere?</p>
-
-          <button
-            onClick={salvaEVaiAStripe}
-            disabled={loadingStripe}
-            className="w-full rounded-xl bg-hermes-500 text-white font-bold py-4 text-base hover:bg-hermes-600 transition-colors shadow-md disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-          >
-            {loadingStripe ? (
-              <><div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" /> Reindirizzamento…</>
-            ) : (
-              <>🚀 Attiva la prova gratuita — €0 per 14 giorni</>
-            )}
-          </button>
-
-          <button
-            onClick={salvaEVaiAlBonifico}
-            disabled={loadingStripe}
-            className="w-full rounded-xl border-2 border-gray-300 bg-white text-gray-700 font-bold py-4 text-base hover:border-gray-400 transition-colors disabled:opacity-50"
-          >
-            🏦 Abbonati subito tramite bonifico
-          </button>
-        </div>
+        <button
+          onClick={salvaEVaiAStripe}
+          disabled={loadingStripe}
+          className="w-full rounded-xl bg-hermes-500 text-white font-bold py-4 text-base hover:bg-hermes-600 transition-colors shadow-md disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+        >
+          {loadingStripe ? (
+            <><div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" /> Reindirizzamento…</>
+          ) : (
+            <>🚀 Attiva la prova gratuita — €0 per 14 giorni</>
+          )}
+        </button>
 
         <p className="text-center text-xs text-gray-400 pb-6">
           I tuoi dati sono trattati secondo la nostra{' '}
