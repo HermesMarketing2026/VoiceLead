@@ -29,6 +29,10 @@ export default function Home() {
   const [commerciali, setCommerciali] = useState<CommercialCard[]>([])
   const [trialInfo, setTrialInfo] = useState<{ fatturazione: string | null; scadenza_il: string | null } | null>(null)
   const [bozzaCount, setBozzaCount] = useState(0)
+  const [showStats, setShowStats] = useState(false)
+  const [statsLeads, setStatsLeads] = useState<any[]>([])
+  const [showTutorial, setShowTutorial] = useState(false)
+  const [tutorialStep, setTutorialStep] = useState(0)
 
   useEffect(() => {
     const host = window.location.hostname
@@ -106,10 +110,10 @@ export default function Home() {
 
   useEffect(() => {
     if (workspaceId && vista === 'hub') {
-      const url = utenteId
-        ? `/api/leads?workspace_id=${workspaceId}&utente_id=${utenteId}`
-        : `/api/leads?workspace_id=${workspaceId}`
-      fetch(url)
+      // Responsabile vede tutti i lead per le statistiche; commerciale solo i propri
+      const urlAll = `/api/leads?workspace_id=${workspaceId}`
+      const urlUtente = utenteId ? `/api/leads?workspace_id=${workspaceId}&utente_id=${utenteId}` : urlAll
+      fetch(urlUtente)
         .then(r => r.json())
         .then(data => {
           if (Array.isArray(data)) {
@@ -117,8 +121,26 @@ export default function Home() {
           }
         })
         .catch(() => {})
+      // Statistiche solo per responsabile (tutti i lead del workspace)
+      if (!utenteId) {
+        fetch(urlAll)
+          .then(r => r.json())
+          .then(data => { if (Array.isArray(data)) setStatsLeads(data) })
+          .catch(() => {})
+      }
     }
   }, [workspaceId, vista, utenteId])
+
+  useEffect(() => {
+    if (vista === 'hub' && workspaceId) {
+      try {
+        const key = `vl_tutorial_${workspaceId}`
+        if (!localStorage.getItem(key)) {
+          setShowTutorial(true)
+        }
+      } catch {}
+    }
+  }, [vista, workspaceId])
 
   const onLogin = async (pin: string, utenteIdLogin?: string) => {
     const res = await fetch('/api/auth', {
@@ -375,7 +397,155 @@ export default function Home() {
         {!leadDaGestire && (
           <p className="text-center text-xs text-gray-300">Nessuna scadenza oggi · tutto in ordine ✓</p>
         )}
+
+        {/* Statistiche — solo responsabile */}
+        {ruoloUtente !== 'commerciale' && statsLeads.length > 0 && (
+          <div className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
+            <button
+              onClick={() => setShowStats(s => !s)}
+              className="w-full flex items-center justify-between px-5 py-4 text-left hover:bg-gray-50 transition-colors"
+            >
+              <span className="flex items-center gap-2 text-sm font-semibold text-gray-700">
+                <span>📊</span> Statistiche workspace
+              </span>
+              <span className="text-gray-300 text-lg transition-transform duration-200" style={{ transform: showStats ? 'rotate(180deg)' : 'none' }}>▾</span>
+            </button>
+            {showStats && (() => {
+              const ora = Date.now()
+              const settimana = ora - 7 * 86400000
+              const mese = ora - 30 * 86400000
+              const totale = statsLeads.length
+              const questaSett = statsLeads.filter(l => new Date(l.data_registrazione).getTime() > settimana).length
+              const questoMese = statsLeads.filter(l => new Date(l.data_registrazione).getTime() > mese).length
+              const completi = statsLeads.filter(l => l.stato === 'completo' || l.stato === 'esportato').length
+              const vinti = statsLeads.filter(l => l.esito === 'vinto').length
+              const persi = statsLeads.filter(l => l.esito === 'perso').length
+              const perCom: Record<string, { nome: string; count: number }> = {}
+              statsLeads.forEach(l => {
+                if (l.utente_id) {
+                  perCom[l.utente_id] = perCom[l.utente_id] ?? { nome: l.utente_id, count: 0 }
+                  perCom[l.utente_id].count++
+                }
+              })
+              return (
+                <div className="border-t border-gray-100 px-5 pb-5 pt-4 space-y-4">
+                  <div className="grid grid-cols-3 gap-3">
+                    {[
+                      { label: 'Lead totali', val: totale, colore: 'text-gray-900' },
+                      { label: 'Questa settimana', val: questaSett, colore: 'text-hermes-600' },
+                      { label: 'Questo mese', val: questoMese, colore: 'text-hermes-500' },
+                    ].map(s => (
+                      <div key={s.label} className="bg-gray-50 rounded-xl p-3 text-center border border-gray-100">
+                        <p className={`text-2xl font-bold ${s.colore}`}>{s.val}</p>
+                        <p className="text-xs text-gray-400 mt-0.5 leading-tight">{s.label}</p>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="space-y-1.5">
+                    <p className="text-xs font-bold text-gray-400 uppercase tracking-wider">Completamento</p>
+                    <div className="flex items-center gap-3">
+                      <div className="flex-1 h-2 bg-gray-100 rounded-full overflow-hidden">
+                        <div className="h-full bg-green-500 rounded-full" style={{ width: totale ? `${Math.round((completi/totale)*100)}%` : '0%' }} />
+                      </div>
+                      <span className="text-xs font-semibold text-gray-500 shrink-0">{totale ? Math.round((completi/totale)*100) : 0}% pronti</span>
+                    </div>
+                  </div>
+                  {hasGestisci && (vinti > 0 || persi > 0) && (
+                    <div className="flex gap-3">
+                      <div className="flex-1 bg-green-50 border border-green-200 rounded-xl p-3 text-center">
+                        <p className="text-xl font-bold text-green-700">{vinti}</p>
+                        <p className="text-xs text-green-600">Vinti</p>
+                      </div>
+                      <div className="flex-1 bg-red-50 border border-red-200 rounded-xl p-3 text-center">
+                        <p className="text-xl font-bold text-red-600">{persi}</p>
+                        <p className="text-xs text-red-500">Persi</p>
+                      </div>
+                      <div className="flex-1 bg-hermes-50 border border-hermes-200 rounded-xl p-3 text-center">
+                        <p className="text-xl font-bold text-hermes-600">
+                          {(vinti + persi) > 0 ? `${Math.round((vinti/(vinti+persi))*100)}%` : '—'}
+                        </p>
+                        <p className="text-xs text-hermes-500">Win rate</p>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )
+            })()}
+          </div>
+        )}
       </div>
+
+      {/* Tutorial primo accesso */}
+      {showTutorial && (() => {
+        const steps = [
+          {
+            icon: '🎙️',
+            titolo: 'Registra lead con la voce',
+            testo: 'Dopo un appuntamento, premi Registra, parla liberamente e l\'AI compila la scheda per te in pochi secondi.',
+          },
+          {
+            icon: '📋',
+            titolo: 'Gestisci le trattative',
+            testo: hasGestisci
+              ? 'Sposta i lead in Gestisci per tracciare il follow-up, aggiungere azioni e chiudere con Vinto o Perso.'
+              : 'Con il Piano Pro puoi seguire le trattative, pianificare azioni e tracciare i risultati.',
+          },
+          {
+            icon: '📥',
+            titolo: 'Esporta in CSV',
+            testo: 'Con un click esporti tutti i lead completi in un file CSV pronto per Excel, Google Sheets o il tuo CRM.',
+          },
+        ]
+        const step = steps[tutorialStep]
+        const isUltimo = tutorialStep === steps.length - 1
+        const chiudiTutorial = () => {
+          try { localStorage.setItem(`vl_tutorial_${workspaceId}`, '1') } catch {}
+          setShowTutorial(false)
+        }
+        return (
+          <div className="fixed inset-0 z-50 bg-black/60 flex items-end justify-center px-4 pb-6" onClick={chiudiTutorial}>
+            <div
+              className="w-full max-w-sm bg-white rounded-3xl shadow-2xl overflow-hidden"
+              onClick={e => e.stopPropagation()}
+            >
+              <div className="px-6 pt-6 pb-5" style={{ background: 'linear-gradient(135deg, #fff7f0, #fff3eb)' }}>
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex gap-1.5">
+                    {steps.map((_, i) => (
+                      <div key={i} className={`h-1 rounded-full transition-all duration-300 ${i === tutorialStep ? 'w-6 bg-hermes-500' : 'w-2 bg-hermes-200'}`} />
+                    ))}
+                  </div>
+                  <button onClick={chiudiTutorial} className="text-gray-300 hover:text-gray-500 text-xl leading-none">×</button>
+                </div>
+                <div className="text-center py-2">
+                  <div className="text-5xl mb-3">{step.icon}</div>
+                  <h3 className="text-lg font-extrabold text-gray-900 mb-2">{step.titolo}</h3>
+                  <p className="text-sm text-gray-500 leading-relaxed">{step.testo}</p>
+                </div>
+              </div>
+              <div className="px-6 py-4">
+                {isUltimo ? (
+                  <button
+                    onClick={chiudiTutorial}
+                    className="w-full text-white font-bold rounded-2xl py-3.5 text-sm transition-all hover:opacity-90 active:scale-95"
+                    style={{ background: 'linear-gradient(135deg, #ff7930, #ff4500)' }}
+                  >
+                    Inizia subito →
+                  </button>
+                ) : (
+                  <button
+                    onClick={() => setTutorialStep(s => s + 1)}
+                    className="w-full text-white font-bold rounded-2xl py-3.5 text-sm transition-all hover:opacity-90 active:scale-95"
+                    style={{ background: 'linear-gradient(135deg, #ff7930, #ff4500)' }}
+                  >
+                    Avanti →
+                  </button>
+                )}
+              </div>
+            </div>
+          </div>
+        )
+      })()}
     </AppShell>
   )
 }

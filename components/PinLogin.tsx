@@ -38,7 +38,9 @@ export default function PinLogin({ titolo, sottotitolo, slug, onSuccess }: Props
   const [caricamento, setCaricamento] = useState(false)
   const [info, setInfo] = useState<WorkspaceInfo | null>(null)
   const [utenteSelezionato, setUtenteSelezionato] = useState<UtenteInfo | null>(null)
-  const [schermata, setSchermata] = useState<'selezione' | 'pin'>('pin')
+  const [schermata, setSchermata] = useState<'selezione' | 'pin' | 'reset'>('pin')
+  const [resetInvio, setResetInvio] = useState(false)
+  const [resetEsito, setResetEsito] = useState<string | null>(null)
 
   useEffect(() => {
     if (!slug) return
@@ -84,6 +86,25 @@ export default function PinLogin({ titolo, sottotitolo, slug, onSuccess }: Props
     setSchermata('selezione')
     setPin('')
     setErrore(null)
+  }
+
+  const richiestaReset = async () => {
+    setResetInvio(true)
+    setResetEsito(null)
+    try {
+      const res = await fetch('/api/reset-pin', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ slug, utente_id: utenteSelezionato?.id ?? null }),
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error)
+      setResetEsito('✅ Email inviata! Controlla la casella del responsabile.')
+    } catch (e: any) {
+      setResetEsito(`❌ ${e.message}`)
+    } finally {
+      setResetInvio(false)
+    }
   }
 
   useEffect(() => {
@@ -258,6 +279,42 @@ export default function PinLogin({ titolo, sottotitolo, slug, onSuccess }: Props
                 ← Cambia utente
               </button>
             )}
+
+            {schermata !== 'reset' ? (
+              <button
+                onClick={() => { setSchermata('reset'); setResetEsito(null) }}
+                className="w-full text-center text-xs text-gray-300 hover:text-hermes-400 mt-2 transition-colors"
+              >
+                PIN dimenticato?
+              </button>
+            ) : (
+              <div className="mt-3 rounded-xl bg-hermes-50 border border-hermes-200 p-4 space-y-3">
+                <p className="text-sm font-semibold text-hermes-700">Reimposta PIN</p>
+                <p className="text-xs text-hermes-600">
+                  {utenteSelezionato
+                    ? `Invieremo un link al responsabile per reimpostare il PIN di ${utenteSelezionato.nome}.`
+                    : 'Invieremo un link di reset all\'email del responsabile del workspace.'}
+                </p>
+                {resetEsito ? (
+                  <p className="text-xs font-medium text-gray-700">{resetEsito}</p>
+                ) : (
+                  <button
+                    onClick={richiestaReset}
+                    disabled={resetInvio}
+                    className="w-full rounded-xl py-2.5 text-sm font-bold text-white disabled:opacity-50 transition-all"
+                    style={{ background: 'linear-gradient(135deg, #ff7930, #ff4500)' }}
+                  >
+                    {resetInvio ? 'Invio in corso…' : 'Invia email di reset →'}
+                  </button>
+                )}
+                <button
+                  onClick={() => setSchermata('pin')}
+                  className="w-full text-center text-xs text-gray-400 hover:text-gray-600 transition-colors"
+                >
+                  ← Torna al login
+                </button>
+              </div>
+            )}
           </div>
         </div>
 
@@ -333,7 +390,7 @@ function ComeFunziona() {
 const FAQ_ITEMS = [
   {
     q: 'Non ricordo il PIN. Come faccio?',
-    a: 'Il PIN è stato impostato dal tuo responsabile. Contattalo direttamente — non è recuperabile dall\'app per motivi di sicurezza.',
+    a: 'Clicca su "PIN dimenticato?" nella schermata di login. Verrà inviata un\'email al responsabile del workspace con un link per reimpostare il PIN.',
   },
   {
     q: 'Il microfono non parte. Cosa devo fare?',
