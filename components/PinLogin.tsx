@@ -14,6 +14,7 @@ interface Props {
   nomeAzienda?: string
   logoUrl?: string
   slug?: string
+  tipo?: 'numerico' | 'testo'
   onSuccess: (pin: string, utenteId?: string) => Promise<void>
 }
 
@@ -32,7 +33,7 @@ function giorniRimanenti(scadenza_il: string): number {
   return Math.max(0, Math.ceil(diff / (1000 * 60 * 60 * 24)))
 }
 
-export default function PinLogin({ titolo, sottotitolo, slug, onSuccess }: Props) {
+export default function PinLogin({ titolo, sottotitolo, slug, tipo = 'numerico', onSuccess }: Props) {
   const [pin, setPin] = useState('')
   const [errore, setErrore] = useState<string | null>(null)
   const [caricamento, setCaricamento] = useState(false)
@@ -62,7 +63,8 @@ export default function PinLogin({ titolo, sottotitolo, slug, onSuccess }: Props
   const cancella = () => setPin(p => p.slice(0, -1))
 
   const conferma = async () => {
-    if (pin.length !== 6) return
+    if (tipo === 'numerico' && pin.length !== 6) return
+    if (tipo === 'testo' && pin.trim().length === 0) return
     setCaricamento(true)
     setErrore(null)
     try {
@@ -244,41 +246,66 @@ export default function PinLogin({ titolo, sottotitolo, slug, onSuccess }: Props
 
           {/* PIN area */}
           <div className="px-5 pt-5 pb-6">
-            <div className="flex justify-center gap-3 mb-4">
-              {Array.from({ length: 6 }).map((_, i) => (
-                <div key={i} className={`w-3.5 h-3.5 rounded-full border-2 transition-all duration-150 ${
-                  i < pin.length ? 'scale-110 border-hermes-500' : 'bg-gray-100 border-gray-200'
-                }`}
-                  style={i < pin.length ? { background: 'linear-gradient(135deg, #ff7930, #ff4500)' } : {}} />
-              ))}
-            </div>
+            {tipo === 'testo' ? (
+              <>
+                {errore && (
+                  <p className="text-sm text-red-500 text-center mb-3">{errore}</p>
+                )}
+                <input
+                  type="password"
+                  autoComplete="current-password"
+                  autoFocus
+                  value={pin}
+                  onChange={e => setPin(e.target.value)}
+                  onKeyDown={e => e.key === 'Enter' && conferma()}
+                  placeholder="Password di accesso"
+                  className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm bg-gray-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-hermes-400 transition-colors mb-4"
+                />
+                <button onClick={conferma} disabled={pin.trim().length === 0 || caricamento}
+                  className="w-full rounded-xl py-3.5 text-sm font-bold text-white disabled:opacity-30 transition-all hover:opacity-90 active:scale-95"
+                  style={{ background: 'linear-gradient(135deg, #ff7930, #ff4500)' }}>
+                  {caricamento ? 'Verifica…' : 'Accedi →'}
+                </button>
+              </>
+            ) : (
+              <>
+                <div className="flex justify-center gap-3 mb-4">
+                  {Array.from({ length: 6 }).map((_, i) => (
+                    <div key={i} className={`w-3.5 h-3.5 rounded-full border-2 transition-all duration-150 ${
+                      i < pin.length ? 'scale-110 border-hermes-500' : 'bg-gray-100 border-gray-200'
+                    }`}
+                      style={i < pin.length ? { background: 'linear-gradient(135deg, #ff7930, #ff4500)' } : {}} />
+                  ))}
+                </div>
 
-            {errore && (
-              <p className="text-sm text-red-500 text-center mb-3">{errore}</p>
+                {errore && (
+                  <p className="text-sm text-red-500 text-center mb-3">{errore}</p>
+                )}
+
+                <div className="grid grid-cols-3 gap-2.5 mb-4">
+                  {tasti.map((t, i) => (
+                    t === '' ? <div key={i} /> :
+                    t === '⌫' ? (
+                      <button key={i} onClick={cancella}
+                        className="h-14 rounded-xl text-gray-400 text-xl font-medium hover:bg-gray-50 active:scale-95 transition-all border border-gray-100">
+                        ⌫
+                      </button>
+                    ) : (
+                      <button key={i} onClick={() => digita(t)}
+                        className="h-14 rounded-xl text-gray-900 text-xl font-semibold bg-gray-50 hover:bg-gray-100 active:scale-95 transition-all border border-gray-100">
+                        {t}
+                      </button>
+                    )
+                  ))}
+                </div>
+
+                <button onClick={conferma} disabled={pin.length !== 6 || caricamento}
+                  className="w-full rounded-xl py-3.5 text-sm font-bold text-white disabled:opacity-30 transition-all hover:opacity-90 active:scale-95"
+                  style={{ background: 'linear-gradient(135deg, #ff7930, #ff4500)' }}>
+                  {caricamento ? 'Verifica…' : 'Accedi →'}
+                </button>
+              </>
             )}
-
-            <div className="grid grid-cols-3 gap-2.5 mb-4">
-              {tasti.map((t, i) => (
-                t === '' ? <div key={i} /> :
-                t === '⌫' ? (
-                  <button key={i} onClick={cancella}
-                    className="h-14 rounded-xl text-gray-400 text-xl font-medium hover:bg-gray-50 active:scale-95 transition-all border border-gray-100">
-                    ⌫
-                  </button>
-                ) : (
-                  <button key={i} onClick={() => digita(t)}
-                    className="h-14 rounded-xl text-gray-900 text-xl font-semibold bg-gray-50 hover:bg-gray-100 active:scale-95 transition-all border border-gray-100">
-                    {t}
-                  </button>
-                )
-              ))}
-            </div>
-
-            <button onClick={conferma} disabled={pin.length !== 6 || caricamento}
-              className="w-full rounded-xl py-3.5 text-sm font-bold text-white disabled:opacity-30 transition-all hover:opacity-90 active:scale-95"
-              style={{ background: 'linear-gradient(135deg, #ff7930, #ff4500)' }}>
-              {caricamento ? 'Verifica…' : 'Accedi →'}
-            </button>
 
             {info && info.utenti.length > 0 && (
               <button onClick={tornaASelezione}

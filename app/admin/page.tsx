@@ -5,7 +5,7 @@ import PinLogin from '@/components/PinLogin'
 import { salvaSessioneAdmin, leggiSessione, cancellaSessione, adminAuthHeader } from '@/lib/session'
 import AppShell from '@/components/AppShell'
 
-type Modalita = 'lista' | 'modifica'
+type Modalita = 'lista' | 'modifica' | 'breach'
 
 interface Ordine {
   id: string
@@ -42,6 +42,24 @@ export default function Admin() {
   const [confermaSospendi, setConfermaSospendi] = useState<string | null>(null)
   // Anagrafica cliente
   const [ordineWs, setOrdineWs] = useState<Ordine | null>(null)
+
+  // Breach notification
+  const CATEGORIE_DATI_OPZIONI = [
+    'Nome e cognome', 'Email', 'Numero di telefono', 'Dati aziendali',
+    'Note sui lead', 'Dati di fatturazione (P.IVA, SDI, PEC)', 'Log di accesso',
+  ]
+  const [breachForm, setBreachForm] = useState({
+    descrizione: '',
+    data_scoperta: new Date().toISOString().slice(0, 16),
+    categorie_dati: [] as string[],
+    misure_adottate: '',
+    workspace_ids: [] as string[], // vuoto = tutti
+  })
+  const [breachPreview, setBreachPreview] = useState<{ destinatari: { email: string; nomeAzienda: string }[]; anteprima_html: string } | null>(null)
+  const [breachConferma, setBreachConferma] = useState(false)
+  const [breachInvio, setBreachInvio] = useState(false)
+  const [breachRisultato, setBreachRisultato] = useState<{ inviati: number; errori: { email: string; errore: string }[] } | null>(null)
+  const [breachErrore, setBreachErrore] = useState<string | null>(null)
 
   // Utenti
   const [utenti, setUtenti] = useState<Utente[]>([])
@@ -262,9 +280,51 @@ export default function Admin() {
     }
   }
 
+  const breachPreviewRichiedi = async () => {
+    setBreachErrore(null)
+    setBreachPreview(null)
+    if (!breachForm.descrizione || !breachForm.data_scoperta || !breachForm.categorie_dati.length || !breachForm.misure_adottate) {
+      setBreachErrore('Compila tutti i campi obbligatori.')
+      return
+    }
+    try {
+      const res = await fetch('/api/breach-notification', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', ...adminAuthHeader() },
+        body: JSON.stringify({ ...breachForm, modalita_invio: 'preview' }),
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error)
+      setBreachPreview(data)
+    } catch (e: any) {
+      setBreachErrore(e.message)
+    }
+  }
+
+  const breachInvia = async () => {
+    setBreachInvio(true)
+    setBreachRisultato(null)
+    try {
+      const res = await fetch('/api/breach-notification', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', ...adminAuthHeader() },
+        body: JSON.stringify({ ...breachForm, modalita_invio: 'invia' }),
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error)
+      setBreachRisultato(data)
+      setBreachConferma(false)
+      setBreachPreview(null)
+    } catch (e: any) {
+      setBreachErrore(e.message)
+    } finally {
+      setBreachInvio(false)
+    }
+  }
+
   if (!pronto) return null
   if (!autenticato) {
-    return <AppShell><PinLogin titolo="Admin VoiceLeads" sottotitolo="Accesso riservato" onSuccess={onLogin} /></AppShell>
+    return <AppShell><PinLogin titolo="Admin VoiceLeads" sottotitolo="Accesso riservato" tipo="testo" onSuccess={onLogin} /></AppShell>
   }
 
   const inputClass = 'w-full rounded-xl border border-gray-200 px-3.5 py-2.5 text-sm bg-gray-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-hermes-400 transition-colors'
