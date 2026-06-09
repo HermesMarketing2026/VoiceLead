@@ -427,7 +427,7 @@ export default function LandingPage() {
             style={{ background: 'linear-gradient(135deg, #ff7930, #ff4500)', boxShadow: '0 0 60px rgba(255,121,48,0.35)' }}>
             Inizia la prova gratuita →
           </a>
-          <p className="text-white/25 text-xs mt-5">Poi scegli un piano a partire da €34/utente/mese. Pagamento tramite bonifico bancario.</p>
+          <p className="text-white/25 text-xs mt-5">Poi scegli un piano a partire da €34/utente/mese. Disdici quando vuoi.</p>
         </div>
       </section>
 
@@ -437,7 +437,7 @@ export default function LandingPage() {
           <p className="text-center text-hermes-500 text-xs font-bold uppercase tracking-widest mb-4">Prezzi</p>
           <h2 className="text-3xl md:text-5xl font-extrabold text-gray-900 text-center mb-3 leading-tight">Semplice e trasparente.</h2>
           <p className="text-center text-gray-500 max-w-lg mx-auto mb-10 text-lg">
-            Paghi per i commerciali attivi. Il responsabile non conta. Fatturazione tramite bonifico bancario.
+            Paghi per i commerciali attivi. Il responsabile non conta. Disdici quando vuoi.
           </p>
 
           {/* Toggle */}
@@ -473,7 +473,7 @@ export default function LandingPage() {
                 </div>
                 {annuale
                   ? <p className="text-sm text-green-600 font-semibold mt-1">✓ €24,90/mese — risparmi €109</p>
-                  : <p className="text-sm text-gray-400 mt-1">Fatturato mensilmente via bonifico</p>}
+                  : <p className="text-sm text-gray-400 mt-1">Fatturato mensilmente · disdici quando vuoi</p>}
               </div>
               <ul className="space-y-2.5 mb-8 text-sm text-gray-600">
                 {['Dettatura vocale in italiano', 'Scansione biglietto da visita', 'Estrazione dati AI automatica', 'Export CSV on demand', 'Accessi multi-commerciale', 'Pannello responsabile incluso', 'Cancellazione auto 30gg (GDPR)'].map(f => (
@@ -506,7 +506,7 @@ export default function LandingPage() {
                 </div>
                 {annuale
                   ? <p className="text-sm text-green-400 font-semibold mt-1">✓ €33,25/mese — risparmi €189</p>
-                  : <p className="text-sm text-white/30 mt-1">Fatturato mensilmente via bonifico</p>}
+                  : <p className="text-sm text-white/30 mt-1">Fatturato mensilmente · disdici quando vuoi</p>}
               </div>
               <ul className="space-y-2.5 mb-8 text-sm text-white/80">
                 {['Tutto il Piano Base incluso', 'Dashboard trattative con stati', 'Aggiornamenti vocali sulla trattativa', 'Reminder intelligenti con scadenza AI', 'Chiusura vinto/perso con un dettato', 'Storico trattative per commerciale'].map(f => (
@@ -547,7 +547,7 @@ export default function LandingPage() {
 
           <p className="text-center text-xs text-gray-400 mt-8">
             Prezzi per utente commerciale. Il responsabile accede gratuitamente. IVA esclusa.{' '}
-            <span className="text-gray-300">Pagamento tramite bonifico bancario.</span>
+            <span className="text-gray-300">Pagamenti sicuri gestiti da Stripe.</span>
           </p>
 
           {/* Tabella comparativa */}
@@ -647,9 +647,17 @@ export default function LandingPage() {
               <a href="/checkout?piano=pro" className="text-hermes-400 hover:text-hermes-300 transition-colors font-semibold">Prova gratis →</a>
             </div>
           </div>
-          <div className="border-t border-white/5 pt-6 flex flex-col md:flex-row items-center justify-between gap-3">
-            <p className="text-xs text-white/50">VoiceLeads è un prodotto di Hermes Marketing S.r.l.s · Pagamenti tramite bonifico bancario · IVA italiana applicabile</p>
-            <p className="text-xs text-white/40">Made with AI · Hermes Marketing</p>
+          <div className="border-t border-white/5 pt-6 flex flex-col md:flex-row items-center justify-between gap-4">
+            <p className="text-xs text-white/50">VoiceLeads è un prodotto di Hermes Marketing S.r.l.s · IVA italiana applicabile</p>
+            <div className="flex items-center gap-3">
+              <span className="text-xs text-white/30">Pagamenti sicuri con</span>
+              {/* Stripe */}
+              <svg viewBox="0 0 60 25" className="h-5 opacity-50 fill-white" xmlns="http://www.w3.org/2000/svg"><path d="M59.64 14.28h-8.06c.19 1.93 1.6 2.55 3.2 2.55 1.64 0 2.96-.37 4.05-.95v3.32a10.2 10.2 0 0 1-4.56.95c-4.01 0-6.83-2.5-6.83-7.48 0-4.19 2.39-7.52 6.3-7.52 3.92 0 5.96 3.28 5.96 7.5 0 .4-.04 1.13-.06 1.63zm-5.9-5.2c-1.06 0-2.1.75-2.1 2.57h4.17c0-1.82-.99-2.57-2.07-2.57zM40.95 20.1c-1.44 0-2.32-.6-2.9-1.04l-.02 4.63-3.67.78V5.97h3.26l.16 1.01a4.3 4.3 0 0 1 3.21-1.38c2.83 0 5.46 2.55 5.46 7.24 0 5.12-2.59 7.26-5.5 7.26zm-.86-10.92c-.96 0-1.54.38-1.93.85l.02 6.44c.35.43.92.8 1.91.8 1.5 0 2.52-1.67 2.52-4.04 0-2.33-1.04-4.05-2.52-4.05zM28.24 5.97h3.67v13.78h-3.67zm0-4.7l3.67-.78v2.98l-3.67.78zM23.1 9.08l-.23-1.11h-3.16v17.69l3.67-.78.01-4.29a5.1 5.1 0 0 0 1.96.37c2.9 0 5.54-2.34 5.54-7.5 0-4.71-2.67-7.24-5.79-7.24zm-.7 11.2c-.66 0-1.24-.23-1.65-.61V10.2c.44-.5 1.04-.76 1.65-.76 1.54 0 2.5 1.72 2.5 4.04 0 2.37-.98 4.8-2.5 4.8zM10.74 8.4c-1.42 0-2.3.52-2.3 1.54 0 .97.85 1.4 2.64 2.08 2.55.97 3.92 2.05 3.92 4.43 0 2.91-2.3 4.05-5.33 4.05a10.17 10.17 0 0 1-3.93-.8v-3.5c1.06.58 2.54 1.04 3.93 1.04 1.46 0 2.44-.48 2.44-1.65 0-1.04-.9-1.55-2.85-2.27C6.92 12.3 5.6 11.2 5.6 8.97c0-2.7 2.12-4.1 5.14-4.1 1.37 0 2.64.3 3.7.8v3.44c-.9-.5-2.12-.71-3.7-.71z"/></svg>
+              {/* Visa */}
+              <svg viewBox="0 0 60 20" className="h-4 opacity-50 fill-white" xmlns="http://www.w3.org/2000/svg"><path d="M26.07 1.6L22.4 18.4h-4.1L21.97 1.6zm-9.4 0l-3.9 11.4-.46-2.33S11.2 6.5 6.9 3.7L10.4 18.4h4.3L21.6 1.6zm21.3 0l-5.4 16.8h4.1l.9-2.8h5.2l.5 2.8H47L43.5 1.6zm.7 10.3l2.1-6.1 1.2 6.1zM33.5 6.2c0-2.3 5.1-2 5.1-2l.7-3.4S35.8.3 33 .3c-2.9 0-5.2 1.7-5.2 4.3 0 4.8 6.3 4.5 6.3 7.2 0 1.3-1.2 2.1-3.1 2.1-2.6 0-5-.9-5-.9l-.7 3.5s2 .9 5.1.9c5 0 6.8-2.7 6.8-5.3 0-4.7-6.2-5-3.7-5.9z"/></svg>
+              {/* Mastercard */}
+              <svg viewBox="0 0 38 24" className="h-5 opacity-50" xmlns="http://www.w3.org/2000/svg"><rect width="38" height="24" rx="4" fill="none"/><circle cx="15" cy="12" r="7" fill="#eb001b" opacity="0.8"/><circle cx="23" cy="12" r="7" fill="#f79e1b" opacity="0.8"/><path d="M19 7.2a7 7 0 0 1 0 9.6A7 7 0 0 1 19 7.2z" fill="#ff5f00" opacity="0.8"/></svg>
+            </div>
           </div>
         </div>
       </footer>
