@@ -101,7 +101,7 @@ export default function Home() {
       const url = utenteId
         ? `/api/azioni?workspace_id=${workspaceId}&utente_id=${utenteId}`
         : `/api/azioni?workspace_id=${workspaceId}`
-      fetch(url)
+      fetch(url, { headers: workspaceAuthHeader() })
         .then(r => r.json())
         .then(d => setLeadDaGestire(d.count ?? 0))
         .catch(() => {})
@@ -113,7 +113,7 @@ export default function Home() {
       // Responsabile vede tutti i lead per le statistiche; commerciale solo i propri
       const urlAll = `/api/leads?workspace_id=${workspaceId}`
       const urlUtente = utenteId ? `/api/leads?workspace_id=${workspaceId}&utente_id=${utenteId}` : urlAll
-      fetch(urlUtente)
+      fetch(urlUtente, { headers: workspaceAuthHeader() })
         .then(r => r.json())
         .then(data => {
           if (Array.isArray(data)) {
