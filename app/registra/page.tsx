@@ -196,7 +196,7 @@ function RegistraDashboard() {
                 <p className="text-sm font-semibold text-blue-800">
                   🔒 {esportati} lead {esportati === 1 ? 'è stato esportato' : 'sono stati esportati'} via CSV
                 </p>
-                <p className="text-xs text-blue-600 mt-0.5">Verranno rimossi automaticamente dopo 30 giorni.</p>
+                <p className="text-xs text-blue-600 mt-0.5">Verranno rimossi automaticamente dopo 60 giorni.</p>
               </div>
               {!confermaSvuota ? (
                 <button onClick={() => setConfermaSvuota(true)} className="shrink-0 text-xs text-blue-600 underline hover:text-blue-800 whitespace-nowrap">

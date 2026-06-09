@@ -77,7 +77,7 @@ export default function DPA() {
                     ['Natura', 'Raccolta, strutturazione, conservazione, trasmissione, cancellazione'],
                     ['Tipologia di dati', 'Dati comuni: nome, cognome, azienda, email, telefono, note'],
                     ['Categorie di interessati', 'Contatti commerciali (lead) acquisiti dai commerciali del Cliente'],
-                    ['Durata', 'Per tutta la durata del contratto + 30 giorni per la cancellazione'],
+                    ['Durata', 'Per tutta la durata del contratto + 60 giorni per la cancellazione'],
                   ].map(([e, d]) => (
                     <tr key={e}>
                       <td className="p-3 font-medium text-gray-700">{e}</td>
@@ -185,12 +185,12 @@ export default function DPA() {
               </li>
               <li>
                 <strong>Scadenza abbonamento o prova gratuita:</strong> il workspace viene sospeso
-                automaticamente alla scadenza. I dati sono conservati per ulteriori 30 giorni
+                automaticamente alla scadenza. I dati sono conservati per ulteriori 60 giorni
                 per consentire l'export o il rinnovo, poi cancellati definitivamente.
               </li>
               <li>
                 <strong>Alla cessazione definitiva del contratto:</strong> cancellazione di tutti
-                i dati dei lead entro 30 giorni. I dati di fatturazione (P.IVA, SDI, PEC, ordini)
+                i dati dei lead entro 60 giorni. I dati di fatturazione (P.IVA, SDI, PEC, ordini)
                 sono conservati per 10 anni ai fini degli obblighi fiscali.
               </li>
               <li>

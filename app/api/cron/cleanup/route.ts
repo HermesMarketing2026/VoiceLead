@@ -10,7 +10,7 @@ export async function GET(req: NextRequest) {
   }
 
   const trentaGiorniFa = new Date()
-  trentaGiorniFa.setDate(trentaGiorniFa.getDate() - 30)
+  trentaGiorniFa.setDate(trentaGiorniFa.getDate() - 60)
 
   // Cancella solo i lead già esportati da più di 30 giorni
   const { data, error } = await supabase

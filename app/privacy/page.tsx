@@ -122,7 +122,7 @@ export default function PrivacyPolicy() {
               </li>
               <li>
                 <strong>Cancellazione automatica lead:</strong> i dati dei lead vengono rimossi
-                automaticamente dall'applicazione entro <strong>30 giorni dalla scadenza
+                automaticamente dall'applicazione entro <strong>60 giorni dalla scadenza
                 o dalla disattivazione del workspace</strong>. Il Cliente può richiedere
                 la rimozione immediata scrivendo a info@hermesmarketing.it.
               </li>
@@ -130,7 +130,7 @@ export default function PrivacyPolicy() {
               <li><strong>Dati di fatturazione (P.IVA, SDI, PEC, ecc.):</strong> conservati per 10 anni ai fini degli obblighi fiscali e contabili (Art. 2220 c.c.).</li>
               <li><strong>Dati di contatto (form landing):</strong> conservati fino a revoca del consenso o per un massimo di 3 anni.</li>
               <li><strong>Log tecnici:</strong> conservati per 12 mesi.</li>
-              <li><strong>Alla cessazione definitiva del servizio:</strong> tutti i dati residui cancellati entro 30 giorni, salvo obblighi di conservazione legale.</li>
+              <li><strong>Alla cessazione definitiva del servizio:</strong> tutti i dati residui cancellati entro 60 giorni, salvo obblighi di conservazione legale.</li>
             </ul>
           </section>
 

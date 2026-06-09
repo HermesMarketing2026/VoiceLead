@@ -409,7 +409,7 @@ const FAQ_ITEMS = [
   },
   {
     q: 'Cosa succede ai lead se l\'abbonamento scade?',
-    a: 'I dati vengono conservati per 30 giorni dopo la scadenza. Puoi esportarli in CSV in qualsiasi momento durante questo periodo.',
+    a: 'I dati vengono conservati per 60 giorni dopo la scadenza. Puoi esportarli in CSV in qualsiasi momento durante questo periodo.',
   },
 ]
 

@@ -29,7 +29,7 @@ L'AI capisce anche informazioni disordinate o parziali.
 - Export CSV dei lead
 - Accessi multi-commerciale
 - Pannello responsabile
-- Cancellazione automatica lead dopo 30 giorni
+- Cancellazione automatica lead dopo 60 giorni
 
 ### Piano Pro (Registra + Gestisci)
 Include tutto il Base, più:

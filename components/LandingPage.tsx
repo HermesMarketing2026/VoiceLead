@@ -420,7 +420,7 @@ export default function LandingPage() {
               { icon: '🤖', titolo: 'Reminder AI intelligenti', testo: 'Detti "richiamare entro giovedì" — l\'AI fissa la scadenza. Il giorno prima ti ricorda chi devi sentire.' },
               { icon: '👥', titolo: 'Multi-commerciale nativo', testo: 'Ogni persona ha il suo PIN, vede solo i propri lead. Il responsabile sorveglia tutto senza PIN aggiuntivi.' },
               { icon: '📥', titolo: 'Export CSV sempre disponibile', testo: 'Un click: CSV completo con nome, azienda, contatti, commerciale. Compatibile con Excel, Sheets e qualsiasi CRM.' },
-              { icon: '🔒', titolo: 'Privacy by design', testo: 'Ogni workspace è protetto da PIN. I dati vengono eliminati automaticamente dopo 30 giorni, conforme GDPR.' },
+              { icon: '🔒', titolo: 'Privacy by design', testo: 'Ogni workspace è protetto da PIN. I dati vengono eliminati automaticamente dopo 60 giorni, conforme GDPR.' },
             ].map(({ icon, titolo, testo }) => (
               <div key={titolo} className="group bg-white rounded-3xl border border-gray-100 p-6 shadow-sm hover:shadow-md hover:border-hermes-200 transition-all">
                 <div className="w-12 h-12 rounded-2xl bg-hermes-50 flex items-center justify-center text-2xl mb-4 group-hover:bg-hermes-100 transition-colors">{icon}</div>
@@ -499,7 +499,7 @@ export default function LandingPage() {
                   : <p className="text-sm text-gray-400 mt-1">Fatturato mensilmente · disdici quando vuoi</p>}
               </div>
               <ul className="space-y-2.5 mb-8 text-sm text-gray-600">
-                {['Dettatura vocale in italiano', 'Scansione biglietto da visita', 'Estrazione dati AI automatica', 'Export CSV on demand', 'Accessi multi-commerciale', 'Pannello responsabile incluso', 'Cancellazione auto 30gg (GDPR)'].map(f => (
+                {['Dettatura vocale in italiano', 'Scansione biglietto da visita', 'Estrazione dati AI automatica', 'Export CSV on demand', 'Accessi multi-commerciale', 'Pannello responsabile incluso', 'Cancellazione auto 60gg (GDPR)'].map(f => (
                   <li key={f} className="flex items-center gap-2"><span className="text-green-500 text-base">✓</span>{f}</li>
                 ))}
               </ul>
@@ -594,7 +594,7 @@ export default function LandingPage() {
                     { label: 'Export CSV on demand', base: true, pro: true, ent: true },
                     { label: 'Accessi multi-commerciale', base: true, pro: true, ent: true },
                     { label: 'Pannello responsabile', base: true, pro: true, ent: true },
-                    { label: 'Cancellazione automatica 30gg (GDPR)', base: true, pro: true, ent: true },
+                    { label: 'Cancellazione automatica 60gg (GDPR)', base: true, pro: true, ent: true },
                     { label: 'Dashboard trattative con stati', base: false, pro: true, ent: true },
                     { label: 'Aggiornamenti vocali sulla trattativa', base: false, pro: true, ent: true },
                     { label: 'Reminder intelligenti con scadenza AI', base: false, pro: true, ent: true },

@@ -67,8 +67,8 @@ function GestisciDashboard() {
       )
       setLeads(leadsConAzione)
 
-      // Lead chiusi negli ultimi 30 giorni (poi cancellati automaticamente per GDPR)
-      const trentaGiorni = Date.now() - 30 * 24 * 60 * 60 * 1000
+      // Lead chiusi negli ultimi 60 giorni (poi cancellati automaticamente per GDPR)
+      const trentaGiorni = Date.now() - 60 * 24 * 60 * 60 * 1000
       const recentiChiusi = data.filter(l =>
         !l.in_gestione && l.esito && l.data_esito && new Date(l.data_esito).getTime() > trentaGiorni
       )
@@ -355,7 +355,7 @@ function GestisciDashboard() {
                     </li>
                   ))}
                 </ul>
-                <p className="text-xs text-gray-400 text-center mt-2">Visibili per 30 giorni dalla chiusura, poi eliminati automaticamente per la privacy</p>
+                <p className="text-xs text-gray-400 text-center mt-2">Visibili per 60 giorni dalla chiusura, poi eliminati automaticamente per la privacy</p>
               </div>
             )}
           </>

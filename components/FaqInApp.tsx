@@ -21,7 +21,7 @@ const FAQ_REGISTRA: FaqItem[] = [
   },
   {
     q: 'Dopo quanti giorni sparisce un lead?',
-    a: 'I lead restano visibili per 30 giorni dalla registrazione. Passato questo tempo vengono eliminati automaticamente per la privacy. Esporta in CSV per conservarli.',
+    a: 'I lead restano visibili per 60 giorni dalla registrazione. Passato questo tempo vengono eliminati automaticamente per la privacy. Esporta in CSV per conservarli.',
   },
   {
     q: 'Come esporto i lead in CSV?',
@@ -44,11 +44,11 @@ const FAQ_GESTISCI: FaqItem[] = [
   },
   {
     q: 'Posso riaprire una trattativa chiusa?',
-    a: 'Sì. Nella sezione "Chiuse" trovi il pulsante "Riapri" che rimette il lead in lavorazione. Disponibile entro 30 giorni dalla chiusura.',
+    a: 'Sì. Nella sezione "Chiuse" trovi il pulsante "Riapri" che rimette il lead in lavorazione. Disponibile entro 60 giorni dalla chiusura.',
   },
   {
     q: 'Per quanto restano visibili le trattative chiuse?',
-    a: 'Le trattative chiuse (vinte o perse) restano visibili per 30 giorni dalla data di chiusura, poi vengono eliminate per la privacy.',
+    a: 'Le trattative chiuse (vinte o perse) restano visibili per 60 giorni dalla data di chiusura, poi vengono eliminate per la privacy.',
   },
   {
     q: 'Chi vede i lead nella sezione Gestisci?',
@@ -67,7 +67,7 @@ const FAQ_GENERALI: FaqItem[] = [
   },
   {
     q: 'Cosa succede ai miei dati se l\'abbonamento scade?',
-    a: 'I dati vengono conservati per 30 giorni dopo la scadenza. Puoi esportarli in CSV in qualsiasi momento durante questo periodo.',
+    a: 'I dati vengono conservati per 60 giorni dopo la scadenza. Puoi esportarli in CSV in qualsiasi momento durante questo periodo.',
   },
   {
     q: 'Come posso richiedere la cancellazione dei miei dati?',

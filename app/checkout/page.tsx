@@ -17,7 +17,7 @@ const PIANI = {
       '📥 Export CSV quando vuoi',
       '👥 Accessi multi-commerciale',
       '🔑 Pannello responsabile incluso',
-      '🔒 Cancellazione automatica 30gg',
+      '🔒 Cancellazione automatica 60gg',
     ],
   },
   pro: {

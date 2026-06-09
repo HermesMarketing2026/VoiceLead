@@ -112,7 +112,7 @@ export default function TerminiServizio() {
             </p>
             <p className="mt-3">
               Al termine del periodo di prova senza attivazione di un piano, il workspace viene sospeso automaticamente
-              e i dati vengono conservati per ulteriori 30 giorni prima della cancellazione definitiva.
+              e i dati vengono conservati per ulteriori 60 giorni prima della cancellazione definitiva.
             </p>
           </section>
 
@@ -185,7 +185,7 @@ export default function TerminiServizio() {
             <p className="mt-3">
               In caso di disdetta da parte del Cliente, i dati rimangono accessibili fino alla naturale
               scadenza del periodo già pagato. Successivamente il workspace viene sospeso e i dati
-              conservati per 30 giorni prima della cancellazione definitiva.
+              conservati per 60 giorni prima della cancellazione definitiva.
             </p>
           </section>
 
