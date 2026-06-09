@@ -77,6 +77,11 @@ export default function Admin() {
   const [linkOnboardingWs, setLinkOnboardingWs] = useState<string | null>(null)
   const [linkOnboardingWsCopiato, setLinkOnboardingWsCopiato] = useState(false)
   const [formCrea, setFormCrea] = useState({ piano: 'registra' as 'registra' | 'registra_gestisci', max_commerciali: 2 })
+  const [pinVisibile, setPinVisibile] = useState<Record<string, boolean>>({})
+  const [pinOrigHashato, setPinOrigHashato] = useState(false)
+  const [utenteInModifica, setUtenteInModifica] = useState<string | null>(null)
+  const [formModificaUtente, setFormModificaUtente] = useState({ nome: '', cognome: '', pin: '' })
+  const [salvaUtenteLoading, setSalvaUtenteLoading] = useState(false)
 
   useEffect(() => {
     const sessione = leggiSessione()
@@ -184,7 +189,9 @@ export default function Admin() {
 
   const apriModifica = (ws: Workspace) => {
     setWsInModifica(ws)
-    setFormModifica({ nome_azienda: ws.nome_azienda, logo_url: ws.logo_url ?? '', nome_referente: ws.nome_referente ?? '', cognome_referente: ws.cognome_referente ?? '', has_gestisci: ws.has_gestisci ?? false, pin: ws.pin })
+    const isHashato = ws.pin.startsWith('$2')
+    setPinOrigHashato(isHashato)
+    setFormModifica({ nome_azienda: ws.nome_azienda, logo_url: ws.logo_url ?? '', nome_referente: ws.nome_referente ?? '', cognome_referente: ws.cognome_referente ?? '', has_gestisci: ws.has_gestisci ?? false, pin: isHashato ? '' : ws.pin })
     setOrdineWs(null)
     setModalita('modifica')
     caricaUtenti(ws.id)
@@ -232,14 +239,46 @@ export default function Admin() {
     }
   }
 
+  const salvaModificaUtente = async (id: string) => {
+    setSalvaUtenteLoading(true)
+    setErroreUtente(null)
+    try {
+      const body: Record<string, string> = {}
+      if (formModificaUtente.nome) body.nome = formModificaUtente.nome
+      if (formModificaUtente.cognome) body.cognome = formModificaUtente.cognome
+      if (formModificaUtente.pin) body.pin = formModificaUtente.pin
+      const res = await fetch(`/api/utenti/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json', ...adminAuthHeader() },
+        body: JSON.stringify(body),
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error)
+      setUtenteInModifica(null)
+      if (wsInModifica) caricaUtenti(wsInModifica.id)
+    } catch (e: any) {
+      setErroreUtente(e.message)
+    } finally {
+      setSalvaUtenteLoading(false)
+    }
+  }
+
   const salvaModifica = async () => {
     if (!wsInModifica) return
     setSalvataggio(true)
     try {
+      const payload: Record<string, unknown> = {
+        nome_azienda: formModifica.nome_azienda,
+        logo_url: formModifica.logo_url,
+        nome_referente: formModifica.nome_referente,
+        cognome_referente: formModifica.cognome_referente,
+        has_gestisci: formModifica.has_gestisci,
+      }
+      if (formModifica.pin) payload.pin = formModifica.pin
       const res = await fetch(`/api/workspaces/${wsInModifica.id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json', ...adminAuthHeader() },
-        body: JSON.stringify(formModifica),
+        body: JSON.stringify(payload),
       })
       const data = await res.json()
       if (!res.ok) throw new Error(data.error)
@@ -349,14 +388,40 @@ export default function Admin() {
           </div>
           <div>
             <label className={labelClass}>PIN responsabile</label>
-            <input
-              className={inputClass}
-              value={formModifica.pin}
-              onChange={e => setFormModifica(f => ({ ...f, pin: e.target.value.replace(/\D/g, '') }))}
-              maxLength={6}
-              inputMode="numeric"
-              placeholder="6 cifre"
-            />
+            {pinOrigHashato && !formModifica.pin ? (
+              <div className="flex items-center justify-between rounded-xl border border-gray-200 bg-gray-50 px-3.5 py-2.5">
+                <span className="text-sm text-gray-400 font-mono tracking-widest">••••••</span>
+                <button
+                  type="button"
+                  onClick={() => setFormModifica(f => ({ ...f, pin: '' }))}
+                  className="text-xs text-hermes-600 hover:text-hermes-800 font-medium"
+                >
+                  Reimposta
+                </button>
+              </div>
+            ) : (
+              <div className="space-y-1">
+                {pinOrigHashato && <p className="text-xs text-amber-600">Inserisci il nuovo PIN (lascia vuoto per non cambiarlo)</p>}
+                <div className="relative">
+                  <input
+                    className={inputClass + ' pr-10'}
+                    value={formModifica.pin}
+                    onChange={e => setFormModifica(f => ({ ...f, pin: e.target.value.replace(/\D/g, '') }))}
+                    maxLength={6}
+                    inputMode="numeric"
+                    placeholder="6 cifre"
+                    type={pinVisibile['modifica_ws'] ? 'text' : 'password'}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setPinVisibile(v => ({ ...v, modifica_ws: !v['modifica_ws'] }))}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 text-sm"
+                  >
+                    {pinVisibile['modifica_ws'] ? '🙈' : '👁️'}
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
@@ -478,31 +543,108 @@ export default function Admin() {
             <p className="text-sm text-gray-400 text-center py-3">Nessun commerciale ancora — accesso singolo con PIN workspace.</p>
           ) : (
             <ul className="space-y-2">
-              {utenti.map(u => (
-                <li key={u.id} className="flex items-center justify-between bg-gray-50 rounded-xl px-4 py-3">
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-full bg-hermes-100 flex items-center justify-center text-hermes-600 font-bold text-sm shrink-0">
-                      {u.nome[0]}{u.cognome[0]}
-                    </div>
-                    <div>
-                      <p className="text-sm font-semibold text-gray-900">{u.nome} {u.cognome}</p>
-                      <p className="text-xs text-gray-400 font-mono">PIN: {u.pin}</p>
-                    </div>
-                  </div>
-                  {confermaEliminaUtente === u.id ? (
-                    <div className="flex gap-1">
-                      <button onClick={() => setConfermaEliminaUtente(null)} className="text-xs text-gray-500 px-2 py-1 rounded-lg border border-gray-300 bg-white">Annulla</button>
-                      <button onClick={() => eliminaUtente(u.id)} disabled={eliminazioneUtente === u.id} className="text-xs text-white bg-red-500 px-2 py-1 rounded-lg disabled:opacity-50">
-                        {eliminazioneUtente === u.id ? '…' : 'Elimina'}
-                      </button>
-                    </div>
-                  ) : (
-                    <button onClick={() => setConfermaEliminaUtente(u.id)} className="text-xs text-red-400 hover:text-red-600 px-2 py-1 rounded-lg hover:bg-red-50 transition-colors">
-                      🗑️
-                    </button>
-                  )}
-                </li>
-              ))}
+              {utenti.map(u => {
+                const pinHashato = u.pin.startsWith('$2')
+                const pinMostrato = pinVisibile[u.id]
+                return (
+                  <li key={u.id} className="bg-gray-50 rounded-xl px-4 py-3 space-y-3">
+                    {utenteInModifica === u.id ? (
+                      /* Form modifica inline */
+                      <div className="space-y-2">
+                        <div className="grid grid-cols-2 gap-2">
+                          <input
+                            className={inputClass}
+                            placeholder="Nome"
+                            value={formModificaUtente.nome}
+                            onChange={e => setFormModificaUtente(f => ({ ...f, nome: e.target.value }))}
+                          />
+                          <input
+                            className={inputClass}
+                            placeholder="Cognome"
+                            value={formModificaUtente.cognome}
+                            onChange={e => setFormModificaUtente(f => ({ ...f, cognome: e.target.value }))}
+                          />
+                        </div>
+                        <input
+                          className={inputClass}
+                          placeholder={pinHashato ? 'Nuovo PIN (lascia vuoto per non cambiarlo)' : 'Nuovo PIN a 6 cifre'}
+                          maxLength={6}
+                          inputMode="numeric"
+                          value={formModificaUtente.pin}
+                          onChange={e => setFormModificaUtente(f => ({ ...f, pin: e.target.value.replace(/\D/g, '') }))}
+                        />
+                        {erroreUtente && <p className="text-xs text-red-500">{erroreUtente}</p>}
+                        <div className="flex gap-2">
+                          <button
+                            onClick={() => { setUtenteInModifica(null); setErroreUtente(null) }}
+                            className="flex-1 rounded-lg border border-gray-300 py-2 text-xs font-medium text-gray-600 hover:bg-gray-100"
+                          >
+                            Annulla
+                          </button>
+                          <button
+                            onClick={() => salvaModificaUtente(u.id)}
+                            disabled={salvaUtenteLoading}
+                            className="flex-1 rounded-lg bg-hermes-500 py-2 text-xs font-semibold text-white hover:bg-hermes-600 disabled:opacity-50"
+                          >
+                            {salvaUtenteLoading ? '…' : 'Salva'}
+                          </button>
+                        </div>
+                      </div>
+                    ) : (
+                      /* Vista normale */
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <div className="w-8 h-8 rounded-full bg-hermes-100 flex items-center justify-center text-hermes-600 font-bold text-sm shrink-0">
+                            {u.nome[0]}{u.cognome[0]}
+                          </div>
+                          <div>
+                            <p className="text-sm font-semibold text-gray-900">{u.nome} {u.cognome}</p>
+                            <div className="flex items-center gap-1.5">
+                              <span className="text-xs text-gray-400 font-mono">
+                                PIN: {pinHashato ? '••••••' : (pinMostrato ? u.pin : '••••••')}
+                              </span>
+                              {!pinHashato && (
+                                <button
+                                  onClick={() => setPinVisibile(v => ({ ...v, [u.id]: !v[u.id] }))}
+                                  className="text-gray-300 hover:text-gray-500 text-xs"
+                                >
+                                  {pinMostrato ? '🙈' : '👁️'}
+                                </button>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          {confermaEliminaUtente === u.id ? (
+                            <>
+                              <button onClick={() => setConfermaEliminaUtente(null)} className="text-xs text-gray-500 px-2 py-1 rounded-lg border border-gray-300 bg-white">Annulla</button>
+                              <button onClick={() => eliminaUtente(u.id)} disabled={eliminazioneUtente === u.id} className="text-xs text-white bg-red-500 px-2 py-1 rounded-lg disabled:opacity-50">
+                                {eliminazioneUtente === u.id ? '…' : 'Elimina'}
+                              </button>
+                            </>
+                          ) : (
+                            <>
+                              <button
+                                onClick={() => {
+                                  setUtenteInModifica(u.id)
+                                  setFormModificaUtente({ nome: u.nome, cognome: u.cognome, pin: '' })
+                                  setErroreUtente(null)
+                                }}
+                                className="text-xs text-hermes-500 hover:text-hermes-700 px-2 py-1 rounded-lg hover:bg-hermes-50 transition-colors"
+                              >
+                                ✏️
+                              </button>
+                              <button onClick={() => setConfermaEliminaUtente(u.id)} className="text-xs text-red-400 hover:text-red-600 px-2 py-1 rounded-lg hover:bg-red-50 transition-colors">
+                                🗑️
+                              </button>
+                            </>
+                          )}
+                        </div>
+                      </div>
+                    )}
+                  </li>
+                )
+              })}
             </ul>
           )}
 
@@ -1005,7 +1147,21 @@ export default function Admin() {
 
                 <div className="flex items-center gap-3 bg-hermes-50 rounded-xl px-4 py-2.5">
                   <span className="text-xs text-hermes-600 font-medium">PIN:</span>
-                  <span className="text-xl font-bold tracking-widest text-hermes-600 font-mono">{ws.pin}</span>
+                  {ws.pin.startsWith('$2') ? (
+                    <span className="text-xl font-bold tracking-widest text-hermes-300 font-mono">••••••</span>
+                  ) : (
+                    <>
+                      <span className="text-xl font-bold tracking-widest text-hermes-600 font-mono">
+                        {pinVisibile[ws.id] ? ws.pin : '••••••'}
+                      </span>
+                      <button
+                        onClick={() => setPinVisibile(v => ({ ...v, [ws.id]: !v[ws.id] }))}
+                        className="ml-auto text-hermes-400 hover:text-hermes-600 text-sm"
+                      >
+                        {pinVisibile[ws.id] ? '🙈' : '👁️'}
+                      </button>
+                    </>
+                  )}
                 </div>
 
                 <div className="flex gap-2">
