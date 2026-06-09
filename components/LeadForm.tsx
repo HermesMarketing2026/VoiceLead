@@ -1,5 +1,5 @@
 'use client'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import type { Lead, LeadFormData } from '@/lib/types'
 import { campiMancanti, calcolaCompletamento } from '@/lib/types'
@@ -25,11 +25,15 @@ export default function LeadForm({ lead, workspaceId }: Props) {
   const [modalitaInput, setModalitaInput] = useState<'voce' | 'foto'>('voce')
   const [salvataggio, setSalvataggio] = useState(false)
   const [eliminazione, setEliminazione] = useState(false)
-  const [confermaElimina, setConfermaElimina] = useState(false)
+  const [undoToast, setUndoToast] = useState(false)
+  const [undoSecondi, setUndoSecondi] = useState(5)
+  const undoTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const undoIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const [errore, setErrore] = useState<string | null>(null)
   const [promuovendo, setPromuovendo] = useState(false)
   const [promoEsito, setPromoEsito] = useState<string | null>(null)
   const [hasGestisci, setHasGestisci] = useState(false)
+  const [isEstraendo, setIsEstraendo] = useState(false)
 
   useEffect(() => {
     setHasGestisci(leggiSessione()?.hasGestisci ?? false)
@@ -96,18 +100,38 @@ export default function LeadForm({ lead, workspaceId }: Props) {
     }
   }
 
-  const elimina = async () => {
-    setEliminazione(true)
-    try {
-      const res = await fetch(`/api/leads/${lead!.id}`, { method: 'DELETE', headers: workspaceAuthHeader() })
-      if (!res.ok) throw new Error('Errore eliminazione')
-      router.push(`/registra?workspace_id=${workspaceId}`)
-      router.refresh()
-    } catch (e: any) {
-      setErrore(e.message)
-      setEliminazione(false)
-    }
+  const avviaEliminazione = () => {
+    setUndoToast(true)
+    setUndoSecondi(5)
+    undoIntervalRef.current = setInterval(() => {
+      setUndoSecondi(s => s - 1)
+    }, 1000)
+    undoTimerRef.current = setTimeout(async () => {
+      clearInterval(undoIntervalRef.current!)
+      setUndoToast(false)
+      setEliminazione(true)
+      try {
+        const res = await fetch(`/api/leads/${lead!.id}`, { method: 'DELETE', headers: workspaceAuthHeader() })
+        if (!res.ok) throw new Error('Errore eliminazione')
+        router.push(`/registra?workspace_id=${workspaceId}`)
+        router.refresh()
+      } catch (e: any) {
+        setErrore(e.message)
+        setEliminazione(false)
+      }
+    }, 5000)
   }
+
+  const annullaEliminazione = () => {
+    clearTimeout(undoTimerRef.current!)
+    clearInterval(undoIntervalRef.current!)
+    setUndoToast(false)
+  }
+
+  useEffect(() => () => {
+    clearTimeout(undoTimerRef.current!)
+    clearInterval(undoIntervalRef.current!)
+  }, [])
 
   const inputClass = 'w-full rounded-xl border border-gray-200 px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-hermes-400 focus:border-transparent bg-gray-50 focus:bg-white transition-colors'
   const labelClass = 'block text-sm font-medium text-gray-600 mb-1.5'
@@ -146,7 +170,7 @@ export default function LeadForm({ lead, workspaceId }: Props) {
         {/* Contenuto tab */}
         {modalitaInput === 'voce' ? (
           <>
-            <MicButton onTrascrizione={setTrascrizione} onEstrazione={onEstrazione} workspaceId={workspaceId} />
+            <MicButton onTrascrizione={setTrascrizione} onEstrazione={onEstrazione} workspaceId={workspaceId} onEstrazioneChange={setIsEstraendo} />
             {trascrizione && (
               <div className="mt-5 rounded-xl bg-hermes-50 border border-hermes-200 p-3.5">
                 <p className="text-xs text-hermes-500 font-medium mb-1">Testo riconosciuto:</p>
@@ -186,43 +210,55 @@ export default function LeadForm({ lead, workspaceId }: Props) {
       </div>
 
       {/* Campi */}
-      <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 space-y-4">
+      <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 space-y-4 relative">
         <h2 className="text-xs font-bold text-hermes-500 uppercase tracking-wider">📋 Dati contatto</h2>
+
+        {isEstraendo && (
+          <div className="absolute inset-0 rounded-2xl bg-white/80 flex flex-col items-center justify-center gap-2 z-10">
+            <div className="flex gap-1.5">
+              {[0,1,2].map(i => (
+                <div key={i} className="w-2.5 h-2.5 rounded-full bg-hermes-400 animate-bounce" style={{ animationDelay: `${i * 0.15}s` }} />
+              ))}
+            </div>
+            <p className="text-sm font-semibold text-hermes-600">Estraggo i dati…</p>
+          </div>
+        )}
+
+        <div>
+          <label className={labelClass}>Azienda <span className="text-red-400">*</span></label>
+          <input className={`${inputClass} ${isEstraendo ? 'animate-pulse' : ''}`} value={form.azienda} onChange={aggiorna('azienda')} placeholder="Acme S.r.l." disabled={isEstraendo} />
+        </div>
 
         <div className="grid grid-cols-2 gap-3">
           <div>
             <label className={labelClass}>Nome <span className="text-red-400">*</span></label>
-            <input className={inputClass} value={form.nome} onChange={aggiorna('nome')} placeholder="Mario" />
+            <input className={`${inputClass} ${isEstraendo ? 'animate-pulse' : ''}`} value={form.nome} onChange={aggiorna('nome')} placeholder="Mario" disabled={isEstraendo} />
           </div>
           <div>
             <label className={labelClass}>Cognome <span className="text-red-400">*</span></label>
-            <input className={inputClass} value={form.cognome} onChange={aggiorna('cognome')} placeholder="Rossi" />
+            <input className={`${inputClass} ${isEstraendo ? 'animate-pulse' : ''}`} value={form.cognome} onChange={aggiorna('cognome')} placeholder="Rossi" disabled={isEstraendo} />
           </div>
-        </div>
-
-        <div>
-          <label className={labelClass}>Azienda <span className="text-red-400">*</span></label>
-          <input className={inputClass} value={form.azienda} onChange={aggiorna('azienda')} placeholder="Acme S.r.l." />
-        </div>
-
-        <div>
-          <label className={labelClass}>Email <span className="text-red-400">*</span></label>
-          <input className={inputClass} type="email" value={form.email} onChange={aggiorna('email')} placeholder="mario@acme.it" />
         </div>
 
         <div>
           <label className={labelClass}>Telefono <span className="text-red-400">*</span></label>
-          <input className={inputClass} type="tel" value={form.telefono} onChange={aggiorna('telefono')} placeholder="+39 333 1234567" />
+          <input className={`${inputClass} ${isEstraendo ? 'animate-pulse' : ''}`} type="tel" value={form.telefono} onChange={aggiorna('telefono')} placeholder="+39 333 1234567" disabled={isEstraendo} />
+        </div>
+
+        <div>
+          <label className={labelClass}>Email <span className="text-red-400">*</span></label>
+          <input className={`${inputClass} ${isEstraendo ? 'animate-pulse' : ''}`} type="email" value={form.email} onChange={aggiorna('email')} placeholder="mario@acme.it" disabled={isEstraendo} />
         </div>
 
         <div>
           <label className={labelClass}>Note</label>
           <textarea
-            className={`${inputClass} resize-none`}
+            className={`${inputClass} resize-none ${isEstraendo ? 'animate-pulse' : ''}`}
             rows={3}
             value={form.note}
             onChange={aggiorna('note')}
             placeholder="Appunti liberi sull'incontro, interesse mostrato, follow-up…"
+            disabled={isEstraendo}
           />
         </div>
       </div>
@@ -272,29 +308,29 @@ export default function LeadForm({ lead, workspaceId }: Props) {
       )}
 
       {!isNuovo && (
-        <div className="pb-6">
-          {!confermaElimina ? (
+        <div className="pb-6 space-y-3">
+          {undoToast ? (
+            <div className="rounded-xl bg-red-50 border border-red-200 px-4 py-3 flex items-center justify-between gap-3">
+              <p className="text-sm text-red-700 font-medium">
+                🗑️ Lead eliminato — annulla entro {undoSecondi}s
+              </p>
+              <button
+                type="button"
+                onClick={annullaEliminazione}
+                className="shrink-0 rounded-lg bg-red-600 px-3 py-1.5 text-xs font-bold text-white hover:bg-red-700 transition-colors"
+              >
+                Annulla
+              </button>
+            </div>
+          ) : (
             <button
               type="button"
-              onClick={() => setConfermaElimina(true)}
-              className="w-full rounded-xl border border-red-200 py-3 text-sm font-medium text-red-500 hover:bg-red-50 transition-colors"
+              onClick={avviaEliminazione}
+              disabled={eliminazione}
+              className="w-full rounded-xl border border-red-200 py-3 text-sm font-medium text-red-500 hover:bg-red-50 transition-colors disabled:opacity-50"
             >
-              🗑️ Elimina lead
+              {eliminazione ? 'Eliminazione…' : '🗑️ Elimina lead'}
             </button>
-          ) : (
-            <div className="rounded-xl bg-red-50 border border-red-200 p-4 space-y-3">
-              <p className="text-sm text-red-700 font-medium text-center">Sei sicuro di voler eliminare questo lead?</p>
-              <div className="flex gap-2">
-                <button type="button" onClick={() => setConfermaElimina(false)}
-                  className="flex-1 rounded-xl border border-gray-300 py-2.5 text-sm font-medium text-gray-600 hover:bg-gray-50">
-                  Annulla
-                </button>
-                <button type="button" onClick={elimina} disabled={eliminazione}
-                  className="flex-1 rounded-xl bg-red-500 py-2.5 text-sm font-semibold text-white hover:bg-red-600 disabled:opacity-50">
-                  {eliminazione ? 'Eliminazione…' : 'Sì, elimina'}
-                </button>
-              </div>
-            </div>
           )}
         </div>
       )}

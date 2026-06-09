@@ -39,6 +39,7 @@ function GestisciDashboard() {
   const [chiusi, setChiusi] = useState<Lead[]>([])
   const [caricamento, setCaricamento] = useState(true)
   const [riaprendo, setRiaprendo] = useState<string | null>(null)
+  const [viewMode, setViewMode] = useState<'lista' | 'kanban'>('lista')
 
   useEffect(() => {
     if (!workspaceId) { router.push('/'); return }
@@ -176,13 +177,36 @@ function GestisciDashboard() {
             <span className="text-gray-300">/</span>
             <span className="text-sm font-semibold text-gray-700">📋 Gestisci trattative</span>
           </div>
-          <button
-            onClick={scaricaCsv}
-            disabled={leads.length === 0 && chiusi.length === 0}
-            className="flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-lg border border-gray-300 text-gray-600 hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
-          >
-            ⬇️ Scarica CSV
-          </button>
+          <div className="flex items-center gap-2">
+            {/* Toggle lista/kanban */}
+            <div className="flex rounded-lg border border-gray-200 overflow-hidden">
+              <button
+                onClick={() => setViewMode('lista')}
+                className={`px-2.5 py-1.5 text-xs font-medium transition-colors ${viewMode === 'lista' ? 'bg-hermes-500 text-white' : 'bg-white text-gray-500 hover:bg-gray-50'}`}
+                title="Vista lista"
+              >
+                <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16"/>
+                </svg>
+              </button>
+              <button
+                onClick={() => setViewMode('kanban')}
+                className={`px-2.5 py-1.5 text-xs font-medium transition-colors ${viewMode === 'kanban' ? 'bg-hermes-500 text-white' : 'bg-white text-gray-500 hover:bg-gray-50'}`}
+                title="Vista kanban"
+              >
+                <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7"/>
+                </svg>
+              </button>
+            </div>
+            <button
+              onClick={scaricaCsv}
+              disabled={leads.length === 0 && chiusi.length === 0}
+              className="flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-lg border border-gray-300 text-gray-600 hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+            >
+              ⬇️ CSV
+            </button>
+          </div>
         </div>
 
         {caricamento ? (
@@ -193,7 +217,72 @@ function GestisciDashboard() {
             <p className="text-sm font-medium">Nessuna trattativa in gestione.</p>
             <p className="text-xs mt-1">Completa un lead dalla sezione Registra per iniziare.</p>
           </div>
+        ) : viewMode === 'kanban' ? (
+          /* ── Vista Kanban ── */
+          <div className="overflow-x-auto -mx-4 px-4">
+            <div className="flex gap-3 min-w-max pb-2">
+              {[
+                { key: 'nuovo', label: 'Nuovo', colore: 'text-blue-700', bg: 'bg-blue-50', border: 'border-blue-200', items: leads.filter(l => l.stato_gestione === 'nuovo') },
+                { key: 'trattativa', label: 'Trattativa', colore: 'text-hermes-700', bg: 'bg-hermes-50', border: 'border-hermes-200', items: leads.filter(l => l.stato_gestione === 'trattativa') },
+                { key: 'chiusi', label: 'Chiusi', colore: 'text-gray-600', bg: 'bg-gray-50', border: 'border-gray-200', items: chiusi },
+              ].map(col => (
+                <div key={col.key} className="w-[260px] shrink-0">
+                  <div className={`flex items-center gap-2 px-3 py-2 rounded-xl mb-3 ${col.bg} border ${col.border}`}>
+                    <span className={`text-xs font-bold uppercase tracking-wide ${col.colore}`}>{col.label}</span>
+                    <span className={`text-xs font-semibold px-1.5 py-0.5 rounded-full ${col.bg} ${col.colore} border ${col.border}`}>{col.items.length}</span>
+                  </div>
+                  <div className="space-y-2">
+                    {col.items.length === 0 ? (
+                      <div className="text-center py-8 text-gray-300 text-xs border-2 border-dashed border-gray-200 rounded-xl">Nessuna</div>
+                    ) : col.key === 'chiusi' ? (
+                      chiusi.map(lead => (
+                        <div key={lead.id} className={`rounded-xl border p-3 ${lead.esito === 'vinto' ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200'}`}>
+                          <div className="flex items-center gap-2 mb-1">
+                            <div className={`w-7 h-7 rounded-full flex items-center justify-center font-bold text-xs shrink-0 ${lead.esito === 'vinto' ? 'bg-green-200 text-green-800' : 'bg-red-200 text-red-800'}`}>
+                              {iniziali(lead)}
+                            </div>
+                            <div className="min-w-0">
+                              <p className="text-xs font-semibold text-gray-900 truncate">{lead.nome} {lead.cognome}</p>
+                              <p className="text-xs text-gray-400 truncate">{lead.azienda}</p>
+                            </div>
+                          </div>
+                          <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${lead.esito === 'vinto' ? 'bg-green-200 text-green-800' : 'bg-red-200 text-red-800'}`}>
+                            {lead.esito === 'vinto' ? '🏆 Vinto' : '❌ Perso'}
+                          </span>
+                        </div>
+                      ))
+                    ) : (
+                      (col.items as LeadConAzione[]).map(lead => {
+                        const info = lead.prossimaAzione ? scadenzaInfo(lead.prossimaAzione.scadenza) : null
+                        return (
+                          <Link key={lead.id} href={`/gestisci/${lead.id}?workspace_id=${workspaceId}`}
+                            className="block bg-white rounded-xl border border-gray-200 p-3 hover:border-hermes-300 hover:shadow-sm transition-all">
+                            <div className="flex items-center gap-2 mb-1.5">
+                              <div className="w-7 h-7 rounded-full bg-hermes-100 flex items-center justify-center text-hermes-700 font-bold text-xs shrink-0">
+                                {iniziali(lead)}
+                              </div>
+                              <div className="min-w-0">
+                                <p className="text-xs font-semibold text-gray-900 truncate">{lead.nome} {lead.cognome}</p>
+                                <p className="text-xs text-gray-400 truncate">{lead.azienda}</p>
+                              </div>
+                            </div>
+                            {lead.prossimaAzione && info && (
+                              <div className="space-y-1">
+                                <p className="text-xs text-gray-500 truncate">→ {lead.prossimaAzione.testo}</p>
+                                <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${info.bg} ${info.colore} border ${info.border}`}>{info.label}</span>
+                              </div>
+                            )}
+                          </Link>
+                        )
+                      })
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
         ) : (
+          /* ── Vista Lista ── */
           <>
             {leadOggi.length > 0 && (
               <div>

@@ -9,7 +9,7 @@ const supabaseBrowser = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 )
 
-type Fase = 'caricamento' | 'form' | 'animazione' | 'errore'
+type Fase = 'caricamento' | 'form' | 'animazione' | 'pwa' | 'errore'
 
 interface Commerciale {
   nome: string
@@ -52,6 +52,7 @@ export default function OnboardingPage() {
   const [numDipendenti, setNumDipendenti] = useState('')
   const [settore, setSettore] = useState('')
   const [commerciali, setCommerciali] = useState<Commerciale[]>([])
+  const [saltaCommerciali, setSaltaCommerciali] = useState(false)
   const [invio, setInvio] = useState(false)
   const [erroreForm, setErroreForm] = useState<string | null>(null)
 
@@ -98,11 +99,13 @@ export default function OnboardingPage() {
     if (!nomeReferente.trim() || !cognomeReferente.trim()) return 'Inserisci nome e cognome del responsabile'
     if (!/^\d{6}$/.test(pinReferente)) return 'Il PIN del responsabile deve essere di 6 cifre'
     if (pinReferente !== pinReferenteConferma) return 'I PIN del responsabile non coincidono'
-    for (let i = 0; i < commerciali.length; i++) {
-      const c = commerciali[i]
-      if (!c.nome.trim() || !c.cognome.trim()) return `Inserisci nome e cognome del commerciale ${i + 1}`
-      if (!/^\d{6}$/.test(c.pin)) return `Il PIN del commerciale ${i + 1} deve essere di 6 cifre`
-      if (c.pin !== c.pinConferma) return `I PIN del commerciale ${i + 1} non coincidono`
+    if (!saltaCommerciali) {
+      for (let i = 0; i < commerciali.length; i++) {
+        const c = commerciali[i]
+        if (!c.nome.trim() || !c.cognome.trim()) return `Inserisci nome e cognome del commerciale ${i + 1}`
+        if (!/^\d{6}$/.test(c.pin)) return `Il PIN del commerciale ${i + 1} deve essere di 6 cifre`
+        if (c.pin !== c.pinConferma) return `I PIN del commerciale ${i + 1} non coincidono`
+      }
     }
     return null
   }
@@ -115,7 +118,7 @@ export default function OnboardingPage() {
       setStepAnimazione(i + 1)
     }
     await new Promise(r => setTimeout(r, 800))
-    window.location.href = `https://${slug}.voiceleads.it`
+    setFase('pwa')
   }
 
   const invia = async () => {
@@ -155,7 +158,7 @@ export default function OnboardingPage() {
           fatturato,
           num_dipendenti: numDipendenti,
           settore,
-          commerciali: commerciali.map(c => ({ nome: c.nome, cognome: c.cognome, pin: c.pin })),
+          commerciali: saltaCommerciali ? [] : commerciali.map(c => ({ nome: c.nome, cognome: c.cognome, pin: c.pin })),
         }),
       })
       const data = await res.json()
@@ -245,6 +248,53 @@ export default function OnboardingPage() {
 
           <div className="mt-5 h-1.5 bg-gray-200 rounded-full overflow-hidden">
             <div className="h-full rounded-full transition-all duration-700 ease-out" style={{ width: `${(stepAnimazione / STEPS_ANIMAZIONE.length) * 100}%`, background: 'linear-gradient(90deg, #ff7930, #ff4500)' }} />
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  if (fase === 'pwa') {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
+        <div className="max-w-sm w-full space-y-5">
+          <div className="bg-white rounded-3xl p-7 shadow-sm border border-gray-200 text-center">
+            <div className="text-5xl mb-4">🎉</div>
+            <h2 className="text-2xl font-extrabold text-gray-900 mb-1">Workspace pronto!</h2>
+            <p className="text-gray-400 text-sm mb-6">
+              Il tuo team è già attivo su <span className="font-semibold text-hermes-500">{slugCreato}.voiceleads.it</span>
+            </p>
+
+            {/* Istruzioni installazione PWA */}
+            <div className="bg-hermes-50 border border-hermes-200 rounded-2xl p-4 text-left mb-5">
+              <p className="text-xs font-bold text-hermes-700 uppercase tracking-wider mb-3">📱 Installa l'app sul telefono</p>
+              <div className="space-y-3">
+                <div>
+                  <p className="text-xs font-semibold text-gray-700 mb-1">iOS (Safari)</p>
+                  <p className="text-xs text-gray-500 leading-relaxed">
+                    Apri <strong>{slugCreato}.voiceleads.it</strong> su Safari → tocca <strong>Condividi</strong> (□↑) → <strong>Aggiungi a Home</strong>
+                  </p>
+                </div>
+                <div className="border-t border-hermes-100 pt-3">
+                  <p className="text-xs font-semibold text-gray-700 mb-1">Android (Chrome)</p>
+                  <p className="text-xs text-gray-500 leading-relaxed">
+                    Apri il link su Chrome → menu <strong>⋮</strong> → <strong>Aggiungi a schermata Home</strong>
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <p className="text-xs text-gray-400 mb-4">
+              Condividi il link con il tuo team — ogni commerciale accede con il proprio PIN.
+            </p>
+
+            <a
+              href={`https://${slugCreato}.voiceleads.it`}
+              className="block w-full text-white font-bold rounded-2xl py-4 text-base text-center transition-all shadow-md hover:opacity-90 active:scale-95"
+              style={{ background: 'linear-gradient(135deg, #ff7930, #ff4500)' }}
+            >
+              Vai al workspace →
+            </a>
           </div>
         </div>
       </div>
@@ -402,10 +452,29 @@ export default function OnboardingPage() {
           {/* Commerciali */}
           {commerciali.length > 0 && (
             <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-200">
-              <h3 className="font-semibold text-gray-900 mb-1">
-                {commerciali.length === 1 ? 'Il tuo commerciale' : `I tuoi ${commerciali.length} commerciali`}
-              </h3>
+              <div className="flex items-start justify-between mb-1">
+                <h3 className="font-semibold text-gray-900">
+                  {commerciali.length === 1 ? 'Il tuo commerciale' : `I tuoi ${commerciali.length} commerciali`}
+                </h3>
+                <button
+                  type="button"
+                  onClick={() => setSaltaCommerciali(s => !s)}
+                  className={`text-xs font-medium px-3 py-1 rounded-lg border transition-colors ${
+                    saltaCommerciali
+                      ? 'bg-hermes-50 border-hermes-300 text-hermes-600'
+                      : 'border-gray-300 text-gray-400 hover:border-gray-400'
+                  }`}
+                >
+                  {saltaCommerciali ? '✓ Aggiunto dopo' : 'Salta — lo faccio dopo'}
+                </button>
+              </div>
               <p className="text-xs text-gray-400 mb-4">Ogni commerciale avrà un PIN di 6 cifre per accedere</p>
+
+              {saltaCommerciali ? (
+                <div className="rounded-xl bg-amber-50 border border-amber-200 px-4 py-3 text-sm text-amber-700">
+                  ⚠️ Potrai aggiungere i commerciali in seguito dal pannello del responsabile.
+                </div>
+              ) : (
               <div className="space-y-5">
                 {commerciali.map((c, i) => (
                   <div key={i} className="border border-gray-100 rounded-xl p-4">
@@ -463,6 +532,7 @@ export default function OnboardingPage() {
                   </div>
                 ))}
               </div>
+              )}
             </div>
           )}
 

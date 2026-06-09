@@ -5,9 +5,10 @@ interface Props {
   onTrascrizione: (testo: string) => void
   onEstrazione: (dati: Record<string, string>) => void
   workspaceId: string
+  onEstrazioneChange?: (inCorso: boolean) => void
 }
 
-export default function MicButton({ onTrascrizione, onEstrazione, workspaceId }: Props) {
+export default function MicButton({ onTrascrizione, onEstrazione, workspaceId, onEstrazioneChange }: Props) {
   const [stato, setStato] = useState<'idle' | 'ascolto' | 'elaborazione'>('idle')
   const [errore, setErrore] = useState<string | null>(null)
   const [supportato, setSupportato] = useState<boolean | null>(null)
@@ -30,6 +31,7 @@ export default function MicButton({ onTrascrizione, onEstrazione, workspaceId }:
       const testo = e.results[0][0].transcript
       onTrascrizione(testo)
       setStato('elaborazione')
+      onEstrazioneChange?.(true)
       try {
         const res = await fetch('/api/estrai', {
           method: 'POST',
@@ -43,6 +45,7 @@ export default function MicButton({ onTrascrizione, onEstrazione, workspaceId }:
         setErrore('Impossibile elaborare il testo. Riprova.')
       } finally {
         setStato('idle')
+        onEstrazioneChange?.(false)
       }
     }
 

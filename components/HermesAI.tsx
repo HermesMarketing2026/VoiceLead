@@ -30,6 +30,20 @@ export default function HermesAI() {
     }
   }, [aperto])
 
+  // Auto-collassa quando l'utente inizia a digitare in un campo form esterno
+  useEffect(() => {
+    const onFocusIn = (e: FocusEvent) => {
+      const tag = (e.target as HTMLElement).tagName
+      const isFormField = tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT'
+      const isOurInput = inputRef.current && inputRef.current.contains(e.target as Node)
+      if (isFormField && !isOurInput && aperto) {
+        setAperto(false)
+      }
+    }
+    document.addEventListener('focusin', onFocusIn)
+    return () => document.removeEventListener('focusin', onFocusIn)
+  }, [aperto])
+
   const invia = async (testo: string) => {
     if (!testo.trim() || caricamento) return
     const nuoviMsg: Messaggio[] = [...messaggi, { role: 'user', content: testo.trim() }]

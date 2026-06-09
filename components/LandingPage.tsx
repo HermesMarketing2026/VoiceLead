@@ -9,11 +9,19 @@ export default function LandingPage() {
   const [cercando, setCercando] = useState(false)
   const [erroreAccesso, setErroreAccesso] = useState<string | null>(null)
   const [menuAperto, setMenuAperto] = useState(false)
+  const [ultimoWorkspace, setUltimoWorkspace] = useState<{ slug: string; nome: string } | null>(null)
   const inputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
     if (mostraAccedi) setTimeout(() => inputRef.current?.focus(), 50)
   }, [mostraAccedi])
+
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem('vl_last_workspace')
+      if (saved) setUltimoWorkspace(JSON.parse(saved))
+    } catch {}
+  }, [])
 
   const accedi = async () => {
     if (!nomeAzienda.trim()) return
@@ -100,6 +108,21 @@ export default function LandingPage() {
 
         {mostraAccedi && (
           <div className="pointer-events-auto absolute top-16 left-1/2 -translate-x-1/2 w-80 bg-gray-950 border border-white/10 rounded-2xl shadow-2xl p-5 z-30">
+            {ultimoWorkspace && (
+              <a
+                href={`https://${ultimoWorkspace.slug}.voiceleads.it`}
+                className="flex items-center gap-3 rounded-xl bg-white/5 border border-white/10 px-3 py-2.5 mb-3 hover:bg-white/10 transition-colors group"
+              >
+                <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0" style={{ background: 'linear-gradient(135deg, #ff7930, #ff4500)' }}>
+                  <span className="text-sm">🎙️</span>
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs text-white/40">Accesso rapido</p>
+                  <p className="text-sm font-semibold text-white truncate">{ultimoWorkspace.nome}</p>
+                </div>
+                <span className="text-white/30 group-hover:text-hermes-400 transition-colors">›</span>
+              </a>
+            )}
             <p className="text-sm font-bold text-white mb-1">Accedi al tuo workspace</p>
             <p className="text-xs text-white/40 mb-3">Inserisci il nome della tua azienda</p>
             <input

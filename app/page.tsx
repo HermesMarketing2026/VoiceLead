@@ -28,6 +28,7 @@ export default function Home() {
   const [ruoloUtente, setRuoloUtente] = useState<'admin' | 'commerciale' | null>(null)
   const [commerciali, setCommerciali] = useState<CommercialCard[]>([])
   const [trialInfo, setTrialInfo] = useState<{ fatturazione: string | null; scadenza_il: string | null } | null>(null)
+  const [bozzaCount, setBozzaCount] = useState(0)
 
   useEffect(() => {
     const host = window.location.hostname
@@ -74,6 +75,8 @@ export default function Home() {
 
       setUtenteId(sessione.utenteId ?? null)
       setNomeUtente(sessione.nomeUtente ?? null)
+      // Salva ultimo workspace per quick access dalla landing
+      try { localStorage.setItem('vl_last_workspace', JSON.stringify({ slug: slugRilevato, nome: sessione.nomeAzienda || '' })) } catch {}
       setVista('hub')
     } else {
       setVista('login')
@@ -100,6 +103,22 @@ export default function Home() {
         .catch(() => {})
     }
   }, [workspaceId, vista, hasGestisci, utenteId])
+
+  useEffect(() => {
+    if (workspaceId && vista === 'hub') {
+      const url = utenteId
+        ? `/api/leads?workspace_id=${workspaceId}&utente_id=${utenteId}`
+        : `/api/leads?workspace_id=${workspaceId}`
+      fetch(url)
+        .then(r => r.json())
+        .then(data => {
+          if (Array.isArray(data)) {
+            setBozzaCount(data.filter((l: any) => l.stato === 'bozza').length)
+          }
+        })
+        .catch(() => {})
+    }
+  }, [workspaceId, vista, utenteId])
 
   const onLogin = async (pin: string, utenteIdLogin?: string) => {
     const res = await fetch('/api/auth', {
@@ -143,6 +162,7 @@ export default function Home() {
     salvaSessione('workspace', data.workspaceId, data.nomeAzienda, data.logoUrl, data.hasGestisci, data.utenteId ?? undefined, data.nomeUtente ?? undefined, data.ruoloUtente ?? undefined, undefined, data.workspaceToken)
     setUtenteId(data.utenteId ?? null)
     setNomeUtente(data.nomeUtente ?? null)
+    try { localStorage.setItem('vl_last_workspace', JSON.stringify({ slug, nome: data.nomeAzienda || '' })) } catch {}
     setVista('hub')
   }
 
@@ -272,12 +292,20 @@ export default function Home() {
               <p className={`text-xs font-bold ${giorniTrialLeft <= 3 ? 'text-red-600' : 'text-amber-700'}`}>
                 Prova gratuita — {giorniTrialLeft === 0 ? 'scade oggi!' : `${giorniTrialLeft} ${giorniTrialLeft === 1 ? 'giorno rimanente' : 'giorni rimanenti'}`}
               </p>
-              <p className={`text-xs mt-0.5 ${giorniTrialLeft <= 3 ? 'text-red-500' : 'text-amber-600'}`}>Stai usando il Piano Pro completo</p>
+              <p className={`text-xs mt-0.5 ${giorniTrialLeft <= 3 ? 'text-red-500' : 'text-amber-600'}`}>
+                {ruoloUtente === 'commerciale'
+                  ? giorniTrialLeft <= 3 ? 'Avvisa il responsabile per non perdere i dati' : 'Stai usando il Piano Pro completo'
+                  : 'Stai usando il Piano Pro completo'}
+              </p>
             </div>
-            <a href="/checkout?piano=pro" className="text-xs font-bold text-white px-3 py-1.5 rounded-lg shrink-0 transition-opacity hover:opacity-80"
-              style={{ background: 'linear-gradient(135deg, #ff7930, #ff4500)' }}>
-              Abbonati
-            </a>
+            {ruoloUtente !== 'commerciale' ? (
+              <a href="/checkout?piano=pro" className="text-xs font-bold text-white px-3 py-1.5 rounded-lg shrink-0 transition-opacity hover:opacity-80"
+                style={{ background: 'linear-gradient(135deg, #ff7930, #ff4500)' }}>
+                Abbonati
+              </a>
+            ) : giorniTrialLeft <= 7 ? (
+              <span className="text-xs font-bold text-red-600 shrink-0">⚡ Parla col responsabile</span>
+            ) : null}
           </div>
         )}
 
@@ -289,6 +317,23 @@ export default function Home() {
               <span className="text-lg font-extrabold text-amber-600">{leadDaGestire}</span> lead da seguire oggi
             </p>
           </div>
+        )}
+
+        {/* Banner bozze */}
+        {bozzaCount > 0 && (
+          <Link
+            href={`/registra?workspace_id=${workspaceId}${utenteId ? `&utente_id=${utenteId}` : ''}&filtro=bozza`}
+            className="block bg-orange-50 border border-orange-200 rounded-2xl px-4 py-3 flex items-center gap-3 hover:bg-orange-100 transition-colors"
+          >
+            <span className="text-xl">✏️</span>
+            <div className="flex-1">
+              <p className="text-sm font-semibold text-orange-700">
+                <span className="text-lg font-extrabold text-orange-600">{bozzaCount}</span> {bozzaCount === 1 ? 'lead incompleto' : 'lead incompleti'}
+              </p>
+              <p className="text-xs text-orange-500 mt-0.5">Tocca per completarli prima che vengano eliminati</p>
+            </div>
+            <span className="text-orange-400 text-lg">›</span>
+          </Link>
         )}
 
         {/* Bottoni principali */}

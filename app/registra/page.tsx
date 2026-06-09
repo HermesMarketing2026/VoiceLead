@@ -1,5 +1,5 @@
 'use client'
-import { useEffect, useState, Suspense } from 'react'
+import { useEffect, useState, useRef, Suspense } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import type { Lead } from '@/lib/types'
@@ -10,6 +10,7 @@ import { FaqRegistra } from '@/components/FaqInApp'
 import { leggiSessione, workspaceAuthHeader } from '@/lib/session'
 
 type Filtro = 'tutti' | 'completo' | 'bozza'
+type Ordinamento = 'recenti' | 'meno-recenti' | 'nome-az'
 
 function RegistraDashboard() {
   const params = useSearchParams()
@@ -18,17 +19,31 @@ function RegistraDashboard() {
   const utenteId = params.get('utente_id') ?? leggiSessione()?.utenteId ?? ''
 
   const [leads, setLeads] = useState<Lead[]>([])
-  const [filtro, setFiltro] = useState<Filtro>('tutti')
+  const filtroParam = (params.get('filtro') as Filtro) ?? 'tutti'
+  const [filtro, setFiltro] = useState<Filtro>(filtroParam)
+  const [ricerca, setRicerca] = useState('')
+  const [ordinamento, setOrdinamento] = useState<Ordinamento>('recenti')
   const [esportazione, setEsportazione] = useState(false)
   const [svuotamento, setSvuotamento] = useState(false)
   const [confermaSvuota, setConfermaSvuota] = useState(false)
   const [esito, setEsito] = useState<string | null>(null)
   const [caricamento, setCaricamento] = useState(true)
+  const esitoTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   useEffect(() => {
     if (!workspaceId) { router.push('/'); return }
     carica()
   }, [workspaceId])
+
+  const mostraEsito = (msg: string, autoDismiss = true) => {
+    setEsito(msg)
+    if (autoDismiss) {
+      clearTimeout(esitoTimerRef.current!)
+      esitoTimerRef.current = setTimeout(() => setEsito(null), 4000)
+    }
+  }
+
+  useEffect(() => () => clearTimeout(esitoTimerRef.current!), [])
 
   const carica = async () => {
     setCaricamento(true)
@@ -56,11 +71,11 @@ function RegistraDashboard() {
       })
       const data = await res.json()
       if (!res.ok) throw new Error(data.error)
-      setEsito(`🗑️ ${data.cancellati} lead esportati rimossi dall'archivio`)
+      mostraEsito(`🗑️ ${data.cancellati} lead esportati rimossi dall'archivio`)
       setConfermaSvuota(false)
       carica()
     } catch (e: any) {
-      setEsito(`❌ ${e?.message ?? 'Errore'}`)
+      mostraEsito(`❌ ${e?.message ?? 'Errore'}`)
     } finally {
       setSvuotamento(false)
     }
@@ -83,15 +98,15 @@ function RegistraDashboard() {
         a.download = `leads-${new Date().toISOString().slice(0, 10)}.csv`
         a.click()
         URL.revokeObjectURL(url)
-        setEsito('✅ CSV scaricato!')
+        mostraEsito('✅ CSV scaricato con successo!')
         carica()
       } else {
         const data = await res.json()
-        if (!res.ok) setEsito(`❌ ${data.error ?? 'Errore'}`)
-        else setEsito(data.message || 'Nessun lead da esportare')
+        if (!res.ok) mostraEsito(`❌ ${data.error ?? 'Errore'}`)
+        else mostraEsito(data.message || 'Nessun lead da esportare')
       }
     } catch (e: any) {
-      setEsito(`❌ ${e?.message ?? 'Errore'}`)
+      mostraEsito(`❌ ${e?.message ?? 'Errore'}`)
     } finally {
       setEsportazione(false)
     }
@@ -101,11 +116,22 @@ function RegistraDashboard() {
   const pronti = leads.filter(l => l.stato === 'completo').length
   const daCompletare = leads.filter(l => l.stato === 'bozza').length
   const esportati = leads.filter(l => l.stato === 'esportato').length
-  const visibili = leads.filter(l => {
-    if (filtro === 'tutti') return true
-    if (filtro === 'completo') return l.stato === 'completo' || l.stato === 'esportato'
-    return l.stato === 'bozza'
-  })
+  const visibili = leads
+    .filter(l => {
+      if (filtro === 'completo') return l.stato === 'completo' || l.stato === 'esportato'
+      if (filtro === 'bozza') return l.stato === 'bozza'
+      return true
+    })
+    .filter(l => {
+      if (!ricerca.trim()) return true
+      const q = ricerca.toLowerCase()
+      return `${l.nome ?? ''} ${l.cognome ?? ''} ${l.azienda ?? ''}`.toLowerCase().includes(q)
+    })
+    .sort((a, b) => {
+      if (ordinamento === 'nome-az') return `${a.nome ?? ''} ${a.cognome ?? ''}`.localeCompare(`${b.nome ?? ''} ${b.cognome ?? ''}`, 'it')
+      if (ordinamento === 'meno-recenti') return new Date(a.data_registrazione).getTime() - new Date(b.data_registrazione).getTime()
+      return new Date(b.data_registrazione).getTime() - new Date(a.data_registrazione).getTime()
+    })
 
   return (
     <AppShell>
@@ -141,12 +167,26 @@ function RegistraDashboard() {
             disabled={esportazione || pronti === 0}
             className="flex-1 flex items-center justify-center gap-2 rounded-xl border border-gray-300 px-4 py-3.5 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
           >
-            {esportazione ? '⏳ Export…' : '📥 Scarica CSV'}
+            {esportazione ? (
+            <>
+              <svg className="animate-spin w-4 h-4" viewBox="0 0 24 24" fill="none">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
+              </svg>
+              Esportazione…
+            </>
+          ) : '📥 Scarica CSV'}
           </button>
         </div>
 
         {esito && (
-          <div className="rounded-xl bg-gray-50 border border-gray-200 px-4 py-3 text-sm text-gray-700">{esito}</div>
+          <div className={`rounded-xl px-4 py-3 text-sm font-medium flex items-center gap-2 ${
+            esito.startsWith('✅') ? 'bg-green-50 border border-green-200 text-green-700'
+            : esito.startsWith('❌') ? 'bg-red-50 border border-red-200 text-red-700'
+            : 'bg-gray-50 border border-gray-200 text-gray-700'
+          }`}>
+            {esito}
+          </div>
         )}
 
         {esportati > 0 && (
@@ -174,25 +214,62 @@ function RegistraDashboard() {
           </div>
         )}
 
-        <div className="flex gap-2">
-          {(['tutti', 'completo', 'bozza'] as Filtro[]).map(f => (
-            <button key={f} onClick={() => setFiltro(f)}
-              className={`px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${
-                filtro === f ? 'bg-hermes-500 text-white shadow-sm' : 'bg-white border border-gray-300 text-gray-600 hover:bg-gray-50'
-              }`}
-            >
-              {f === 'tutti' ? 'Tutti' : f === 'completo' ? '🟢 Pronti' : '🔴 Da completare'}
+        {/* Ricerca */}
+        <div className="relative">
+          <svg className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z"/>
+          </svg>
+          <input
+            type="text"
+            value={ricerca}
+            onChange={e => setRicerca(e.target.value)}
+            placeholder="Cerca per nome o azienda…"
+            className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-gray-200 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-hermes-400 focus:border-transparent"
+          />
+          {ricerca && (
+            <button onClick={() => setRicerca('')} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
+              ×
             </button>
-          ))}
+          )}
         </div>
+
+        {/* Filtri + ordinamento */}
+        <div className="flex items-center gap-2 flex-wrap">
+          <div className="flex gap-1.5">
+            {(['tutti', 'completo', 'bozza'] as Filtro[]).map(f => (
+              <button key={f} onClick={() => setFiltro(f)}
+                className={`px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${
+                  filtro === f ? 'bg-hermes-500 text-white shadow-sm' : 'bg-white border border-gray-300 text-gray-600 hover:bg-gray-50'
+                }`}
+              >
+                {f === 'tutti' ? 'Tutti' : f === 'completo' ? '🟢 Pronti' : '🔴 Bozze'}
+              </button>
+            ))}
+          </div>
+          <div className="ml-auto">
+            <select
+              value={ordinamento}
+              onChange={e => setOrdinamento(e.target.value as Ordinamento)}
+              className="text-xs rounded-lg border border-gray-200 px-2.5 py-1.5 bg-white text-gray-600 focus:outline-none focus:ring-1 focus:ring-hermes-400"
+            >
+              <option value="recenti">Più recenti</option>
+              <option value="meno-recenti">Meno recenti</option>
+              <option value="nome-az">Nome A→Z</option>
+            </select>
+          </div>
+        </div>
+
+        {ricerca && visibili.length > 0 && (
+          <p className="text-xs text-gray-400">{visibili.length} {visibili.length === 1 ? 'risultato' : 'risultati'} per "<strong>{ricerca}</strong>"</p>
+        )}
 
         {caricamento ? (
           <p className="text-center text-gray-400 py-12">Caricamento…</p>
         ) : visibili.length === 0 ? (
           <div className="text-center py-16 text-gray-400">
-            <p className="text-5xl mb-3">🎙️</p>
-            <p className="text-sm font-medium">Nessun lead ancora.</p>
-            <p className="text-xs mt-1">Registra il primo con la voce!</p>
+            <p className="text-5xl mb-3">{ricerca ? '🔍' : '🎙️'}</p>
+            <p className="text-sm font-medium">{ricerca ? 'Nessun lead trovato.' : 'Nessun lead ancora.'}</p>
+            <p className="text-xs mt-1">{ricerca ? 'Prova con un nome diverso.' : 'Registra il primo con la voce!'}</p>
           </div>
         ) : (
           <ul className="space-y-3">
