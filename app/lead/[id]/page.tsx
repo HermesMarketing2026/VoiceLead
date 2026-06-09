@@ -10,12 +10,23 @@ function SchedaLeadInner({ id }: { id: string }) {
   const params = useSearchParams()
   const workspaceId = params.get('workspace_id') ?? ''
   const [lead, setLead] = useState<Lead | null>(null)
+  const [errore, setErrore] = useState(false)
 
   useEffect(() => {
     fetch(`/api/leads/${id}`, { headers: workspaceAuthHeader() })
-      .then(r => r.json())
+      .then(r => { if (!r.ok) throw new Error(); return r.json() })
       .then(setLead)
+      .catch(() => setErrore(true))
   }, [id])
+
+  if (errore) return (
+    <AppShell>
+      <div className="text-center py-12 space-y-3">
+        <p className="text-sm text-red-500 font-medium">Impossibile caricare il lead.</p>
+        <a href={workspaceId ? `/registra?workspace_id=${workspaceId}` : '/'} className="text-sm text-hermes-500 underline">← Torna indietro</a>
+      </div>
+    </AppShell>
+  )
 
   if (!lead) return <AppShell><p className="text-center text-gray-400 py-12">Caricamento…</p></AppShell>
 

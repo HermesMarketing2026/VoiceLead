@@ -154,6 +154,7 @@ function SchedaGestisciInner({ id }: { id: string }) {
   const [modificaData, setModificaData] = useState(false)
   const [nuovaData, setNuovaData] = useState('')
   const [salvandoData, setSalvandoData] = useState(false)
+  const [erroreAzione, setErroreAzione] = useState<string | null>(null)
   const [erroreCaricamento, setErroreCaricamento] = useState<string | null>(null)
 
   const caricaLead = async () => {
@@ -221,24 +222,35 @@ function SchedaGestisciInner({ id }: { id: string }) {
   const salvaData = async (azId: string) => {
     if (!nuovaData) return
     setSalvandoData(true)
-    await fetch('/api/azioni', {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json', ...workspaceAuthHeader() },
-      body: JSON.stringify({ id: azId, scadenza: new Date(nuovaData).toISOString(), scadenza_automatica: false }),
-    })
-    setSalvandoData(false)
-    setModificaData(false)
-    setNuovaData('')
-    caricaAzioni()
+    try {
+      const res = await fetch('/api/azioni', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json', ...workspaceAuthHeader() },
+        body: JSON.stringify({ id: azId, scadenza: new Date(nuovaData).toISOString(), scadenza_automatica: false }),
+      })
+      if (!res.ok) throw new Error()
+      setModificaData(false)
+      setNuovaData('')
+      caricaAzioni()
+    } catch {
+      setErroreAzione('Salvataggio data fallito. Riprova.')
+    } finally {
+      setSalvandoData(false)
+    }
   }
 
   const completaAzione = async (azId: string, completata: boolean) => {
-    await fetch('/api/azioni', {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json', ...workspaceAuthHeader() },
-      body: JSON.stringify({ id: azId, completata }),
-    })
-    caricaAzioni()
+    try {
+      const res = await fetch('/api/azioni', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json', ...workspaceAuthHeader() },
+        body: JSON.stringify({ id: azId, completata }),
+      })
+      if (!res.ok) throw new Error()
+      caricaAzioni()
+    } catch {
+      setErroreAzione('Aggiornamento azione fallito. Riprova.')
+    }
   }
 
   const eliminaTrattativa = async () => {
@@ -311,6 +323,13 @@ function SchedaGestisciInner({ id }: { id: string }) {
         <div className="bg-white rounded-2xl border border-gray-200 p-5 shadow-sm">
           <BarraProgresso stato={lead.stato_gestione} esito={lead.esito} />
         </div>
+
+        {erroreAzione && (
+          <div className="rounded-xl bg-red-50 border border-red-200 px-4 py-3 text-sm text-red-600 flex items-center justify-between gap-3">
+            <span>{erroreAzione}</span>
+            <button onClick={() => setErroreAzione(null)} className="text-red-400 hover:text-red-600 shrink-0">×</button>
+          </div>
+        )}
 
         {/* Prossima azione */}
         {prossimaAzione && (
