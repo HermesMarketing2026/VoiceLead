@@ -221,6 +221,7 @@ export default function LeadForm({ lead, workspaceId }: Props) {
               ))}
             </div>
             <p className="text-sm font-semibold text-hermes-600">Estraggo i dati…</p>
+            <p className="text-xs text-hermes-400">Potrebbe richiedere qualche secondo</p>
           </div>
         )}
 
@@ -272,7 +273,7 @@ export default function LeadForm({ lead, workspaceId }: Props) {
       <div className="flex gap-3 pb-4">
         <button
           type="button"
-          onClick={() => router.back()}
+          onClick={() => router.push(`/registra?workspace_id=${workspaceId}`)}
           className="flex-1 rounded-xl border border-gray-300 py-3 text-sm font-medium text-gray-600 hover:bg-gray-50 transition-colors"
         >
           Annulla

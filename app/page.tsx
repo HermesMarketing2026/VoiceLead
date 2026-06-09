@@ -505,7 +505,7 @@ export default function Home() {
         return (
           <div className="fixed inset-0 z-50 bg-black/60 flex items-end justify-center px-4 pb-6" onClick={chiudiTutorial}>
             <div
-              className="w-full max-w-sm bg-white rounded-3xl shadow-2xl overflow-hidden"
+              className="w-full max-w-sm bg-white rounded-3xl shadow-2xl overflow-hidden max-h-[90vh] overflow-y-auto"
               onClick={e => e.stopPropagation()}
             >
               <div className="px-6 pt-6 pb-5" style={{ background: 'linear-gradient(135deg, #fff7f0, #fff3eb)' }}>

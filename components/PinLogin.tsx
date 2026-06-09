@@ -41,6 +41,7 @@ export default function PinLogin({ titolo, sottotitolo, slug, onSuccess }: Props
   const [schermata, setSchermata] = useState<'selezione' | 'pin' | 'reset'>('pin')
   const [resetInvio, setResetInvio] = useState(false)
   const [resetEsito, setResetEsito] = useState<string | null>(null)
+  const [tentativiErrati, setTentativiErrati] = useState(0)
 
   useEffect(() => {
     if (!slug) return
@@ -69,6 +70,11 @@ export default function PinLogin({ titolo, sottotitolo, slug, onSuccess }: Props
     } catch (e: any) {
       setErrore(e.message || 'PIN non corretto')
       setPin('')
+      setTentativiErrati(t => {
+        const nuovi = t + 1
+        if (nuovi >= 3) setSchermata('reset')
+        return nuovi
+      })
     } finally {
       setCaricamento(false)
     }
@@ -78,6 +84,7 @@ export default function PinLogin({ titolo, sottotitolo, slug, onSuccess }: Props
     setUtenteSelezionato(u)
     setSchermata('pin')
     setPin('')
+    setTentativiErrati(0)
     setErrore(null)
   }
 

@@ -12,6 +12,7 @@ export default function HermesAI() {
   const [input, setInput] = useState('')
   const [caricamento, setCaricamento] = useState(false)
   const [registrazione, setRegistrazione] = useState(false)
+  const [errore, setErrore] = useState<string | null>(null)
   const bottomRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLTextAreaElement>(null)
   const mediaRef = useRef<MediaRecorder | null>(null)
@@ -113,7 +114,7 @@ export default function HermesAI() {
       mediaRef.current = mr
       setRegistrazione(true)
     } catch {
-      alert('Permesso microfono negato.')
+      setErrore('Permesso microfono negato. Abilitalo nelle impostazioni del browser.')
     }
   }
 
@@ -206,6 +207,14 @@ export default function HermesAI() {
             ))}
             <div ref={bottomRef} />
           </div>
+
+          {/* Errore microfono */}
+          {errore && (
+            <div className="px-4 py-2 bg-red-900/40 border-t border-red-500/30 flex items-center justify-between gap-2">
+              <p className="text-xs text-red-300">{errore}</p>
+              <button onClick={() => setErrore(null)} className="text-red-400 hover:text-red-200 text-sm leading-none shrink-0">×</button>
+            </div>
+          )}
 
           {/* Input */}
           <div className="px-3 py-3 border-t border-white/10 flex items-end gap-2" style={{ background: '#111' }}>

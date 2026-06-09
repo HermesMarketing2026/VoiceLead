@@ -55,6 +55,7 @@ export default function OnboardingPage() {
   const [saltaCommerciali, setSaltaCommerciali] = useState(false)
   const [invio, setInvio] = useState(false)
   const [erroreForm, setErroreForm] = useState<string | null>(null)
+  const [logoWarning, setLogoWarning] = useState(false)
 
   // Animazione
   const [stepAnimazione, setStepAnimazione] = useState(0)
@@ -138,7 +139,7 @@ export default function OnboardingPage() {
           .upload(path, logoFile, { contentType: logoFile.type, upsert: false })
         if (uploadError) {
           console.error('[onboarding] logo upload error:', uploadError.message)
-          // Non blocchiamo: il workspace viene creato senza logo
+          setLogoWarning(true)
         } else {
           const { data: urlData } = supabaseBrowser.storage.from('loghi').getPublicUrl(uploadData.path)
           logoUrl = urlData.publicUrl
@@ -390,6 +391,9 @@ export default function OnboardingPage() {
                   </div>
                   <input type="file" accept="image/*" className="hidden" onChange={handleLogo} />
                 </label>
+                {logoWarning && (
+                  <p className="mt-1.5 text-xs text-amber-600">⚠️ Caricamento logo fallito — il workspace sarà creato senza logo. Puoi aggiungerlo dopo dalle impostazioni.</p>
+                )}
               </div>
             </div>
           </div>

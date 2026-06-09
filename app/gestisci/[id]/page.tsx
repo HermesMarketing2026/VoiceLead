@@ -154,15 +154,26 @@ function SchedaGestisciInner({ id }: { id: string }) {
   const [modificaData, setModificaData] = useState(false)
   const [nuovaData, setNuovaData] = useState('')
   const [salvandoData, setSalvandoData] = useState(false)
+  const [erroreCaricamento, setErroreCaricamento] = useState<string | null>(null)
 
   const caricaLead = async () => {
-    const res = await fetch(`/api/leads/${id}`, { headers: workspaceAuthHeader() })
-    setLead(await res.json())
+    try {
+      const res = await fetch(`/api/leads/${id}`, { headers: workspaceAuthHeader() })
+      if (!res.ok) throw new Error(`Errore ${res.status}`)
+      setLead(await res.json())
+    } catch {
+      setErroreCaricamento('Impossibile caricare il lead. Riprova o torna indietro.')
+    }
   }
 
   const caricaAzioni = async () => {
-    const res = await fetch(`/api/azioni?lead_id=${id}`, { headers: workspaceAuthHeader() })
-    setAzioni(await res.json())
+    try {
+      const res = await fetch(`/api/azioni?lead_id=${id}`, { headers: workspaceAuthHeader() })
+      if (!res.ok) throw new Error(`Errore ${res.status}`)
+      setAzioni(await res.json())
+    } catch {
+      // non blocca il render, le azioni sono opzionali per la visualizzazione
+    }
   }
 
   useEffect(() => {
@@ -269,6 +280,18 @@ function SchedaGestisciInner({ id }: { id: string }) {
   )
   const prossimaAzione = azioniAttive[0]
   const storicoAggiornamenti = azioni.filter(a => a.aggiornamento_dettato)
+
+  if (erroreCaricamento) return (
+    <AppShell>
+      <div className="space-y-4 pt-8 text-center">
+        <p className="text-red-600 text-sm font-medium">{erroreCaricamento}</p>
+        <button onClick={() => { setErroreCaricamento(null); caricaLead(); caricaAzioni() }}
+          className="rounded-xl border border-gray-300 px-4 py-2 text-sm text-gray-600 hover:bg-gray-50">
+          Riprova
+        </button>
+      </div>
+    </AppShell>
+  )
 
   return (
     <AppShell>
