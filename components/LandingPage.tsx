@@ -141,9 +141,9 @@ export default function LandingPage() {
             </div>
 
             <h1 className="text-5xl md:text-7xl font-extrabold leading-tight mb-6 tracking-tight">
-              Detti.{' '}
+              Tu parli.{' '}
               <span style={{ background: 'linear-gradient(135deg, #ff7930, #ff4500)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
-                L'AI chiude.
+                Il lead è già salvato.
               </span>
             </h1>
 
