@@ -48,7 +48,7 @@ function RegistraDashboard() {
   const carica = async () => {
     setCaricamento(true)
     const url = utenteId ? `/api/leads?workspace_id=${workspaceId}&utente_id=${utenteId}` : `/api/leads?workspace_id=${workspaceId}`
-    const res = await fetch(url)
+    const res = await fetch(url, { headers: workspaceAuthHeader() })
     const data = await res.json()
     setLeads(Array.isArray(data) ? data : [])
     setCaricamento(false)
