@@ -199,7 +199,7 @@ export default function Admin() {
   }
 
   const caricaUtenti = async (workspaceId: string) => {
-    const res = await fetch(`/api/utenti?workspace_id=${workspaceId}`)
+    const res = await fetch(`/api/utenti?workspace_id=${workspaceId}&admin=1`, { headers: adminAuthHeader() })
     const data = await res.json()
     setUtenti(Array.isArray(data) ? data : [])
   }
@@ -544,7 +544,7 @@ export default function Admin() {
           ) : (
             <ul className="space-y-2">
               {utenti.map(u => {
-                const pinHashato = u.pin.startsWith('$2')
+                const pinHashato = u.pin?.startsWith('$2') ?? false
                 const pinMostrato = pinVisibile[u.id]
                 return (
                   <li key={u.id} className="bg-gray-50 rounded-xl px-4 py-3 space-y-3">

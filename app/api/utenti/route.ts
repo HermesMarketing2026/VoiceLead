@@ -6,10 +6,12 @@ export async function GET(req: NextRequest) {
   const workspaceId = req.nextUrl.searchParams.get('workspace_id')
   if (!workspaceId) return NextResponse.json({ error: 'workspace_id mancante' }, { status: 400 })
 
-  // PIN non esposto: leggibile da chiunque abbia il workspace_id (necessario per la selezione commerciale)
+  const isAdmin = req.nextUrl.searchParams.get('admin') === '1' && verificaAdmin(req)
+  const fields = isAdmin ? 'id, nome, cognome, pin, ruolo, creato_il' : 'id, nome, cognome, ruolo, creato_il'
+
   const { data, error } = await supabase
     .from('utenti')
-    .select('id, nome, cognome, ruolo, creato_il')
+    .select(fields)
     .eq('workspace_id', workspaceId)
     .order('creato_il', { ascending: true })
 
