@@ -16,6 +16,9 @@ export default function CookieBanner() {
 
   useEffect(() => {
     if (!getConsent()) setVisible(true)
+    const open = () => setVisible(true)
+    window.addEventListener('openCookieBanner', open)
+    return () => window.removeEventListener('openCookieBanner', open)
   }, [])
 
   const scegli = (scelta: 'accepted' | 'rejected') => {

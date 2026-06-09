@@ -545,6 +545,207 @@ export default function Admin() {
     )
   }
 
+  // Vista breach notification
+  if (modalita === 'breach') {
+    const tuttiWorkspacesSelezionati = breachForm.workspace_ids.length === 0
+    return (
+      <AppShell><div className="space-y-5">
+        <div className="flex items-center gap-3">
+          <button onClick={() => { setModalita('lista'); setBreachPreview(null); setBreachRisultato(null); setBreachErrore(null) }} className="text-gray-400 hover:text-gray-600 text-xl">←</button>
+          <div>
+            <h1 className="text-xl font-bold text-gray-900">Notifica Data Breach</h1>
+            <p className="text-xs text-gray-400">Invia solo in caso di violazione reale accertata — Art. 33-34 GDPR</p>
+          </div>
+        </div>
+
+        {breachRisultato ? (
+          <div className={`rounded-2xl border p-6 space-y-3 ${breachRisultato.errori.length === 0 ? 'bg-green-50 border-green-200' : 'bg-amber-50 border-amber-200'}`}>
+            <p className="font-bold text-gray-900">
+              {breachRisultato.errori.length === 0 ? '✅ Notifiche inviate correttamente' : '⚠️ Invio parziale'}
+            </p>
+            <p className="text-sm text-gray-700">Email inviate con successo: <strong>{breachRisultato.inviati}</strong></p>
+            {breachRisultato.errori.length > 0 && (
+              <div>
+                <p className="text-sm font-semibold text-red-600">Errori ({breachRisultato.errori.length}):</p>
+                <ul className="text-xs text-red-500 space-y-1 mt-1">
+                  {breachRisultato.errori.map(e => <li key={e.email}>{e.email}: {e.errore}</li>)}
+                </ul>
+              </div>
+            )}
+            <p className="text-xs text-gray-500">L'evento è stato registrato nel log interno.</p>
+            <button
+              onClick={() => { setBreachRisultato(null); setBreachForm({ descrizione: '', data_scoperta: new Date().toISOString().slice(0, 16), categorie_dati: [], misure_adottate: '', workspace_ids: [] }) }}
+              className="text-sm text-hermes-600 underline"
+            >
+              Nuova notifica
+            </button>
+          </div>
+        ) : (
+          <div className="space-y-5">
+            {/* Avviso */}
+            <div className="rounded-xl bg-red-50 border border-red-200 p-4 text-sm text-red-700 space-y-1">
+              <p className="font-bold">Attenzione — usa solo in caso di breach accertato.</p>
+              <p>Questa funzione invia email ai clienti selezionati comunicando una violazione dei loro dati. Non esiste annulla dopo l'invio.</p>
+            </div>
+
+            <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 space-y-5">
+              {/* Data scoperta */}
+              <div>
+                <label className={labelClass}>Data e ora di scoperta <span className="text-red-500">*</span></label>
+                <input
+                  type="datetime-local"
+                  className={inputClass}
+                  value={breachForm.data_scoperta}
+                  onChange={e => setBreachForm(f => ({ ...f, data_scoperta: e.target.value }))}
+                />
+              </div>
+
+              {/* Descrizione */}
+              <div>
+                <label className={labelClass}>Descrizione dell'incidente <span className="text-red-500">*</span></label>
+                <textarea
+                  className={inputClass + ' resize-none'}
+                  rows={4}
+                  placeholder="Descrivi cosa è successo in modo chiaro e non tecnico. Es: un accesso non autorizzato al database ha esposto dati di X workspace..."
+                  value={breachForm.descrizione}
+                  onChange={e => setBreachForm(f => ({ ...f, descrizione: e.target.value }))}
+                />
+              </div>
+
+              {/* Categorie dati */}
+              <div>
+                <label className={labelClass}>Categorie di dati coinvolti <span className="text-red-500">*</span></label>
+                <div className="grid grid-cols-2 gap-2 mt-1">
+                  {CATEGORIE_DATI_OPZIONI.map(cat => (
+                    <label key={cat} className="flex items-center gap-2 text-sm text-gray-700 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={breachForm.categorie_dati.includes(cat)}
+                        onChange={e => setBreachForm(f => ({
+                          ...f,
+                          categorie_dati: e.target.checked
+                            ? [...f.categorie_dati, cat]
+                            : f.categorie_dati.filter(c => c !== cat),
+                        }))}
+                      />
+                      {cat}
+                    </label>
+                  ))}
+                </div>
+              </div>
+
+              {/* Misure adottate */}
+              <div>
+                <label className={labelClass}>Misure adottate / azioni in corso <span className="text-red-500">*</span></label>
+                <textarea
+                  className={inputClass + ' resize-none'}
+                  rows={3}
+                  placeholder="Es: l'accesso è stato immediatamente bloccato, le credenziali compromesse sono state revocate, è in corso un'analisi forense..."
+                  value={breachForm.misure_adottate}
+                  onChange={e => setBreachForm(f => ({ ...f, misure_adottate: e.target.value }))}
+                />
+              </div>
+
+              {/* Selezione workspace */}
+              <div>
+                <label className={labelClass}>Workspace coinvolti</label>
+                <div
+                  onClick={() => setBreachForm(f => ({ ...f, workspace_ids: [] }))}
+                  className={`flex items-center gap-2 rounded-xl border-2 px-4 py-2.5 cursor-pointer mb-2 transition-colors ${tuttiWorkspacesSelezionati ? 'border-hermes-400 bg-hermes-50' : 'border-gray-200'}`}
+                >
+                  <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${tuttiWorkspacesSelezionati ? 'border-hermes-500 bg-hermes-500' : 'border-gray-400'}`}>
+                    {tuttiWorkspacesSelezionati && <div className="w-1.5 h-1.5 rounded-full bg-white" />}
+                  </div>
+                  <span className="text-sm font-medium text-gray-700">Tutti i workspace ({workspaces.length})</span>
+                </div>
+                <div className="space-y-1 max-h-40 overflow-y-auto">
+                  {workspaces.map(ws => (
+                    <label key={ws.id} className="flex items-center gap-2 text-sm text-gray-700 cursor-pointer px-2 py-1 hover:bg-gray-50 rounded-lg">
+                      <input
+                        type="checkbox"
+                        checked={breachForm.workspace_ids.includes(ws.id)}
+                        onChange={e => setBreachForm(f => ({
+                          ...f,
+                          workspace_ids: e.target.checked
+                            ? [...f.workspace_ids, ws.id]
+                            : f.workspace_ids.filter(id => id !== ws.id),
+                        }))}
+                      />
+                      {ws.nome_azienda} <span className="text-gray-400 text-xs font-mono">({ws.slug})</span>
+                    </label>
+                  ))}
+                </div>
+                {!tuttiWorkspacesSelezionati && breachForm.workspace_ids.length > 0 && (
+                  <p className="text-xs text-gray-500 mt-1">{breachForm.workspace_ids.length} workspace selezionati</p>
+                )}
+              </div>
+
+              {breachErrore && <p className="text-sm text-red-500">{breachErrore}</p>}
+
+              <button
+                onClick={breachPreviewRichiedi}
+                className="w-full rounded-xl border border-hermes-400 py-3 text-sm font-semibold text-hermes-600 hover:bg-hermes-50 transition-colors"
+              >
+                Anteprima email e destinatari →
+              </button>
+            </div>
+
+            {/* Preview */}
+            {breachPreview && (
+              <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 space-y-4">
+                <h2 className="text-sm font-bold text-gray-900">Anteprima</h2>
+
+                <div>
+                  <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Destinatari ({breachPreview.destinatari.length})</p>
+                  <ul className="space-y-1 max-h-32 overflow-y-auto">
+                    {breachPreview.destinatari.map(d => (
+                      <li key={d.email} className="text-xs text-gray-600 bg-gray-50 rounded-lg px-3 py-1.5">
+                        <span className="font-semibold">{d.nomeAzienda || '—'}</span> — {d.email}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+
+                <div>
+                  <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Anteprima email</p>
+                  <div
+                    className="border border-gray-200 rounded-xl p-4 text-xs overflow-auto max-h-64 bg-gray-50"
+                    dangerouslySetInnerHTML={{ __html: breachPreview.anteprima_html }}
+                  />
+                </div>
+
+                {!breachConferma ? (
+                  <button
+                    onClick={() => setBreachConferma(true)}
+                    className="w-full rounded-xl bg-red-500 py-3 text-sm font-bold text-white hover:bg-red-600 transition-colors"
+                  >
+                    Invia notifica a {breachPreview.destinatari.length} {breachPreview.destinatari.length === 1 ? 'cliente' : 'clienti'}
+                  </button>
+                ) : (
+                  <div className="rounded-xl border-2 border-red-300 bg-red-50 p-4 space-y-3">
+                    <p className="text-sm font-bold text-red-700">Conferma invio definitivo</p>
+                    <p className="text-xs text-red-600">
+                      Stai per inviare una notifica di data breach a <strong>{breachPreview.destinatari.length} clienti</strong>.
+                      L'azione non è reversibile. Sei sicuro?
+                    </p>
+                    <div className="flex gap-2">
+                      <button onClick={() => setBreachConferma(false)} className="flex-1 rounded-xl border border-gray-300 py-2.5 text-sm text-gray-600 hover:bg-white">
+                        Annulla
+                      </button>
+                      <button onClick={breachInvia} disabled={breachInvio} className="flex-1 rounded-xl bg-red-600 py-2.5 text-sm font-bold text-white hover:bg-red-700 disabled:opacity-50">
+                        {breachInvio ? 'Invio in corso…' : 'Sì, invia ora'}
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        )}
+      </div></AppShell>
+    )
+  }
+
   // Vista lista
   return (
     <AppShell><div className="space-y-6">
@@ -885,15 +1086,23 @@ export default function Admin() {
         </a>
       </div>
 
-      {/* Nota GDPR */}
+      {/* Nota GDPR + breach */}
       <div className="rounded-xl bg-blue-50 border border-blue-100 p-4 flex gap-3">
         <span className="text-blue-400 text-lg shrink-0">ℹ️</span>
-        <div className="text-xs text-blue-600 space-y-1.5">
+        <div className="text-xs text-blue-600 space-y-1.5 w-full">
           <p><strong>Richieste GDPR dei clienti</strong> — Le richieste di cancellazione o portabilità dati (Art. 17 e 20 GDPR) vengono inoltrate direttamente dai clienti tramite il loro workspace. Ricevi le richieste a <strong>info@hermesmarketing.it</strong>.</p>
-          <div className="flex gap-3 flex-wrap pt-1">
-            <a href="/privacy" target="_blank" className="underline hover:text-blue-800">Privacy Policy</a>
-            <a href="/cookie" target="_blank" className="underline hover:text-blue-800">Cookie Policy</a>
-            <a href="/dpa" target="_blank" className="underline hover:text-blue-800">DPA (Art. 28 GDPR)</a>
+          <div className="flex gap-3 flex-wrap pt-1 items-center justify-between">
+            <div className="flex gap-3 flex-wrap">
+              <a href="/privacy" target="_blank" className="underline hover:text-blue-800">Privacy Policy</a>
+              <a href="/cookie" target="_blank" className="underline hover:text-blue-800">Cookie Policy</a>
+              <a href="/dpa" target="_blank" className="underline hover:text-blue-800">DPA (Art. 28 GDPR)</a>
+            </div>
+            <button
+              onClick={() => { setModalita('breach'); setBreachRisultato(null); setBreachErrore(null); setBreachPreview(null) }}
+              className="text-xs font-semibold text-red-600 border border-red-300 bg-white rounded-lg px-3 py-1.5 hover:bg-red-50 transition-colors"
+            >
+              ⚠️ Notifica Data Breach
+            </button>
           </div>
         </div>
       </div>

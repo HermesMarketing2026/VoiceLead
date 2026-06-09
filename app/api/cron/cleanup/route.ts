@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabase } from '@/lib/supabase'
 
-// Cron job: cancella lead esportati da più di 30 giorni
+// Cron job: cancella lead esportati da più di 60 giorni
 // Eseguito ogni notte da Vercel Cron (vercel.json)
 export async function GET(req: NextRequest) {
   const authHeader = req.headers.get('authorization')
@@ -12,7 +12,7 @@ export async function GET(req: NextRequest) {
   const trentaGiorniFa = new Date()
   trentaGiorniFa.setDate(trentaGiorniFa.getDate() - 60)
 
-  // Cancella solo i lead già esportati da più di 30 giorni
+  // Cancella solo i lead già esportati da più di 60 giorni
   const { data, error } = await supabase
     .from('leads')
     .delete()

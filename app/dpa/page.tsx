@@ -3,7 +3,7 @@ import Link from 'next/link'
 export const metadata = { title: 'Data Processing Agreement — VoiceLeads' }
 
 export default function DPA() {
-  const aggiornata = '07 giugno 2026'
+  const aggiornata = '09 giugno 2026'
 
   return (
     <div className="min-h-screen bg-white">
@@ -25,7 +25,7 @@ export default function DPA() {
           Accordo sul Trattamento dei Dati<br />
           <span className="text-gray-400 font-normal text-xl">(Data Processing Agreement)</span>
         </h1>
-        <p className="text-sm text-gray-400 mb-2">Versione: 1.0 — {aggiornata}</p>
+        <p className="text-sm text-gray-400 mb-2">Versione: 1.1 — {aggiornata}</p>
         <p className="text-sm text-gray-500 mb-10">
           Il presente accordo viene stipulato automaticamente all'attivazione di un workspace VoiceLeads
           tra Hermes Marketing (Responsabile del Trattamento) e il Cliente (Titolare del Trattamento).

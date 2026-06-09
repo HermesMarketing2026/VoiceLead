@@ -6,10 +6,11 @@ import { getConsent } from './CookieBanner'
 const GTM_ID = 'GTM-T37HB2TH'
 
 export default function GTMLoader() {
-  const [consenso, setConsenso] = useState<string | null>(null)
+  const [consenso, setConsenso] = useState<string | null>(() =>
+    typeof window !== 'undefined' ? getConsent() : null
+  )
 
   useEffect(() => {
-    // Leggi consenso iniziale
     setConsenso(getConsent())
 
     // Ascolta eventuali cambi di consenso (es. dopo che l'utente clicca nel banner)

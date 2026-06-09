@@ -3,7 +3,7 @@ import Link from 'next/link'
 export const metadata = { title: 'Privacy Policy — VoiceLeads' }
 
 export default function PrivacyPolicy() {
-  const aggiornata = '07 giugno 2026'
+  const aggiornata = '09 giugno 2026'
 
   return (
     <div className="min-h-screen bg-white">
@@ -206,17 +206,35 @@ export default function PrivacyPolicy() {
           </section>
 
           <section>
-            <h2 className="text-lg font-bold text-gray-900 mb-3">8. Cookie</h2>
+            <h2 className="text-lg font-bold text-gray-900 mb-3">8. Cookie e gestione delle preferenze</h2>
             <p>
               Per informazioni dettagliate sull'uso dei cookie, consulta la nostra{' '}
               <Link href="/cookie" className="text-hermes-500 underline hover:text-hermes-600">
                 Cookie Policy
               </Link>.
+              Puoi modificare o revocare il tuo consenso ai cookie non essenziali in qualsiasi momento
+              visitando la{' '}
+              <Link href="/cookie" className="text-hermes-500 underline hover:text-hermes-600">
+                pagina Cookie Policy
+              </Link>{' '}
+              e usando il pulsante "Modifica preferenze cookie".
             </p>
           </section>
 
           <section>
-            <h2 className="text-lg font-bold text-gray-900 mb-3">9. Modifiche alla presente informativa</h2>
+            <h2 className="text-lg font-bold text-gray-900 mb-3">9. Comunicazioni email e disiscrizione</h2>
+            <p>
+              Se hai compilato il form di contatto sul sito, i tuoi dati vengono gestiti tramite <strong>Brevo (Sendinblue)</strong>,
+              con server in EU (Francia). Le comunicazioni email inviate da VoiceLeads / Hermes Marketing includono
+              sempre un <strong>link di disiscrizione</strong> in calce al messaggio, in conformità al GDPR e al
+              D.Lgs. 196/2003. In alternativa, puoi revocare il consenso in qualsiasi momento scrivendo a{' '}
+              <strong>info@hermesmarketing.it</strong>. La revoca non pregiudica la liceità del trattamento
+              effettuato prima della revoca stessa.
+            </p>
+          </section>
+
+          <section>
+            <h2 className="text-lg font-bold text-gray-900 mb-3">10. Modifiche alla presente informativa</h2>
             <p>
               Hermes Marketing si riserva il diritto di modificare la presente Privacy Policy in qualsiasi momento.
               Le modifiche saranno pubblicate su questa pagina con aggiornamento della data in alto.

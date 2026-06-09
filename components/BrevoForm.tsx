@@ -111,7 +111,7 @@ const formHTML = `
                   <input type="checkbox" class="input_replaced" value="1" id="OPT_IN" name="OPT_IN" required/>
                   <span class="checkbox checkbox_tick_positive"></span>
                   <span style="font-family:Helvetica,sans-serif;font-size:12px;text-align:left;color:#3C4858;background-color:transparent;">
-                    <p>Ho letto l&#39;<a href="https://www.voiceleads.it/privacy" rel="nofollow">Informativa sulla Privacy</a> e acconsento al trattamento dei miei dati personali da parte di Hermes Marketing per essere ricontattato in merito ai servizi VoiceLeads. I dati non saranno ceduti a terzi.</p>
+                    <p>Ho letto l&#39;<a href="https://www.voiceleads.it/privacy" rel="nofollow">Informativa sulla Privacy</a> e acconsento al trattamento dei miei dati personali da parte di <strong>Hermes Marketing</strong> e del suo fornitore di email marketing <strong>Brevo (Sendinblue)</strong> — con server in EU (Francia) — per essere ricontattato in merito ai servizi VoiceLeads. Potrai revocare il consenso in qualsiasi momento tramite il link di disiscrizione presente in ogni email o scrivendo a info@hermesmarketing.it. <a href="https://www.brevo.com/legal/privacypolicy/" rel="nofollow noopener" target="_blank">Privacy policy Brevo</a>.</p>
                     <span data-required="*" style="display:inline;" class="entry__label entry__label_optin"></span>
                   </span>
                 </label>

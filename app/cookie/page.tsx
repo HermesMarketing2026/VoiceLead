@@ -1,9 +1,10 @@
 import Link from 'next/link'
+import ManageCookiesButton from '@/components/ManageCookiesButton'
 
 export const metadata = { title: 'Cookie Policy — VoiceLeads' }
 
 export default function CookiePolicy() {
-  const aggiornata = '07 giugno 2026'
+  const aggiornata = '09 giugno 2026'
 
   return (
     <div className="min-h-screen bg-white">
@@ -73,19 +74,22 @@ export default function CookiePolicy() {
                     <th className="text-left p-3 font-semibold">Scopo</th>
                     <th className="text-left p-3 font-semibold">Categoria</th>
                     <th className="text-left p-3 font-semibold">Privacy</th>
+                    <th className="text-left p-3 font-semibold">Durata</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-100">
                   {[
-                    ['Google Tag Manager', 'Gestione tag e script di terze parti (attiva altri cookie solo con consenso)', 'Tecnico / Contenitore', 'policies.google.com/privacy'],
-                    ['Google Analytics (via GTM)', 'Analisi statistica del traffico: pagine visitate, durata sessione, provenienza', 'Analitico', 'policies.google.com/privacy'],
-                    ['Brevo (Sendinblue)', 'Gestione form di contatto e invio email', 'Funzionale / Marketing', 'brevo.com/legal/privacypolicy'],
-                  ].map(([f, s, c, p]) => (
+                    ['Google Tag Manager', 'Gestione tag e script di terze parti (attiva altri cookie solo con consenso)', 'Tecnico / Contenitore', 'policies.google.com/privacy', 'Sessione'],
+                    ['Google Analytics _ga (via GTM)', 'Identifica utenti unici per analisi statistica del traffico', 'Analitico', 'policies.google.com/privacy', '2 anni'],
+                    ['Google Analytics _ga_* (via GTM)', 'Persistenza stato sessione Google Analytics', 'Analitico', 'policies.google.com/privacy', '2 anni'],
+                    ['Brevo (Sendinblue)', 'Gestione form di contatto e invio email transazionali/marketing', 'Funzionale / Marketing', 'brevo.com/legal/privacypolicy', 'Sessione / 13 mesi'],
+                  ].map(([f, s, c, p, d]) => (
                     <tr key={f}>
                       <td className="p-3 font-medium text-gray-700">{f}</td>
                       <td className="p-3 text-gray-600">{s}</td>
                       <td className="p-3 text-gray-600">{c}</td>
                       <td className="p-3 text-blue-500 break-all">{p}</td>
+                      <td className="p-3 text-gray-500">{d}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -96,9 +100,10 @@ export default function CookiePolicy() {
           <section>
             <h2 className="text-lg font-bold text-gray-900 mb-3">Come gestire i cookie</h2>
             <p className="mb-3">
-              Puoi modificare le tue preferenze in qualsiasi momento tramite il banner che compare in fondo alla pagina.
-              In alternativa, puoi gestire i cookie direttamente dal tuo browser:
+              Puoi modificare o revocare il consenso in qualsiasi momento usando il pulsante qui sotto oppure gestendo
+              i cookie direttamente dal tuo browser:
             </p>
+            <ManageCookiesButton className="mb-4 inline-block rounded-xl border border-gray-300 px-4 py-2 text-xs font-medium text-gray-700 hover:bg-gray-50 transition-colors" />
             <ul className="list-disc pl-5 space-y-1.5">
               {[
                 ['Chrome', 'Impostazioni → Privacy e sicurezza → Cookie'],
