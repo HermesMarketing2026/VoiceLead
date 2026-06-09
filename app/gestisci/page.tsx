@@ -40,6 +40,9 @@ function GestisciDashboard() {
   const [caricamento, setCaricamento] = useState(true)
   const [riaprendo, setRiaprendo] = useState<string | null>(null)
   const [viewMode, setViewMode] = useState<'lista' | 'kanban'>('lista')
+  const [ricerca, setRicerca] = useState('')
+  const [filtroStato, setFiltroStato] = useState<'tutti' | 'nuovo' | 'trattativa'>('tutti')
+  const [ordinamento, setOrdinamento] = useState<'scadenza' | 'nome' | 'recenti'>('scadenza')
 
   useEffect(() => {
     if (!workspaceId) { router.push('/'); return }
@@ -124,8 +127,34 @@ function GestisciDashboard() {
   }
 
   const oggi = new Date(); oggi.setHours(23, 59, 59, 999)
-  const leadOggi = leads.filter(l => l.prossimaAzione && new Date(l.prossimaAzione.scadenza) <= oggi)
-  const leadFuturi = leads.filter(l => !l.prossimaAzione || new Date(l.prossimaAzione.scadenza) > oggi)
+
+  // Filtro + ricerca + ordinamento
+  const leadsFiltrati = leads
+    .filter(l => filtroStato === 'tutti' || l.stato_gestione === filtroStato)
+    .filter(l => {
+      if (!ricerca.trim()) return true
+      const q = ricerca.toLowerCase()
+      return (
+        l.nome?.toLowerCase().includes(q) ||
+        l.cognome?.toLowerCase().includes(q) ||
+        l.azienda?.toLowerCase().includes(q)
+      )
+    })
+    .sort((a, b) => {
+      if (ordinamento === 'nome') return `${a.nome} ${a.cognome}`.localeCompare(`${b.nome} ${b.cognome}`)
+      if (ordinamento === 'recenti') return new Date(b.data_registrazione ?? 0).getTime() - new Date(a.data_registrazione ?? 0).getTime()
+      // scadenza: prima le scadute/oggi, poi le future, poi senza azione
+      const sa = a.prossimaAzione ? new Date(a.prossimaAzione.scadenza).getTime() : Infinity
+      const sb = b.prossimaAzione ? new Date(b.prossimaAzione.scadenza).getTime() : Infinity
+      return sa - sb
+    })
+
+  const leadOggi = leadsFiltrati.filter(l => l.prossimaAzione && new Date(l.prossimaAzione.scadenza) <= oggi)
+  const leadFuturi = leadsFiltrati.filter(l => !l.prossimaAzione || new Date(l.prossimaAzione.scadenza) > oggi)
+
+  // Contatori widget (sempre su tutti i leads, non filtrati)
+  const azioniOggiCount = leads.filter(l => l.prossimaAzione && new Date(l.prossimaAzione.scadenza) <= oggi).length
+  const azioniScaduteCount = leads.filter(l => l.prossimaAzione && new Date(l.prossimaAzione.scadenza) < new Date()).length
 
   const renderCard = (lead: LeadConAzione) => {
     const info = lead.prossimaAzione ? scadenzaInfo(lead.prossimaAzione.scadenza) : null
@@ -209,6 +238,71 @@ function GestisciDashboard() {
           </div>
         </div>
 
+        {/* Widget azioni oggi */}
+        {!caricamento && leads.length > 0 && (
+          <div className="grid grid-cols-2 gap-3">
+            <div className={`rounded-2xl border p-4 ${azioniScaduteCount > 0 ? 'bg-red-50 border-red-200' : azioniOggiCount > 0 ? 'bg-amber-50 border-amber-200' : 'bg-green-50 border-green-200'}`}>
+              <p className={`text-2xl font-extrabold ${azioniScaduteCount > 0 ? 'text-red-600' : azioniOggiCount > 0 ? 'text-amber-600' : 'text-green-600'}`}>
+                {azioniOggiCount}
+              </p>
+              <p className={`text-xs font-semibold mt-0.5 ${azioniScaduteCount > 0 ? 'text-red-500' : azioniOggiCount > 0 ? 'text-amber-500' : 'text-green-500'}`}>
+                {azioniScaduteCount > 0 ? '⚠️ Azioni scadute/oggi' : azioniOggiCount > 0 ? '📌 Azioni da fare oggi' : '✅ Tutto in ordine'}
+              </p>
+            </div>
+            <div className="rounded-2xl border bg-hermes-50 border-hermes-200 p-4">
+              <p className="text-2xl font-extrabold text-hermes-600">{leads.length}</p>
+              <p className="text-xs font-semibold text-hermes-500 mt-0.5">🔄 Trattative aperte</p>
+            </div>
+          </div>
+        )}
+
+        {/* Barra filtri */}
+        {!caricamento && leads.length > 0 && (
+          <div className="space-y-2">
+            {/* Ricerca */}
+            <div className="relative">
+              <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z"/>
+              </svg>
+              <input
+                type="text"
+                value={ricerca}
+                onChange={e => setRicerca(e.target.value)}
+                placeholder="Cerca per nome, cognome, azienda…"
+                className="w-full rounded-xl border border-gray-200 bg-white pl-9 pr-8 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-hermes-400 focus:border-transparent"
+              />
+              {ricerca && (
+                <button onClick={() => setRicerca('')} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+              )}
+            </div>
+            {/* Filtro stato + ordinamento */}
+            <div className="flex gap-2">
+              <div className="flex rounded-lg border border-gray-200 overflow-hidden flex-1">
+                {(['tutti', 'nuovo', 'trattativa'] as const).map(s => (
+                  <button
+                    key={s}
+                    onClick={() => setFiltroStato(s)}
+                    className={`flex-1 py-1.5 text-xs font-medium transition-colors ${filtroStato === s ? 'bg-hermes-500 text-white' : 'bg-white text-gray-500 hover:bg-gray-50'}`}
+                  >
+                    {s === 'tutti' ? 'Tutti' : s === 'nuovo' ? 'Nuovo' : 'Trattativa'}
+                  </button>
+                ))}
+              </div>
+              <select
+                value={ordinamento}
+                onChange={e => setOrdinamento(e.target.value as typeof ordinamento)}
+                className="rounded-lg border border-gray-200 bg-white px-2 py-1.5 text-xs text-gray-600 focus:outline-none focus:ring-2 focus:ring-hermes-400"
+              >
+                <option value="scadenza">Per scadenza</option>
+                <option value="nome">A → Z</option>
+                <option value="recenti">Più recenti</option>
+              </select>
+            </div>
+          </div>
+        )}
+
         {caricamento ? (
           <p className="text-center text-gray-400 py-12">Caricamento…</p>
         ) : leads.length === 0 && chiusi.length === 0 ? (
@@ -217,13 +311,19 @@ function GestisciDashboard() {
             <p className="text-sm font-medium">Nessuna trattativa in gestione.</p>
             <p className="text-xs mt-1">Completa un lead dalla sezione Registra per iniziare.</p>
           </div>
+        ) : leadsFiltrati.length === 0 && chiusi.length === 0 && (ricerca || filtroStato !== 'tutti') ? (
+          <div className="text-center py-12 text-gray-400">
+            <p className="text-4xl mb-2">🔍</p>
+            <p className="text-sm font-medium">Nessun risultato per "{ricerca || filtroStato}"</p>
+            <button onClick={() => { setRicerca(''); setFiltroStato('tutti') }} className="mt-2 text-xs text-hermes-500 underline">Rimuovi filtri</button>
+          </div>
         ) : viewMode === 'kanban' ? (
           /* ── Vista Kanban ── */
           <div className="overflow-x-auto -mx-4 px-4">
             <div className="flex gap-3 min-w-max pb-2">
               {[
-                { key: 'nuovo', label: 'Nuovo', colore: 'text-blue-700', bg: 'bg-blue-50', border: 'border-blue-200', items: leads.filter(l => l.stato_gestione === 'nuovo') },
-                { key: 'trattativa', label: 'Trattativa', colore: 'text-hermes-700', bg: 'bg-hermes-50', border: 'border-hermes-200', items: leads.filter(l => l.stato_gestione === 'trattativa') },
+                { key: 'nuovo', label: 'Nuovo', colore: 'text-blue-700', bg: 'bg-blue-50', border: 'border-blue-200', items: leadsFiltrati.filter(l => l.stato_gestione === 'nuovo') },
+                { key: 'trattativa', label: 'Trattativa', colore: 'text-hermes-700', bg: 'bg-hermes-50', border: 'border-hermes-200', items: leadsFiltrati.filter(l => l.stato_gestione === 'trattativa') },
                 { key: 'chiusi', label: 'Chiusi', colore: 'text-gray-600', bg: 'bg-gray-50', border: 'border-gray-200', items: chiusi },
               ].map(col => (
                 <div key={col.key} className="w-[260px] shrink-0">
