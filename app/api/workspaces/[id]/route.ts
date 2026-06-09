@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabase } from '@/lib/supabase'
 import { verificaAdmin } from '@/lib/adminAuth'
+import { stripe } from '@/lib/stripe'
 
 export async function PATCH(req: NextRequest, { params }: { params: { id: string } }) {
   if (!verificaAdmin(req)) return NextResponse.json({ error: 'Non autorizzato' }, { status: 401 })
@@ -31,18 +32,30 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
 export async function DELETE(req: NextRequest, { params }: { params: { id: string } }) {
   if (!verificaAdmin(req)) return NextResponse.json({ error: 'Non autorizzato' }, { status: 401 })
 
-  // Blocca cancellazione se abbonamento Stripe attivo
   const { data: ws } = await supabase
     .from('workspaces')
-    .select('stripe_subscription_status')
+    .select('stripe_subscription_id, stripe_subscription_status')
     .eq('id', params.id)
     .single()
 
-  if (ws?.stripe_subscription_status === 'active') {
+  // Blocca cancellazione se abbonamento Stripe attivo senza subscription id
+  if (ws?.stripe_subscription_status === 'active' && !ws?.stripe_subscription_id) {
     return NextResponse.json(
       { error: 'Workspace con abbonamento attivo: sospendi prima il rinnovo.' },
       { status: 409 }
     )
+  }
+
+  // Cancella la subscription Stripe se presente (evita addebiti futuri)
+  if (ws?.stripe_subscription_id) {
+    try {
+      await stripe.subscriptions.cancel(ws.stripe_subscription_id)
+    } catch (e: any) {
+      // Se già cancellata su Stripe, ignora l'errore
+      if (e?.code !== 'resource_missing') {
+        console.error('[DELETE workspace] errore cancellazione Stripe:', e?.message)
+      }
+    }
   }
 
   const { error } = await supabase
