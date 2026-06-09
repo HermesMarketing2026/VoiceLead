@@ -1,3 +1,5 @@
+import HermesAI from './HermesAI'
+
 export default function AppShell({ children }: { children: React.ReactNode }) {
   return (
     <div className="bg-gray-50 min-h-screen">
@@ -20,6 +22,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
         <a href="mailto:info@hermesmarketing.it?subject=Richiesta cancellazione dati&body=Workspace: " className="text-[10px] text-gray-300 hover:text-gray-500 transition-colors">Cancellazione dati (Art. 17)</a>
         <a href="mailto:info@hermesmarketing.it?subject=Richiesta export dati&body=Workspace: " className="text-[10px] text-gray-300 hover:text-gray-500 transition-colors">Export dati (Art. 20)</a>
       </footer>
+      <HermesAI />
     </div>
   )
 }
