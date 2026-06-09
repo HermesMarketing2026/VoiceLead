@@ -5,7 +5,7 @@ import AppShell from '@/components/AppShell'
 import PinLogin from '@/components/PinLogin'
 import LandingPage from '@/components/LandingPage'
 import AdminPanel from '@/app/admin/AdminPanel'
-import { salvaSessione, leggiSessione, cancellaSessione } from '@/lib/session'
+import { salvaSessione, leggiSessione, cancellaSessione, workspaceAuthHeader } from '@/lib/session'
 
 type Vista = 'loading' | 'landing' | 'login' | 'seleziona-commerciale' | 'hub'
 
@@ -121,15 +121,15 @@ export default function Home() {
           }
         })
         .catch(() => {})
-      // Statistiche solo per responsabile (tutti i lead del workspace)
-      if (!utenteId) {
-        fetch(urlAll)
+      // Statistiche solo per responsabile/admin (tutti i lead del workspace)
+      if (ruoloUtente !== 'commerciale') {
+        fetch(urlAll, { headers: workspaceAuthHeader() })
           .then(r => r.json())
           .then(data => { if (Array.isArray(data)) setStatsLeads(data) })
           .catch(() => {})
       }
     }
-  }, [workspaceId, vista, utenteId])
+  }, [workspaceId, vista, utenteId, ruoloUtente])
 
   useEffect(() => {
     if (vista === 'hub' && workspaceId) {
