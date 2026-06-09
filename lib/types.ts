@@ -28,6 +28,8 @@ export interface Workspace {
   fatturazione?: string | null
   scadenza_il?: string | null
   sospeso?: boolean
+  stripe_subscription_id?: string | null
+  stripe_subscription_status?: string | null
 }
 
 export interface ProvisioningToken {

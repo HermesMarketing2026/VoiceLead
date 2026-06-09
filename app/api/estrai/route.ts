@@ -1,8 +1,20 @@
 import { NextRequest, NextResponse } from 'next/server'
 import Anthropic from '@anthropic-ai/sdk'
+import { supabase } from '@/lib/supabase'
 
 export async function POST(req: NextRequest) {
-  const { testo } = await req.json()
+  const { testo, workspace_id } = await req.json()
+
+  // Verifica che il workspace esista e sia attivo
+  if (!workspace_id) return NextResponse.json({ error: 'workspace_id mancante' }, { status: 400 })
+  const { data: ws } = await supabase
+    .from('workspaces')
+    .select('id, sospeso')
+    .eq('id', workspace_id)
+    .single()
+  if (!ws) return NextResponse.json({ error: 'Workspace non trovato' }, { status: 403 })
+  if (ws.sospeso) return NextResponse.json({ error: 'Workspace sospeso' }, { status: 403 })
+
   if (!testo) return NextResponse.json({ error: 'Testo mancante' }, { status: 400 })
   if (typeof testo !== 'string' || testo.length > 2000)
     return NextResponse.json({ error: 'Testo troppo lungo (max 2000 caratteri)' }, { status: 400 })

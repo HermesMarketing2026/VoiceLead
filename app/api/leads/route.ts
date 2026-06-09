@@ -1,11 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabase } from '@/lib/supabase'
 import { campiMancanti } from '@/lib/types'
+import { verificaWorkspaceToken } from '@/lib/workspaceAuth'
 
 export async function GET(req: NextRequest) {
   const workspaceId = req.nextUrl.searchParams.get('workspace_id')
   const utenteId = req.nextUrl.searchParams.get('utente_id')
   if (!workspaceId) return NextResponse.json({ error: 'workspace_id mancante' }, { status: 400 })
+  if (!verificaWorkspaceToken(req, workspaceId)) return NextResponse.json({ error: 'Non autorizzato' }, { status: 401 })
 
   let query = supabase
     .from('leads')
@@ -26,6 +28,7 @@ export async function POST(req: NextRequest) {
   const { workspace_id } = body
 
   if (!workspace_id) return NextResponse.json({ error: 'workspace_id mancante' }, { status: 400 })
+  if (!verificaWorkspaceToken(req, workspace_id)) return NextResponse.json({ error: 'Non autorizzato' }, { status: 401 })
 
   const mancanti = campiMancanti(body)
   const stato = mancanti.length === 0 ? 'completo' : 'bozza'

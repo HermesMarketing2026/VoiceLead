@@ -1,11 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabase } from '@/lib/supabase'
+import { verificaWorkspaceToken } from '@/lib/workspaceAuth'
 
 export async function POST(req: NextRequest) {
   const { lead_id, esito, workspace_id } = await req.json()
   if (!lead_id || !esito || !workspace_id) {
     return NextResponse.json({ error: 'lead_id, esito e workspace_id obbligatori' }, { status: 400 })
   }
+  if (!verificaWorkspaceToken(req, workspace_id)) return NextResponse.json({ error: 'Non autorizzato' }, { status: 401 })
   if (esito !== 'vinto' && esito !== 'perso') {
     return NextResponse.json({ error: 'esito deve essere vinto o perso' }, { status: 400 })
   }

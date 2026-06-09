@@ -1,9 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabase } from '@/lib/supabase'
 
+// Formato atteso: cs_live_... o cs_test_...
+const SESSION_ID_REGEX = /^cs_(live|test)_[A-Za-z0-9]{20,}$/
+
 export async function GET(req: NextRequest) {
   const id = req.nextUrl.searchParams.get('id')
   if (!id) return NextResponse.json({ error: 'id mancante' }, { status: 400 })
+
+  // Valida formato session_id per bloccare scansioni bruteforce
+  if (!SESSION_ID_REGEX.test(id)) return NextResponse.json({ ready: false })
 
   const { data } = await supabase
     .from('ordini')

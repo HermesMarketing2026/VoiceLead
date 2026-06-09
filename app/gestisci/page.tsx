@@ -6,7 +6,7 @@ import type { Lead, Azione } from '@/lib/types'
 import { LABEL_STATO_GESTIONE } from '@/lib/types'
 import AppShell from '@/components/AppShell'
 import { FaqGestisci } from '@/components/FaqInApp'
-import { leggiSessione } from '@/lib/session'
+import { leggiSessione, workspaceAuthHeader } from '@/lib/session'
 
 interface LeadConAzione extends Lead {
   prossimaAzione?: Azione
@@ -48,14 +48,15 @@ function GestisciDashboard() {
   const carica = async () => {
     setCaricamento(true)
     try {
-      const res = await fetch(`/api/leads?workspace_id=${workspaceId}`)
+      const authH = workspaceAuthHeader()
+      const res = await fetch(`/api/leads?workspace_id=${workspaceId}`, { headers: authH })
       const data: Lead[] = await res.json()
 
       // Lead attivi in gestione
       const inGestione = data.filter(l => l.in_gestione)
       const leadsConAzione = await Promise.all(
         inGestione.map(async lead => {
-          const aRes = await fetch(`/api/azioni?lead_id=${lead.id}`)
+          const aRes = await fetch(`/api/azioni?lead_id=${lead.id}`, { headers: authH })
           const azioni: Azione[] = await aRes.json()
           const attive = azioni.filter(a => !a.completata).sort(
             (a, b) => new Date(a.scadenza).getTime() - new Date(b.scadenza).getTime()
@@ -81,7 +82,7 @@ function GestisciDashboard() {
     try {
       await fetch('/api/gestisci/riapri', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...workspaceAuthHeader() },
         body: JSON.stringify({ lead_id: leadId }),
       })
       carica()

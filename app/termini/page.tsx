@@ -87,24 +87,32 @@ export default function TerminiServizio() {
               </table>
             </div>
             <p className="mt-3">
-              Il pagamento avviene tramite <strong>bonifico bancario anticipato</strong> all'IBAN indicato in fase di checkout.
-              L'attivazione del workspace è subordinata alla verifica del pagamento tramite caricamento della ricevuta.
-              I prezzi sono espressi in euro e si intendono IVA esclusa (22%).
+              Il pagamento avviene tramite <strong>carta di credito o debito</strong> attraverso la piattaforma sicura
+              <strong> Stripe</strong> (Stripe, Inc.), conforme agli standard PCI-DSS. I dati della carta non vengono
+              mai memorizzati sui sistemi di VoiceLeads. L'attivazione del workspace avviene automaticamente al
+              completamento del pagamento tramite Stripe. I prezzi sono espressi in euro e si intendono IVA esclusa (22%).
             </p>
             <p className="mt-3">
-              In caso di abbonamento <strong>annuale</strong>, il rinnovo avviene automaticamente salvo disdetta inviata
-              via email almeno 30 giorni prima della scadenza. In caso di abbonamento <strong>mensile</strong>, il rinnovo
-              avviene mensilmente con le stesse modalità.
+              L'abbonamento si rinnova automaticamente alla scadenza del periodo scelto (mensile o annuale) con addebito
+              sul metodo di pagamento registrato. Il Cliente può annullare il rinnovo automatico in qualsiasi momento
+              dalla propria area Stripe o inviando comunicazione scritta a <strong>info@hermesmarketing.it</strong>
+              almeno 5 giorni prima della scadenza del periodo in corso. In caso di mancato rinnovo o pagamento fallito,
+              il workspace viene sospeso automaticamente alla scadenza del periodo già pagato.
             </p>
           </section>
 
           <section>
             <h2 className="text-lg font-bold text-gray-900 mb-3">4. Prova gratuita</h2>
             <p>
-              Il Fornitore può offrire un periodo di prova gratuita della durata di <strong>14 giorni</strong>.
-              Al termine del periodo di prova, il workspace viene sospeso automaticamente e i dati vengono
-              conservati per ulteriori 30 giorni prima della cancellazione definitiva, salvo attivazione di un piano a pagamento.
-              Non è richiesta carta di credito per attivare la prova gratuita.
+              VoiceLeads offre un periodo di prova gratuita della durata di <strong>14 giorni</strong> incluso in tutti
+              i piani a pagamento. La prova viene attivata al momento della sottoscrizione tramite Stripe: è richiesta
+              una carta di credito o debito valida, ma non verrà effettuato alcun addebito durante il periodo di prova.
+              Al termine dei 14 giorni l'abbonamento si attiva automaticamente e il primo addebito viene effettuato.
+              Il Cliente può annullare in qualsiasi momento durante la prova gratuita senza costi.
+            </p>
+            <p className="mt-3">
+              Al termine del periodo di prova senza attivazione di un piano, il workspace viene sospeso automaticamente
+              e i dati vengono conservati per ulteriori 30 giorni prima della cancellazione definitiva.
             </p>
           </section>
 
@@ -168,10 +176,11 @@ export default function TerminiServizio() {
             <h2 className="text-lg font-bold text-gray-900 mb-3">9. Sospensione e risoluzione</h2>
             <p>Il Fornitore si riserva di sospendere o terminare l'accesso al servizio nei seguenti casi:</p>
             <ul className="list-disc pl-5 space-y-1.5 mt-3">
-              <li>Mancato pagamento del canone entro 15 giorni dalla scadenza</li>
+              <li>Mancato rinnovo automatico o pagamento fallito su Stripe alla scadenza del periodo in corso</li>
+              <li>Scadenza del periodo di prova gratuita senza attivazione di un abbonamento</li>
               <li>Violazione grave dei presenti Termini di Servizio</li>
               <li>Utilizzo del servizio in modo fraudolento o illecito</li>
-              <li>Richiesta esplicita del Cliente</li>
+              <li>Richiesta esplicita del Cliente (cancellazione abbonamento su Stripe o via email)</li>
             </ul>
             <p className="mt-3">
               In caso di disdetta da parte del Cliente, i dati rimangono accessibili fino alla naturale

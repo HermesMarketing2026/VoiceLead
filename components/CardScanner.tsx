@@ -3,6 +3,7 @@ import { useRef, useState } from 'react'
 
 interface Props {
   onEstrazione: (dati: Record<string, string>) => void
+  workspaceId: string
 }
 
 // Ridimensiona l'immagine lato client prima di inviarla (max 1200px, qualità 0.85)
@@ -32,7 +33,7 @@ function compressImage(file: File): Promise<{ base64: string; mediaType: string 
 
 type Stato = 'idle' | 'preview' | 'caricamento' | 'successo' | 'errore'
 
-export default function CardScanner({ onEstrazione }: Props) {
+export default function CardScanner({ onEstrazione, workspaceId }: Props) {
   const inputRef = useRef<HTMLInputElement>(null)
   const [stato, setStato] = useState<Stato>('idle')
   const [preview, setPreview] = useState<string | null>(null)
@@ -55,7 +56,7 @@ export default function CardScanner({ onEstrazione }: Props) {
       const res = await fetch('/api/scan-card', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ imageBase64: base64, mediaType }),
+        body: JSON.stringify({ imageBase64: base64, mediaType, workspace_id: workspaceId }),
       })
       const dati = await res.json()
       if (!res.ok) throw new Error(dati.error ?? 'Errore analisi')

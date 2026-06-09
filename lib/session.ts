@@ -3,6 +3,7 @@ const DURATA_MS = 24 * 60 * 60 * 1000
 interface Sessione {
   tipo: 'admin' | 'workspace'
   adminToken?: string
+  workspaceToken?: string   // token HMAC per autenticare le API del workspace
   workspaceId?: string
   nomeAzienda?: string
   logoUrl?: string
@@ -23,8 +24,14 @@ export function salvaSessione(
   nomeUtente?: string,
   ruoloUtente?: 'admin' | 'commerciale',
   adminToken?: string,
+  workspaceToken?: string,
 ) {
-  const payload: Sessione = { tipo, adminToken, workspaceId, nomeAzienda, logoUrl, hasGestisci, utenteId, nomeUtente, ruoloUtente, scadenza: Date.now() + DURATA_MS }
+  const payload: Sessione = {
+    tipo, adminToken, workspaceToken,
+    workspaceId, nomeAzienda, logoUrl,
+    hasGestisci, utenteId, nomeUtente, ruoloUtente,
+    scadenza: Date.now() + DURATA_MS,
+  }
   localStorage.setItem('vl_sessione', JSON.stringify(payload))
 }
 
@@ -52,11 +59,20 @@ export function salvaSessioneAdmin(adminToken: string) {
   localStorage.setItem('vl_sessione', JSON.stringify(payload))
 }
 
-// Header Authorization da usare nelle chiamate admin
+// Header Authorization per chiamate admin
 export function adminAuthHeader(): Record<string, string> {
   try {
     const sessione = leggiSessione()
     if (sessione?.adminToken) return { Authorization: `Bearer ${sessione.adminToken}` }
+  } catch {}
+  return {}
+}
+
+// Header Authorization per chiamate workspace (leads, estrai, scan-card, ecc.)
+export function workspaceAuthHeader(): Record<string, string> {
+  try {
+    const sessione = leggiSessione()
+    if (sessione?.workspaceToken) return { Authorization: `Bearer ${sessione.workspaceToken}` }
   } catch {}
   return {}
 }

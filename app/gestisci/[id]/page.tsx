@@ -5,7 +5,7 @@ import Link from 'next/link'
 import type { Lead, Azione, StatoGestione } from '@/lib/types'
 import { STEP_GESTIONE, LABEL_STATO_GESTIONE } from '@/lib/types'
 import AppShell from '@/components/AppShell'
-import { leggiSessione } from '@/lib/session'
+import { leggiSessione, workspaceAuthHeader } from '@/lib/session'
 
 // ───── Progress bar step ─────
 function BarraProgresso({ stato, esito }: { stato: StatoGestione; esito: string | null }) {
@@ -156,12 +156,12 @@ function SchedaGestisciInner({ id }: { id: string }) {
   const [salvandoData, setSalvandoData] = useState(false)
 
   const caricaLead = async () => {
-    const res = await fetch(`/api/leads/${id}`)
+    const res = await fetch(`/api/leads/${id}`, { headers: workspaceAuthHeader() })
     setLead(await res.json())
   }
 
   const caricaAzioni = async () => {
-    const res = await fetch(`/api/azioni?lead_id=${id}`)
+    const res = await fetch(`/api/azioni?lead_id=${id}`, { headers: workspaceAuthHeader() })
     setAzioni(await res.json())
   }
 
@@ -174,7 +174,7 @@ function SchedaGestisciInner({ id }: { id: string }) {
   const onAggiornamento = async (testo: string) => {
     const res = await fetch('/api/aggiorna-lead', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', ...workspaceAuthHeader() },
       body: JSON.stringify({ lead_id: id, testo, workspace_id: workspaceId }),
     })
     const data = await res.json()
@@ -212,7 +212,7 @@ function SchedaGestisciInner({ id }: { id: string }) {
     setSalvandoData(true)
     await fetch('/api/azioni', {
       method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', ...workspaceAuthHeader() },
       body: JSON.stringify({ id: azId, scadenza: new Date(nuovaData).toISOString(), scadenza_automatica: false }),
     })
     setSalvandoData(false)
@@ -224,7 +224,7 @@ function SchedaGestisciInner({ id }: { id: string }) {
   const completaAzione = async (azId: string, completata: boolean) => {
     await fetch('/api/azioni', {
       method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', ...workspaceAuthHeader() },
       body: JSON.stringify({ id: azId, completata }),
     })
     caricaAzioni()
@@ -235,7 +235,7 @@ function SchedaGestisciInner({ id }: { id: string }) {
     try {
       const res = await fetch('/api/gestisci/elimina', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...workspaceAuthHeader() },
         body: JSON.stringify({ lead_id: id }),
       })
       if (!res.ok) throw new Error('Errore')
@@ -251,7 +251,7 @@ function SchedaGestisciInner({ id }: { id: string }) {
     try {
       const res = await fetch('/api/gestisci/esito', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...workspaceAuthHeader() },
         body: JSON.stringify({ lead_id: id, esito, workspace_id: workspaceId }),
       })
       if (!res.ok) throw new Error('Errore')
@@ -484,7 +484,7 @@ function SchedaGestisciInner({ id }: { id: string }) {
               onClick={async () => {
                 await fetch('/api/gestisci/riapri', {
                   method: 'POST',
-                  headers: { 'Content-Type': 'application/json' },
+                  headers: { 'Content-Type': 'application/json', ...workspaceAuthHeader() },
                   body: JSON.stringify({ lead_id: id }),
                 })
                 caricaLead()

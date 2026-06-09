@@ -4,9 +4,10 @@ import { useState, useRef, useCallback, useEffect } from 'react'
 interface Props {
   onTrascrizione: (testo: string) => void
   onEstrazione: (dati: Record<string, string>) => void
+  workspaceId: string
 }
 
-export default function MicButton({ onTrascrizione, onEstrazione }: Props) {
+export default function MicButton({ onTrascrizione, onEstrazione, workspaceId }: Props) {
   const [stato, setStato] = useState<'idle' | 'ascolto' | 'elaborazione'>('idle')
   const [errore, setErrore] = useState<string | null>(null)
   const [supportato, setSupportato] = useState<boolean | null>(null)
@@ -33,7 +34,7 @@ export default function MicButton({ onTrascrizione, onEstrazione }: Props) {
         const res = await fetch('/api/estrai', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ testo }),
+          body: JSON.stringify({ testo, workspace_id: workspaceId }),
         })
         if (!res.ok) throw new Error('Errore estrazione')
         const dati = await res.json()

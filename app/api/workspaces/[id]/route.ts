@@ -31,6 +31,20 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
 export async function DELETE(req: NextRequest, { params }: { params: { id: string } }) {
   if (!verificaAdmin(req)) return NextResponse.json({ error: 'Non autorizzato' }, { status: 401 })
 
+  // Blocca cancellazione se abbonamento Stripe attivo
+  const { data: ws } = await supabase
+    .from('workspaces')
+    .select('stripe_subscription_status')
+    .eq('id', params.id)
+    .single()
+
+  if (ws?.stripe_subscription_status === 'active') {
+    return NextResponse.json(
+      { error: 'Workspace con abbonamento attivo: sospendi prima il rinnovo.' },
+      { status: 409 }
+    )
+  }
+
   const { error } = await supabase
     .from('workspaces')
     .delete()

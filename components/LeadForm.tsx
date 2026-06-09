@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import type { Lead, LeadFormData } from '@/lib/types'
 import { campiMancanti, calcolaCompletamento } from '@/lib/types'
-import { leggiSessione } from '@/lib/session'
+import { leggiSessione, workspaceAuthHeader } from '@/lib/session'
 import MicButton from './MicButton'
 import CardScanner from './CardScanner'
 
@@ -84,7 +84,7 @@ export default function LeadForm({ lead, workspaceId }: Props) {
     try {
       const res = await fetch('/api/gestisci/promuovi', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...workspaceAuthHeader() },
         body: JSON.stringify({ lead_id: lead!.id }),
       })
       if (!res.ok) throw new Error('Errore')
@@ -99,7 +99,7 @@ export default function LeadForm({ lead, workspaceId }: Props) {
   const elimina = async () => {
     setEliminazione(true)
     try {
-      const res = await fetch(`/api/leads/${lead!.id}`, { method: 'DELETE' })
+      const res = await fetch(`/api/leads/${lead!.id}`, { method: 'DELETE', headers: workspaceAuthHeader() })
       if (!res.ok) throw new Error('Errore eliminazione')
       router.push(`/registra?workspace_id=${workspaceId}`)
       router.refresh()
@@ -146,7 +146,7 @@ export default function LeadForm({ lead, workspaceId }: Props) {
         {/* Contenuto tab */}
         {modalitaInput === 'voce' ? (
           <>
-            <MicButton onTrascrizione={setTrascrizione} onEstrazione={onEstrazione} />
+            <MicButton onTrascrizione={setTrascrizione} onEstrazione={onEstrazione} workspaceId={workspaceId} />
             {trascrizione && (
               <div className="mt-5 rounded-xl bg-hermes-50 border border-hermes-200 p-3.5">
                 <p className="text-xs text-hermes-500 font-medium mb-1">Testo riconosciuto:</p>
@@ -155,7 +155,7 @@ export default function LeadForm({ lead, workspaceId }: Props) {
             )}
           </>
         ) : (
-          <CardScanner onEstrazione={onEstrazione} />
+          <CardScanner onEstrazione={onEstrazione} workspaceId={workspaceId} />
         )}
       </div>
 

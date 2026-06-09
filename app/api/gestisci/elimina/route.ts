@@ -1,10 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabase } from '@/lib/supabase'
+import { autorizzaViaLeadId } from '@/lib/workspaceAuth'
 
 // Rimuove il lead dalla gestione (non cancella il lead, solo lo toglie da gestisci)
 export async function POST(req: NextRequest) {
-  const { lead_id } = await req.json()
+  const body = await req.json()
+  const { lead_id } = body
   if (!lead_id) return NextResponse.json({ error: 'lead_id obbligatorio' }, { status: 400 })
+
+  const wsId = await autorizzaViaLeadId(req, lead_id)
+  if (!wsId) return NextResponse.json({ error: 'Non autorizzato' }, { status: 401 })
 
   const { error } = await supabase
     .from('leads')

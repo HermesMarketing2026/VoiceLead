@@ -1,10 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server'
 import Anthropic from '@anthropic-ai/sdk'
 import { supabase } from '@/lib/supabase'
+import { verificaWorkspaceToken } from '@/lib/workspaceAuth'
 
 export async function POST(req: NextRequest) {
   const { lead_id, testo, workspace_id } = await req.json()
   if (!lead_id || !testo) return NextResponse.json({ error: 'lead_id e testo obbligatori' }, { status: 400 })
+  if (workspace_id && !verificaWorkspaceToken(req, workspace_id)) return NextResponse.json({ error: 'Non autorizzato' }, { status: 401 })
   if (typeof testo !== 'string' || testo.length > 3000)
     return NextResponse.json({ error: 'Testo troppo lungo (max 3000 caratteri)' }, { status: 400 })
 

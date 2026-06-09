@@ -125,6 +125,7 @@ export default function DPA() {
                     ['Supabase Inc.', 'Database e archiviazione', 'USA', 'SCCs UE 2021/914'],
                     ['Anthropic PBC', 'Elaborazione AI', 'USA', 'SCCs UE 2021/914'],
                     ['Vercel Inc.', 'Hosting applicazione', 'USA/EU', 'SCCs UE 2021/914'],
+                    ['Stripe, Inc.', 'Elaborazione pagamenti (carta di credito/debito)', 'USA', 'SCCs UE 2021/914 — PCI-DSS L1'],
                   ].map(([s, a, sede, g]) => (
                     <tr key={s}>
                       <td className="p-3 font-medium text-gray-700">{s}</td>

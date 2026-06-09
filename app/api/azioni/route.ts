@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabase } from '@/lib/supabase'
+import { autorizzaViaLeadId, verificaWorkspaceToken } from '@/lib/workspaceAuth'
 
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url)
@@ -7,6 +8,10 @@ export async function GET(req: NextRequest) {
   const workspace_id = searchParams.get('workspace_id')
 
   if (lead_id) {
+    // Auth via workspace token
+    const wsId = await autorizzaViaLeadId(req, lead_id)
+    if (!wsId) return NextResponse.json({ error: 'Non autorizzato' }, { status: 401 })
+
     const { data, error } = await supabase
       .from('azioni')
       .select('*')
@@ -18,6 +23,8 @@ export async function GET(req: NextRequest) {
 
   // Count azioni scadute/oggi per workspace (per counter home)
   if (workspace_id) {
+    if (!verificaWorkspaceToken(req, workspace_id)) return NextResponse.json({ error: 'Non autorizzato' }, { status: 401 })
+
     const oggi = new Date()
     oggi.setHours(23, 59, 59, 999)
     const { data, error } = await supabase
@@ -39,6 +46,13 @@ export async function GET(req: NextRequest) {
 export async function PATCH(req: NextRequest) {
   const { id, completata, scadenza, scadenza_automatica } = await req.json()
   if (!id) return NextResponse.json({ error: 'id obbligatorio' }, { status: 400 })
+
+  // Recupera lead_id dell'azione per verificare il workspace
+  const { data: azione } = await supabase.from('azioni').select('lead_id').eq('id', id).single()
+  if (azione?.lead_id) {
+    const wsId = await autorizzaViaLeadId(req, azione.lead_id)
+    if (!wsId) return NextResponse.json({ error: 'Non autorizzato' }, { status: 401 })
+  }
 
   const update: Record<string, unknown> = {}
 

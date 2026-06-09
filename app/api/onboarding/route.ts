@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabase } from '@/lib/supabase'
+import { mailBenvenutoCliente } from '@/lib/mailer'
 
 function calcolaScadenza(fatturazione: string | null): Date {
   const ora = new Date()
@@ -9,12 +10,28 @@ function calcolaScadenza(fatturazione: string | null): Date {
   return ora
 }
 
-function generaSlug(nomeAzienda: string): string {
+function generaSlugBase(nomeAzienda: string): string {
   return nomeAzienda
     .toLowerCase()
     .normalize('NFD').replace(/[̀-ͯ]/g, '')
     .replace(/[^a-z0-9]/g, '')
-    .substring(0, 30)
+    .substring(0, 28)
+}
+
+async function generaSlugUnico(nomeAzienda: string): Promise<string> {
+  const base = generaSlugBase(nomeAzienda)
+  // Controlla collisioni e aggiunge suffisso numerico se necessario
+  for (let i = 0; i < 10; i++) {
+    const slug = i === 0 ? base : `${base}${i}`
+    const { data } = await supabase
+      .from('workspaces')
+      .select('id')
+      .eq('slug', slug)
+      .maybeSingle()
+    if (!data) return slug
+  }
+  // Fallback con timestamp
+  return `${base}${Date.now().toString().slice(-4)}`
 }
 
 
@@ -76,7 +93,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: `Puoi aggiungere al massimo ${tokenData.max_commerciali} commerciali` }, { status: 400 })
 
   // 3. Crea workspace
-  const slug = generaSlug(nome_azienda)
+  const slug = await generaSlugUnico(nome_azienda)
   const pin = pin_referente
 
   const { data: workspace, error: wsError } = await supabase
@@ -126,6 +143,16 @@ export async function POST(req: NextRequest) {
     .from('provisioning_tokens')
     .update({ usato: true, workspace_id_creato: workspace.id })
     .eq('id', tokenData.id)
+
+  // 6. Email di benvenuto (non bloccante)
+  const emailCliente = tokenData.dati_fatturazione?.email
+  if (emailCliente) {
+    mailBenvenutoCliente({
+      to: emailCliente,
+      nomeAzienda: nome_azienda,
+      email: emailCliente,
+    }).catch(e => console.error('[onboarding] email benvenuto fallita:', e.message))
+  }
 
   return NextResponse.json({ slug, pin }, { status: 201 })
 }

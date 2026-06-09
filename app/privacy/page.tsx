@@ -65,6 +65,12 @@ export default function PrivacyPolicy() {
                 Trattati ai fini dell'emissione della fattura elettronica.
               </li>
               <li>
+                <strong>Dati di pagamento</strong>: il pagamento avviene tramite <strong>Stripe, Inc.</strong> che gestisce
+                in autonomia i dati della carta di credito/debito. VoiceLeads non memorizza né ha accesso ai numeri di
+                carta, CVV o dati bancari. Stripe è certificata PCI-DSS Level 1. Per maggiori informazioni:
+                stripe.com/privacy.
+              </li>
+              <li>
                 <strong>Dati tecnici</strong>: indirizzo IP, tipo di browser, sistema operativo,
                 dati di navigazione raccolti automaticamente.
               </li>
@@ -88,7 +94,7 @@ export default function PrivacyPolicy() {
                     ['Registrazione e gestione lead commerciali', 'Legittimo interesse del titolare del trattamento cliente (Art. 6(1)(f) GDPR)'],
                     ['Elaborazione AI di testo, audio e immagini', 'Esecuzione del contratto (Art. 6(1)(b) GDPR)'],
                     ['Gestione abbonamento e fatturazione (P.IVA, SDI, PEC)', 'Obbligo legale e esecuzione del contratto (Art. 6(1)(b)(c) GDPR)'],
-                    ['Verifica contabile bonifico tramite AI', 'Esecuzione del contratto (Art. 6(1)(b) GDPR)'],
+                    ['Elaborazione pagamenti tramite Stripe (carta di credito/debito)', 'Esecuzione del contratto (Art. 6(1)(b) GDPR)'],
                     ['Invio comunicazioni commerciali (form landing)', 'Consenso dell\'interessato (Art. 6(1)(a) GDPR)'],
                     ['Analisi statistica del sito (Google Tag Manager / Analytics)', 'Consenso dell\'interessato (Art. 6(1)(a) GDPR)'],
                     ['Sicurezza del sistema e prevenzione abusi', 'Legittimo interesse (Art. 6(1)(f) GDPR)'],
@@ -146,6 +152,7 @@ export default function PrivacyPolicy() {
                     ['Supabase Inc.', 'Database / archiviazione dati', 'USA', 'Standard Contractual Clauses (SCCs)'],
                     ['Anthropic PBC', 'Elaborazione AI (testo, audio, immagini)', 'USA', 'Standard Contractual Clauses (SCCs)'],
                     ['Vercel Inc.', 'Hosting applicazione', 'USA/EU', 'Standard Contractual Clauses (SCCs)'],
+                    ['Stripe, Inc.', 'Elaborazione pagamenti con carta di credito/debito', 'USA', 'Standard Contractual Clauses (SCCs) — PCI-DSS Level 1'],
                     ['Brevo (Sendinblue)', 'Email marketing / form contatto', 'EU (Francia)', 'GDPR compliant'],
                     ['Google LLC (Tag Manager / Analytics)', 'Analisi statistica del sito (solo con consenso)', 'USA/EU', 'Standard Contractual Clauses (SCCs)'],
                   ].map(([f, r, s, g]) => (

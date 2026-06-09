@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabase } from '@/lib/supabase'
 import { generaAdminToken } from '@/lib/adminToken'
+import { generaWorkspaceToken } from '@/lib/workspaceAuth'
+import bcrypt from 'bcryptjs'
 
 const MAX_TENTATIVI = 10
 const FINESTRA_MS = 10 * 60 * 1000 // 10 minuti
@@ -35,6 +37,23 @@ async function checkRateLimit(ip: string, slug: string): Promise<boolean> {
   return true
 }
 
+/**
+ * Verifica PIN con supporto sia per hash bcrypt che per plaintext (legacy).
+ * Se il PIN è in plaintext e corretto, lo migra automaticamente a hash bcrypt.
+ */
+async function verificaPin(pinInserito: string, pinSalvato: string): Promise<boolean> {
+  if (pinSalvato.startsWith('$2')) {
+    // PIN già hashato con bcrypt
+    return bcrypt.compare(pinInserito, pinSalvato)
+  }
+  // PIN in plaintext (legacy) — confronto diretto
+  return pinInserito === pinSalvato
+}
+
+async function hashPin(pin: string): Promise<string> {
+  return bcrypt.hash(pin, 10)
+}
+
 export async function POST(req: NextRequest) {
   const { pin, slug, utente_id } = await req.json()
 
@@ -48,7 +67,6 @@ export async function POST(req: NextRequest) {
     const adminPin = process.env.ADMIN_PIN?.trim()
     if (!adminPin) return NextResponse.json({ error: 'Admin PIN non configurato' }, { status: 500 })
     if (pin.trim() !== adminPin) {
-      // Non loggare il PIN corretto
       console.error(`[auth] tentativo admin fallito da IP ${ip}`)
       return NextResponse.json({ error: 'PIN non corretto' }, { status: 401 })
     }
@@ -80,8 +98,17 @@ export async function POST(req: NextRequest) {
       .single()
 
     if (utenteError || !utente) return NextResponse.json({ error: 'Utente non trovato' }, { status: 404 })
-    if (pin !== utente.pin) return NextResponse.json({ error: 'PIN non corretto' }, { status: 401 })
 
+    const pinOk = await verificaPin(pin, utente.pin)
+    if (!pinOk) return NextResponse.json({ error: 'PIN non corretto' }, { status: 401 })
+
+    // Auto-migrazione PIN plaintext → bcrypt
+    if (!utente.pin.startsWith('$2')) {
+      const hashed = await hashPin(pin)
+      await supabase.from('utenti').update({ pin: hashed }).eq('id', utente.id)
+    }
+
+    const workspaceToken = generaWorkspaceToken(ws.id)
     return NextResponse.json({
       tipo: 'workspace',
       workspaceId: ws.id,
@@ -91,12 +118,21 @@ export async function POST(req: NextRequest) {
       utenteId: utente.id,
       nomeUtente: `${utente.nome} ${utente.cognome}`,
       ruoloUtente: utente.ruolo,
+      workspaceToken,
     })
   }
 
   // Login workspace (PIN del workspace = accesso referente)
-  if (pin !== ws.pin) return NextResponse.json({ error: 'PIN non corretto' }, { status: 401 })
+  const pinOk = await verificaPin(pin, ws.pin)
+  if (!pinOk) return NextResponse.json({ error: 'PIN non corretto' }, { status: 401 })
 
+  // Auto-migrazione PIN plaintext → bcrypt
+  if (!ws.pin.startsWith('$2')) {
+    const hashed = await hashPin(pin)
+    await supabase.from('workspaces').update({ pin: hashed }).eq('id', ws.id)
+  }
+
+  const workspaceToken = generaWorkspaceToken(ws.id)
   return NextResponse.json({
     tipo: 'workspace',
     workspaceId: ws.id,
@@ -106,5 +142,6 @@ export async function POST(req: NextRequest) {
     utenteId: null,
     nomeUtente: null,
     ruoloUtente: 'admin' as const,
+    workspaceToken,
   })
 }

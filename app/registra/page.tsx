@@ -7,7 +7,7 @@ import { calcolaCompletamento } from '@/lib/types'
 import StatoBadge from '@/components/StatoBadge'
 import AppShell from '@/components/AppShell'
 import { FaqRegistra } from '@/components/FaqInApp'
-import { leggiSessione } from '@/lib/session'
+import { leggiSessione, workspaceAuthHeader } from '@/lib/session'
 
 type Filtro = 'tutti' | 'completo' | 'bozza'
 
@@ -51,7 +51,7 @@ function RegistraDashboard() {
     try {
       const res = await fetch('/api/leads/svuota', {
         method: 'DELETE',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...workspaceAuthHeader() },
         body: JSON.stringify({ workspace_id: workspaceId }),
       })
       const data = await res.json()
@@ -72,7 +72,7 @@ function RegistraDashboard() {
     try {
       const res = await fetch('/api/esporta', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...workspaceAuthHeader() },
         body: JSON.stringify({ workspace_id: workspaceId }),
       })
       if (res.status === 200 && res.headers.get('content-type')?.includes('text/csv')) {

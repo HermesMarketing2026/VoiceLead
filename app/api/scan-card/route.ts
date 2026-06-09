@@ -1,8 +1,19 @@
 import { NextRequest, NextResponse } from 'next/server'
 import Anthropic from '@anthropic-ai/sdk'
+import { supabase } from '@/lib/supabase'
 
 export async function POST(req: NextRequest) {
-  const { imageBase64, mediaType } = await req.json()
+  const { imageBase64, mediaType, workspace_id } = await req.json()
+
+  // Verifica che il workspace esista e sia attivo
+  if (!workspace_id) return NextResponse.json({ error: 'workspace_id mancante' }, { status: 400 })
+  const { data: ws } = await supabase
+    .from('workspaces')
+    .select('id, sospeso')
+    .eq('id', workspace_id)
+    .single()
+  if (!ws) return NextResponse.json({ error: 'Workspace non trovato' }, { status: 403 })
+  if (ws.sospeso) return NextResponse.json({ error: 'Workspace sospeso' }, { status: 403 })
 
   if (!imageBase64) return NextResponse.json({ error: 'Immagine mancante' }, { status: 400 })
   // base64 di un'immagine da 4MB ≈ ~5.3MB di stringa

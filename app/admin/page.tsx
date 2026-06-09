@@ -38,6 +38,8 @@ export default function Admin() {
   const [salvataggio, setSalvataggio] = useState(false)
   const [eliminazione, setEliminazione] = useState<string | null>(null)
   const [confermaElimina, setConfermaElimina] = useState<string | null>(null)
+  const [sospensione, setSospensione] = useState<string | null>(null)
+  const [confermaSospendi, setConfermaSospendi] = useState<string | null>(null)
   // Anagrafica cliente
   const [ordineWs, setOrdineWs] = useState<Ordine | null>(null)
 
@@ -229,6 +231,20 @@ export default function Admin() {
       setErrore(e.message)
     } finally {
       setSalvataggio(false)
+    }
+  }
+
+  const sospendi = async (id: string) => {
+    setSospensione(id)
+    try {
+      const res = await fetch(`/api/workspaces/${id}/sospendi`, { method: 'POST', headers: adminAuthHeader() })
+      if (!res.ok) throw new Error('Errore sospensione')
+      setWorkspaces(ws => ws.map(w => w.id === id ? { ...w, stripe_subscription_status: 'canceling' } : w))
+      setConfermaSospendi(null)
+    } catch {
+      alert('Errore durante la sospensione. Riprova.')
+    } finally {
+      setSospensione(null)
     }
   }
 
@@ -710,6 +726,16 @@ export default function Admin() {
                             ⛔ Sospeso
                           </span>
                         )}
+                        {ws.stripe_subscription_status === 'active' && (
+                          <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-green-100 text-green-700">
+                            💳 Pagante
+                          </span>
+                        )}
+                        {ws.stripe_subscription_status === 'canceling' && (
+                          <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-orange-100 text-orange-700">
+                            ⏸️ Non si rinnova
+                          </span>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -726,22 +752,54 @@ export default function Admin() {
                     className="flex-1 rounded-xl border border-gray-300 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50 transition-colors">
                     ✏️ Modifica
                   </button>
-                  {confermaElimina === ws.id ? (
-                    <div className="flex-1 flex gap-1">
-                      <button onClick={() => setConfermaElimina(null)}
-                        className="flex-1 rounded-xl border border-gray-300 py-2 text-sm text-gray-500 hover:bg-gray-50">
-                        Annulla
+
+                  {/* Abbonamento attivo → solo Sospendi rinnovo */}
+                  {ws.stripe_subscription_status === 'active' && (
+                    confermaSospendi === ws.id ? (
+                      <div className="flex-1 flex gap-1">
+                        <button onClick={() => setConfermaSospendi(null)}
+                          className="flex-1 rounded-xl border border-gray-300 py-2 text-sm text-gray-500 hover:bg-gray-50">
+                          Annulla
+                        </button>
+                        <button onClick={() => sospendi(ws.id)} disabled={sospensione === ws.id}
+                          className="flex-1 rounded-xl bg-amber-500 py-2 text-sm font-semibold text-white hover:bg-amber-600 disabled:opacity-50">
+                          {sospensione === ws.id ? '…' : 'Conferma'}
+                        </button>
+                      </div>
+                    ) : (
+                      <button onClick={() => setConfermaSospendi(ws.id)}
+                        className="flex-1 rounded-xl border border-amber-300 py-2 text-sm font-medium text-amber-600 hover:bg-amber-50 transition-colors">
+                        ⏸️ Sospendi rinnovo
                       </button>
-                      <button onClick={() => elimina(ws.id)} disabled={eliminazione === ws.id}
-                        className="flex-1 rounded-xl bg-red-500 py-2 text-sm font-semibold text-white hover:bg-red-600 disabled:opacity-50">
-                        {eliminazione === ws.id ? '…' : 'Conferma'}
-                      </button>
+                    )
+                  )}
+
+                  {/* Rinnovo sospeso → info */}
+                  {ws.stripe_subscription_status === 'canceling' && (
+                    <div className="flex-1 rounded-xl border border-gray-200 py-2 text-xs text-center text-gray-400">
+                      ⏳ Attivo fino a scadenza
                     </div>
-                  ) : (
-                    <button onClick={() => setConfermaElimina(ws.id)}
-                      className="flex-1 rounded-xl border border-red-200 py-2 text-sm font-medium text-red-500 hover:bg-red-50 transition-colors">
-                      🗑️ Elimina
-                    </button>
+                  )}
+
+                  {/* Nessun abbonamento attivo → Elimina */}
+                  {(!ws.stripe_subscription_status || ws.stripe_subscription_status === 'canceled' || ws.stripe_subscription_status === 'trialing') && (
+                    confermaElimina === ws.id ? (
+                      <div className="flex-1 flex gap-1">
+                        <button onClick={() => setConfermaElimina(null)}
+                          className="flex-1 rounded-xl border border-gray-300 py-2 text-sm text-gray-500 hover:bg-gray-50">
+                          Annulla
+                        </button>
+                        <button onClick={() => elimina(ws.id)} disabled={eliminazione === ws.id}
+                          className="flex-1 rounded-xl bg-red-500 py-2 text-sm font-semibold text-white hover:bg-red-600 disabled:opacity-50">
+                          {eliminazione === ws.id ? '…' : 'Conferma'}
+                        </button>
+                      </div>
+                    ) : (
+                      <button onClick={() => setConfermaElimina(ws.id)}
+                        className="flex-1 rounded-xl border border-red-200 py-2 text-sm font-medium text-red-500 hover:bg-red-50 transition-colors">
+                        🗑️ Elimina
+                      </button>
+                    )
                   )}
                 </div>
               </li>

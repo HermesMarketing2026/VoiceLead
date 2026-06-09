@@ -17,6 +17,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Firma webhook non valida' }, { status: 400 })
   }
 
+  // ── checkout.session.completed ──────────────────────────────────────────
   if (event.type === 'checkout.session.completed') {
     const session = event.data.object as Stripe.Checkout.Session
     const m = session.metadata ?? {}
@@ -25,6 +26,9 @@ export async function POST(req: NextRequest) {
     const fatturazione = m.fatturazione ?? 'mensile'
     const commerciali = Number(m.commerciali ?? 1)
     const totale = Number(m.totale ?? 0)
+    const subscriptionId = typeof session.subscription === 'string'
+      ? session.subscription
+      : session.subscription?.id ?? null
 
     // Crea provisioning token
     const { data: tokenData, error: tokenError } = await supabase
@@ -56,8 +60,49 @@ export async function POST(req: NextRequest) {
       note_verifica: `Pagamento Stripe — session ${session.id} — email: ${m.email || ''}`,
       provisioning_token_id: tokenData.id,
       stripe_session_id: session.id,
+      stripe_subscription_id: subscriptionId,
     }])
   }
 
+  // ── customer.subscription.updated ──────────────────────────────────────
+  if (event.type === 'customer.subscription.updated') {
+    const sub = event.data.object as Stripe.Subscription
+    await aggiornaStatoWorkspace(sub.id, sub.status)
+  }
+
+  // ── customer.subscription.deleted ──────────────────────────────────────
+  if (event.type === 'customer.subscription.deleted') {
+    const sub = event.data.object as Stripe.Subscription
+    await aggiornaStatoWorkspace(sub.id, 'canceled')
+  }
+
   return NextResponse.json({ received: true })
+}
+
+// Aggiorna stripe_subscription_status sul workspace collegato alla subscription
+async function aggiornaStatoWorkspace(subscriptionId: string, status: string) {
+  // Trova il workspace tramite ordini → provisioning_tokens
+  const { data: ordine } = await supabase
+    .from('ordini')
+    .select('provisioning_token_id, stripe_subscription_id')
+    .eq('stripe_subscription_id', subscriptionId)
+    .single()
+
+  if (!ordine?.provisioning_token_id) return
+
+  const { data: token } = await supabase
+    .from('provisioning_tokens')
+    .select('workspace_id_creato')
+    .eq('id', ordine.provisioning_token_id)
+    .single()
+
+  if (!token?.workspace_id_creato) return
+
+  await supabase
+    .from('workspaces')
+    .update({
+      stripe_subscription_id: subscriptionId,
+      stripe_subscription_status: status,
+    })
+    .eq('id', token.workspace_id_creato)
 }

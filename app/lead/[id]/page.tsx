@@ -4,6 +4,7 @@ import { useSearchParams } from 'next/navigation'
 import LeadForm from '@/components/LeadForm'
 import AppShell from '@/components/AppShell'
 import type { Lead } from '@/lib/types'
+import { workspaceAuthHeader } from '@/lib/session'
 
 function SchedaLeadInner({ id }: { id: string }) {
   const params = useSearchParams()
@@ -11,7 +12,7 @@ function SchedaLeadInner({ id }: { id: string }) {
   const [lead, setLead] = useState<Lead | null>(null)
 
   useEffect(() => {
-    fetch(`/api/leads/${id}`)
+    fetch(`/api/leads/${id}`, { headers: workspaceAuthHeader() })
       .then(r => r.json())
       .then(setLead)
   }, [id])

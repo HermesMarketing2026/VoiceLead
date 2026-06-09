@@ -1,9 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabase } from '@/lib/supabase'
+import { verificaWorkspaceToken } from '@/lib/workspaceAuth'
 
 export async function POST(req: NextRequest) {
   const { workspace_id } = await req.json()
   if (!workspace_id) return NextResponse.json({ error: 'workspace_id mancante' }, { status: 400 })
+  if (!verificaWorkspaceToken(req, workspace_id)) return NextResponse.json({ error: 'Non autorizzato' }, { status: 401 })
 
   const { data: leads, error } = await supabase
     .from('leads')

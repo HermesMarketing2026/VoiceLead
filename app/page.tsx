@@ -124,7 +124,7 @@ export default function Home() {
 
     // Responsabile con commerciali → mostra selezione prima di entrare
     if (data.ruoloUtente === 'admin') {
-      salvaSessione('workspace', data.workspaceId, data.nomeAzienda, data.logoUrl, data.hasGestisci, undefined, undefined, 'admin')
+      salvaSessione('workspace', data.workspaceId, data.nomeAzienda, data.logoUrl, data.hasGestisci, undefined, undefined, 'admin', undefined, data.workspaceToken)
       const res2 = await fetch(`/api/utenti?workspace_id=${data.workspaceId}`)
       const utentiData = await res2.json()
       if (Array.isArray(utentiData) && utentiData.length > 0) {
@@ -140,7 +140,7 @@ export default function Home() {
     }
 
     // Commerciale normale
-    salvaSessione('workspace', data.workspaceId, data.nomeAzienda, data.logoUrl, data.hasGestisci, data.utenteId ?? undefined, data.nomeUtente ?? undefined, data.ruoloUtente ?? undefined)
+    salvaSessione('workspace', data.workspaceId, data.nomeAzienda, data.logoUrl, data.hasGestisci, data.utenteId ?? undefined, data.nomeUtente ?? undefined, data.ruoloUtente ?? undefined, undefined, data.workspaceToken)
     setUtenteId(data.utenteId ?? null)
     setNomeUtente(data.nomeUtente ?? null)
     setVista('hub')
@@ -148,7 +148,8 @@ export default function Home() {
 
   const selezionaCommerciale = (c: CommercialCard) => {
     const nome = `${c.nome} ${c.cognome}`
-    salvaSessione('workspace', workspaceId!, nomeAzienda, logoUrl, hasGestisci, c.id, nome, 'admin')
+    const wt = leggiSessione()?.workspaceToken
+    salvaSessione('workspace', workspaceId!, nomeAzienda, logoUrl, hasGestisci, c.id, nome, 'admin', undefined, wt)
     setUtenteId(c.id)
     setNomeUtente(nome)
     setVista('hub')
@@ -156,7 +157,8 @@ export default function Home() {
 
   const cambiaCommerciale = () => {
     // Torna alla selezione senza perdere la sessione admin
-    salvaSessione('workspace', workspaceId!, nomeAzienda, logoUrl, hasGestisci, undefined, undefined, 'admin')
+    const wt = leggiSessione()?.workspaceToken
+    salvaSessione('workspace', workspaceId!, nomeAzienda, logoUrl, hasGestisci, undefined, undefined, 'admin', undefined, wt)
     setUtenteId(null)
     setNomeUtente(null)
     setVista('seleziona-commerciale')
