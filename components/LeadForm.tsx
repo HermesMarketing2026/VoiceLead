@@ -66,7 +66,7 @@ export default function LeadForm({ lead, workspaceId }: Props) {
       const method = isNuovo ? 'POST' : 'PATCH'
       const res = await fetch(url, {
         method,
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...workspaceAuthHeader() },
         body: JSON.stringify({ ...form, workspace_id: workspaceId, ...(isNuovo && utenteId ? { utente_id: utenteId } : {}) }),
       })
       if (!res.ok) {
