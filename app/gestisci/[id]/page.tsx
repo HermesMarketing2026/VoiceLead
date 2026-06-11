@@ -290,6 +290,10 @@ function SchedaGestisciInner({ id }: { id: string }) {
   const azioniAttive = azioni.filter(a => !a.completata).sort(
     (a, b) => new Date(a.scadenza).getTime() - new Date(b.scadenza).getTime()
   )
+  const azioniCompletateRecenti = azioni
+    .filter(a => a.completata)
+    .sort((a, b) => new Date(b.scadenza).getTime() - new Date(a.scadenza).getTime())
+    .slice(0, 2)
   const prossimaAzione = azioniAttive[0]
   const storicoAggiornamenti = azioni.filter(a => a.aggiornamento_dettato)
 
@@ -379,6 +383,35 @@ function SchedaGestisciInner({ id }: { id: string }) {
               >
                 ✓ Fatto
               </button>
+            </div>
+          </div>
+        )}
+
+        {/* Azioni completate di recente */}
+        {azioniCompletateRecenti.length > 0 && (
+          <div className="bg-white rounded-2xl border border-gray-200 p-5 shadow-sm">
+            <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">✅ Completate di recente</p>
+            <div className="space-y-2">
+              {azioniCompletateRecenti.map(az => (
+                <div key={az.id} className="flex items-center justify-between gap-3 rounded-xl bg-gray-50 border border-gray-100 px-3.5 py-2.5">
+                  <div className="flex items-center gap-2.5 min-w-0">
+                    <svg className="w-4 h-4 text-green-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7"/>
+                    </svg>
+                    <div className="min-w-0">
+                      <p className="text-sm text-gray-500 line-through truncate">{az.testo}</p>
+                      <p className="text-xs text-gray-400">{new Date(az.scadenza).toLocaleDateString('it-IT')}</p>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => completaAzione(az.id, false)}
+                    className="shrink-0 text-xs font-medium px-2.5 py-1 rounded-lg border border-gray-200 bg-white text-gray-500 hover:bg-gray-100 hover:text-gray-700 transition-colors"
+                    title="Rimetti come da fare"
+                  >
+                    ↩ Riapri
+                  </button>
+                </div>
+              ))}
             </div>
           </div>
         )}
