@@ -58,17 +58,6 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: e?.message ?? 'Errore Claude' }, { status: 500 })
   }
 
-  // Salva sempre l'azione come traccia nel diario
-  const scadenzaAzione = new Date(); scadenzaAzione.setDate(scadenzaAzione.getDate() + 3)
-  await supabase.from('azioni').insert({
-    lead_id,
-    testo: parsed.azioneSuccessiva || 'Trattativa chiusa',
-    scadenza: scadenzaAzione.toISOString(),
-    scadenza_automatica: true,
-    completata: !!parsed.esito, // se esito → già completata
-    aggiornamento_dettato: testo,
-  })
-
   // Esito definitivo: chiudi la trattativa
   if (parsed.esito === 'vinto' || parsed.esito === 'perso') {
     const now = new Date().toISOString()
@@ -82,6 +71,15 @@ export async function POST(req: NextRequest) {
       in_gestione: false,
     }).eq('id', lead_id)
 
+    // Traccia nel diario
+    await supabase.from('azioni').insert({
+      lead_id,
+      testo: 'Trattativa chiusa',
+      scadenza: now,
+      scadenza_automatica: false,
+      completata: true,
+      aggiornamento_dettato: testo,
+    })
 
     return NextResponse.json({
       esito: parsed.esito,
@@ -91,27 +89,19 @@ export async function POST(req: NextRequest) {
   }
 
   // Fase intermedia: aggiorna stato e crea azione con scadenza
-  let scadenza: string
-  let scadenzaAutomatica: boolean
+  // Se Claude non ha rilevato una data esplicita, la scadenza rimane da impostare manualmente
+  let scadenza: string | null = null
   if (parsed.scadenza) {
     const d = new Date(parsed.scadenza)
-    // Se la data è già passata, spostala all'anno prossimo
-    if (d.getTime() < Date.now()) {
-      d.setFullYear(d.getFullYear() + 1)
-    }
+    if (d.getTime() < Date.now()) d.setFullYear(d.getFullYear() + 1)
     scadenza = d.toISOString()
-    scadenzaAutomatica = false
-  } else {
-    const d = new Date(); d.setDate(d.getDate() + 3)
-    scadenza = d.toISOString()
-    scadenzaAutomatica = true
   }
 
   const { data: azione } = await supabase.from('azioni').insert({
     lead_id,
     testo: parsed.azioneSuccessiva,
-    scadenza,
-    scadenza_automatica: scadenzaAutomatica,
+    scadenza: scadenza ?? new Date().toISOString(), // DB richiede un valore; se null usa oggi come placeholder
+    scadenza_automatica: false,
     aggiornamento_dettato: testo,
   }).select().single()
 

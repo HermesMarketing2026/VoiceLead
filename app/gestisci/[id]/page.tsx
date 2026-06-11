@@ -342,11 +342,6 @@ function SchedaGestisciInner({ id }: { id: string }) {
                   <span className="text-xs text-gray-500">
                     {new Date(prossimaAzione.scadenza).toLocaleDateString('it-IT', { day: '2-digit', month: 'short', year: 'numeric' })}
                   </span>
-                  {prossimaAzione.scadenza_automatica && (
-                    <span className="text-xs px-2 py-0.5 rounded-full bg-yellow-100 text-yellow-700 border border-yellow-200 font-medium">
-                      scadenza automatica
-                    </span>
-                  )}
                   <button
                     onClick={() => { setModificaData(v => !v); setNuovaData('') }}
                     className="text-xs text-hermes-500 hover:underline"
@@ -451,9 +446,6 @@ function SchedaGestisciInner({ id }: { id: string }) {
                     <span className="text-xs text-gray-400">
                       Scadenza: {new Date(az.scadenza).toLocaleDateString('it-IT')}
                     </span>
-                    {az.scadenza_automatica && (
-                      <span className="text-xs px-1.5 py-0.5 rounded bg-yellow-100 text-yellow-700">auto</span>
-                    )}
                   </div>
                 </div>
               ))}
