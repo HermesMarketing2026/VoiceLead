@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { stripe, PREZZI, PianoKey } from '@/lib/stripe'
+import { stripe, PRICE_IDS, PianoKey } from '@/lib/stripe'
 
 export async function POST(req: NextRequest) {
   const body = await req.json()
@@ -13,29 +13,18 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Campi mancanti' }, { status: 400 })
 
   const pianoKey = piano as PianoKey
-  if (!PREZZI[pianoKey])
+  if (!PRICE_IDS[pianoKey])
     return NextResponse.json({ error: 'Piano non valido' }, { status: 400 })
 
-  const prezzoUnitario = PREZZI[pianoKey][fatturazione as 'mensile' | 'annuale']
-  const nomeComm = commerciali === 1 ? '1 commerciale' : `${commerciali} commerciali`
-  const nomePiano = piano === 'pro' ? 'Piano Pro — Registra + Gestisci' : 'Piano Base — Registra'
-  const interval = fatturazione === 'mensile' ? 'month' : 'year'
+  const priceId = PRICE_IDS[pianoKey][fatturazione as 'mensile' | 'annuale']
 
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL ?? 'https://voiceleads.it'
 
   const session = await stripe.checkout.sessions.create({
     mode: 'subscription',
     line_items: [{
+      price: priceId,
       quantity: commerciali,
-      price_data: {
-        currency: 'eur',
-        unit_amount: prezzoUnitario,
-        product_data: {
-          name: nomePiano,
-          description: `VoiceLead ${nomePiano} — ${nomeComm}`,
-        },
-        recurring: { interval },
-      },
     }],
     customer_email: email,
     metadata: {
